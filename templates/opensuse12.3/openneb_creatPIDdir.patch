@@ -1,0 +1,29 @@
+--- share/scripts/one.orig
++++ share/scripts/one
+@@ -17,6 +17,7 @@
+ #--------------------------------------------------------------------------- #
+ 
+ if [ -z "$ONE_LOCATION" ]; then
++    ONE_PIDDIR=/var/run/one
+     ONE_PID=/var/run/one/oned.pid
+     ONE_SCHEDPID=/var/run/one/sched.pid
+     ONE_CONF=/etc/one/oned.conf
+@@ -28,6 +29,7 @@ if [ -z "$ONE_LOCATION" ]; then
+ 
+     LOCK_FILE=/var/lock/one/one
+ else
++    ONE_PIDDIR=$ONE_LOCATION/var
+     ONE_PID=$ONE_LOCATION/var/oned.pid
+     ONE_SCHEDPID=$ONE_LOCATION/var/sched.pid
+     ONE_CONF=$ONE_LOCATION/etc/oned.conf
+@@ -47,6 +49,10 @@ KILL_9_SECONDS=5
+ #------------------------------------------------------------------------------
+ setup()
+ {
++    if [ ! -d $ONE_PIDDIR ]; then
++        mkdir $ONE_PIDDIR
++	chown oneadmin:cloud $ONE_PIDDIR
++    fi
+     if [ -f $LOCK_FILE ]; then
+         if [ -f  $ONE_PID ]; then
+             ONEPID=`cat $ONE_PID`

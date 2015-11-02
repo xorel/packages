@@ -1,0 +1,13 @@
+digraph centos_opennenbula_package {
+
+    "opennebula-common" -> "opennebula-node-kvm";
+    "opennebula-common" -> "opennebula-sunstone";
+    "opennebula-common" -> "opennebula";
+
+    "opennebula-java";
+
+    "opennebula-ruby" -> "opennebula-sunstone";
+    "opennebula-ruby" -> "opennebula";
+
+    "opennebula" -> "opennebula-server";
+}

@@ -1,0 +1,21 @@
+digraph debian_opennenbula_package {
+   "opennebula-tools" -> "opennebula";
+
+   "opennebula-comon" -> "opennebula-sunstone";
+   "ruby-opennebula" -> "opennebula-sunstone";
+
+   "opennebula-comon" -> "opennebula-ozones";
+   "ruby-opennebula" -> "opennebula-ozones";
+
+   "opennebula-comon" -> "opennebula-gate";
+   "ruby-opennebula" -> "opennebula-gate";
+
+   "opennebula-comon" -> "opennebula-flow";
+   "ruby-opennebula" -> "opennebula-flow";
+
+   "opennebula-common" -> "opennebula-node";
+
+   "opennebula-common" -> "opennebula-tools";
+   "opennebula-common" -> "ruby-opennebula";
+
+}

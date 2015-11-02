@@ -1,0 +1,11 @@
+--- share/pkgs/openSUSE/systemd/sunstone.service.orig	2012-10-19 11:46:07.706828468 +0200
++++ share/pkgs/openSUSE/systemd/sunstone.service	2012-10-19 11:46:13.753496646 +0200
+@@ -8,7 +8,7 @@
+ !ConditionFileExists=/var/lock/one/.sunstone.lock
+ 
+ [Service]
+-ExecStart=/bin/bash -c "/usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb > /var/log/one/sunstone.log 2>/var/log/one/sunstone.error"
++ExecStart=/bin/bash -c "sleep 5; /usr/bin/ruby /usr/lib/one/sunstone/sunstone-server.rb > /var/log/one/sunstone.log 2>&1"
+ ExecStop=/bin/kill -INT $MAINPID
+ PIDFile=/var/run/one/sunstone.pid
+ Type=simple

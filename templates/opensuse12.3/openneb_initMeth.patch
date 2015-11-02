@@ -1,0 +1,329 @@
+--- include/Nebula.h.orig
++++ include/Nebula.h
+@@ -349,6 +349,11 @@ public:
+     }
+ 
+     /**
++     *  Initialize the infrastructure and services for OpenNebula
++     */
++    void init();
++
++    /**
+      *  Starts all the modules and services for OpenNebula
+      */
+     void start();
+--- share/pkgs/openSUSE/systemd/onedsetup.orig
++++ share/pkgs/openSUSE/systemd/onedsetup
+@@ -79,7 +79,7 @@ if [ ! -d /var/lock/one ]; then
+ fi
+ 
+ # Start the one daemon
+-$ONED -f 2>&1 &
++$ONED -i 2>&1 &
+ STARTED=$?
+ CURPID=$!
+ 
+@@ -88,10 +88,10 @@ if [ $STARTED -ne 0 ]; then
+     exit 1
+ fi
+ 
+-# Give oned a chance to do it's thing...
+-sleep 2
++# Give oned a chance to do it's thing and exit
++sleep 5
+ 
+-# OK we're all done here
++# Just in case the process gets stuck, kill it
+ kill -TERM $CURPID > /dev/null 2>&1
+ 
+ counter=0
+@@ -105,4 +105,4 @@ while ps $CURPID > /dev/null 2>&1; do
+ done
+ 
+ # If the lock file is left over remove it
+-rm -f /var/lol/one/one
++rm -f /var/lock/one/one
+--- src/nebula/Nebula.cc.orig
++++ src/nebula/Nebula.cc
+@@ -24,6 +24,7 @@
+ #include <stdexcept>
+ #include <libxml/parser.h>
+ 
++#include <errno.h>
+ #include <signal.h>
+ #include <unistd.h>
+ #include <fcntl.h>
+@@ -116,7 +117,6 @@ int SystemDB::select_cb(void *_loaded_db
+ 
+ int SystemDB::check_db_version()
+ {
+-    int             rc;
+     ostringstream   oss;
+ 
+     string loaded_db_version = "";
+@@ -133,21 +133,6 @@ int SystemDB::check_db_version()
+     oss.str("");
+     unset_callback();
+ 
+-    if( loaded_db_version == "" )
+-    {
+-        // Table user_pool is present for all OpenNebula versions, and it
+-        // always contains at least the oneadmin user.
+-        oss << "SELECT MAX(oid) FROM user_pool";
+-        rc = db->exec(oss);
+-
+-        oss.str("");
+-
+-        if( rc != 0 )   // Database needs bootstrap
+-        {
+-            return -2;
+-        }
+-    }
+-
+     if( Nebula::db_version() != loaded_db_version )
+     {
+         oss << "Database version mismatch. "
+@@ -265,25 +250,13 @@ int SystemDB::select_sys_attribute(const
+     return 0;
+ }
+ 
+-/* -------------------------------------------------------------------------- */
+-/* -------------------------------------------------------------------------- */
+-
+-void Nebula::start()
++/* ------------------------------------------------------------------------- */
++/* ------------------------------------------------------------------------- */
++void Nebula::init()
+ {
+     int             rc;
+-    int             fd;
+-    sigset_t        mask;
+-    int             signal;
+-    char            hn[80];
+     string          scripts_remote_dir;
+ 
+-    if ( gethostname(hn,79) != 0 )
+-    {
+-        throw runtime_error("Error getting hostname");
+-    }
+-
+-    hostname = hn;
+-
+     // -----------------------------------------------------------
+     // Configuration
+     // -----------------------------------------------------------
+@@ -373,6 +346,7 @@ void Nebula::start()
+         int  rc;
+ 
+         bool   db_is_sqlite = true;
++	bool   bootstrap_db = false;
+ 
+         string server  = "localhost";
+         string port_str;
+@@ -434,8 +408,19 @@ void Nebula::start()
+ 
+         if ( db_is_sqlite )
+         {
+-            string  db_name = var_location + "one.db";
+-
++            db_name = var_location + "one.db";
++	    rc = access(db_name.c_str(), R_OK|W_OK|F_OK);
++	    if (rc == -1)
++	    {
++	        if (errno == ENOENT)
++	        {
++	            bootstrap_db = true;
++	        }
++	        else
++	        {
++	            throw runtime_error("Could not acces one.db file");
++	        }
++	    }
+             db = new SqliteDB(db_name);
+         }
+         else
+@@ -444,39 +429,36 @@ void Nebula::start()
+ 
+             db = new MySqlDB(server,port,user,passwd,db_name);
+ 
+-            oss << "CREATE DATABASE IF NOT EXISTS " << db_name;
++	    oss << "USE " << db_name;
+             rc = db->exec(oss);
+-
+-            if ( rc != 0 )
++            if ( rc == 1044 )
+             {
+-                throw runtime_error("Could not create database.");
++                oss.str("");
++		oss << "CREATE DATABASE " << db_name;
++		rc = db->exec(oss);
+             }
+ 
+-            oss.str("");
+-            oss << "USE " << db_name;
+-            rc = db->exec(oss);
+-            if ( rc != 0 )
++            if ( rc == 0 )
+             {
+-                throw runtime_error("Could not open database.");
++                bootstrap_db = true;
+             }
++	    else if ( rc == 1044 )
++            {
++                throw runtime_error("Could not create database.");
++	    }
++	    else
++	    {
++                throw runtime_error("Could not open database.");
++	    }
+         }
+ 
+         // ---------------------------------------------------------------------
+         // Prepare the SystemDB and check versions
+         // ---------------------------------------------------------------------
+ 
+-        NebulaLog::log("ONE",Log::INFO,"Checking database version.");
+-
+         system_db = new SystemDB(db);
+ 
+-        rc = system_db->check_db_version();
+-
+-        if( rc == -1 )
+-        {
+-            throw runtime_error("Database version mismatch.");
+-        }
+-
+-        if( rc == -2 )
++        if(bootstrap_db)
+         {
+             rc = 0;
+ 
+@@ -509,11 +491,39 @@ void Nebula::start()
+                 throw runtime_error("Error bootstrapping database.");
+             }
+         }
++
++	NebulaLog::log("ONE",Log::INFO,"Checking database version.");
++	rc = system_db->check_db_version();
++
++	if( rc == -1 )
++	{
++	    throw runtime_error("Database version mismatch.");
++	}
+     }
+     catch (exception&)
+     {
+         throw;
+     }
++}
++
++/* -------------------------------------------------------------------------- *//* -------------------------------------------------------------------------- */
++
++void Nebula::start()
++{
++    int             rc;
++    int             fd;
++    sigset_t        mask;
++    int             signal;
++    char            hn[80];
++
++    if ( gethostname(hn,79) != 0 )
++    {
++        throw runtime_error("Error getting hostname");
++    }
++
++    hostname = hn;
++
++    Nebula::init();
+ 
+     try
+     {
+--- src/nebula/oned.cc.orig
++++ src/nebula/oned.cc
+@@ -32,9 +32,10 @@ static const char * usage =
+ "SYNOPSIS\n"
+ "  Starts the OpenNebula daemon\n\n"
+ "OPTIONS\n"
+-"\t-h\tprints this help.\n"
+ "\t-v\tprints OpenNebula version and license\n"
+-"\t-f\tforeground, do not fork the oned daemon\n";
++"\t-h\tprints this help.\n"
++"\t-f\tforeground, do not fork the oned daemon\n"
++"\t-i\tinitialize the dabase and exit.\n";
+ 
+ static const char * susage =
+ "usage: oned [-h] [-v] [-f]\n";
+@@ -44,12 +45,30 @@ static const char * susage =
+ 
+ static void print_license()
+ {
+-    cout<< "Copyright 2002-2013, OpenNebula Project (OpenNebula.org), C12G Labs\n\n"
+-        << Nebula::version() << " is distributed and licensed for use under the"
+-        << " terms of the\nApache License, Version 2.0 "
++    cout<< "Copyright 2002-2013, OpenNebula Project (OpenNebula.org), "
++	<< "C12G Labs\n\n"
++        << Nebula::version() << " is distributed and licensed for use under "
++        << "the terms of the\nApache License, Version 2.0 "
+         << "(http://www.apache.org/licenses/LICENSE-2.0).\n";
+ }
+ 
++/* ------------------------------------------------------------------------- */
++/* ------------------------------------------------------------------------- */
++
++static void oned_init()
++{
++    try
++    {
++        Nebula& nd  = Nebula::instance();
++        nd.init();
++    }
++    catch (exception &e)
++    {
++        cerr << e.what() << endl;
++        return;
++    }
++}
++
+ /* -------------------------------------------------------------------------- */
+ /* -------------------------------------------------------------------------- */
+ 
+@@ -81,7 +100,7 @@ int main(int argc, char **argv)
+     string          wd;
+     int             rc;
+             
+-    while((opt = getopt(argc,argv,"vhf")) != -1)
++    while((opt = getopt(argc,argv,"vhif")) != -1)
+         switch(opt)
+         {
+             case 'v':
+@@ -92,6 +111,10 @@ int main(int argc, char **argv)
+                 cout << usage;
+                 exit(0);
+                 break;
++	    case 'i':
++		oned_init();
++		exit(0);
++		break;
+             case 'f':
+                 foreground = true;
+                 break;        
+--- src/sql/MySqlDB.cc.orig
++++ src/sql/MySqlDB.cc
+@@ -113,7 +113,7 @@ int MySqlDB::exec(ostringstream& cmd, Ca
+ 
+         unlock();
+ 
+-        return -1;
++        return err_num;
+     }
+ 
+ 
+@@ -141,7 +141,7 @@ int MySqlDB::exec(ostringstream& cmd, Ca
+ 
+             unlock();
+ 
+-            return -1;
++            return err_num;
+         }
+ 
+         // Fetch the names of the fields

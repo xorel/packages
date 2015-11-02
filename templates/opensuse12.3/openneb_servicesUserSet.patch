@@ -1,0 +1,22 @@
+--- share/etc/systemd/openSUSE/one_scheduler.service.orig
++++ share/etc/systemd/openSUSE/one_scheduler.service
+@@ -13,8 +13,6 @@ ExecStart=/usr/bin/mm_sched -p $PORT -t
+ ExecStop=/bin/kill -TERM $MAINPID
+ PIDFile=/var/run/one/sched.pid
+ Type=simple
+-
+-[Exec]
+ Group=cloud
+ User=oneadmin
+
+--- share/etc/systemd/openSUSE/sunstone.service.orig
++++ share/etc/systemd/openSUSE/sunstone.service
+@@ -12,8 +12,6 @@ ExecStart=/bin/bash -c "/usr/bin/ruby /u
+ ExecStop=/bin/kill -INT $MAINPID
+ PIDFile=/var/run/one/sunstone.pid
+ Type=simple
+-
+-[Exec]
+ Group=cloud
+ User=oneadmin
+
