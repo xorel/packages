@@ -88,6 +88,7 @@ rm -rf $PBUILD_DIR/*
 #debuild -S -us -uc
 debuild -S -us -uc --source-option=--include-binaries
 
+pbuilder-dist jessie amd64 create
 pbuilder-dist jessie amd64 build ../*dsc
 #pbuilder --build ../*dsc
 
