@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-BASE_DIR=$(pwd $(dirname $0))
+BASE_DIR=$(readlink -f $(dirname $0))
 
 SOURCES_DIR=$BASE_DIR/sources
 
