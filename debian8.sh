@@ -49,7 +49,6 @@ cp -r $PACKAGES_DIR/templates/$DISTRO-debian .
 mv $DISTRO-debian debian
 
 # copy xmlrpc-c, xml_parse_huge.patch and build_opennebula.sh
-#cp $SOURCES_DIR/xmlrpc-c.tar.gz .
 wget http://downloads.opennebula.org/extra/xmlrpc-c.tar.gz
 cp $SOURCES_DIR/build_opennebula.sh .
 cp $SOURCES_DIR/xml_parse_huge.patch .
