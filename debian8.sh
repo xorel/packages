@@ -100,3 +100,10 @@ tar cvzf $BUILD_DIR/$NAME-$VERSION-$PKG_VERSION.tar.gz \
     --owner=root --group=root  \
     --transform "s,^,$NAME-$VERSION-$PKG_VERSION/," \
     *deb source
+
+
+# Copy tar to ~/tar
+
+mkdir ~/tar
+cp $BUILD_DIR/$NAME-$VERSION-$PKG_VERSION.tar.gz ~/tar
+

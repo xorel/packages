@@ -114,3 +114,11 @@ tar czf $NAME-$VERSION-$PKG_VERSION.tar.gz \
     --owner=root --group=root  \
     --transform "s,^,$NAME-$VERSION-$PKG_VERSION/," \
     *
+
+################################################################################
+# Move tar.gz to ~/tar
+################################################################################
+
+mkdir ~/tar
+cp $NAME-$VERSION-$PKG_VERSION.tar.gz ~/tar
+
