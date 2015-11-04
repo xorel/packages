@@ -85,6 +85,7 @@ rm -rf $PBUILD_DIR/*
 
 debuild -S -us -uc --source-option=--include-binaries
 #debuild -S -us -uc
+pbuilder-dist vivid amd64 create
 pbuilder-dist vivid amd64 build ../*dsc
 
 # build a tar.gz with the files

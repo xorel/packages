@@ -84,6 +84,7 @@ rm -rf $PBUILD_DIR/*
 
 debuild -S -us -uc --source-option=--include-binaries
 #debuild -S -us -uc
+pbuilder-dist trusty amd64 create
 pbuilder-dist trusty amd64 build ../*dsc
 
 # build a tar.gz with the files
