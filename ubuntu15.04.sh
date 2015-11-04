@@ -1,6 +1,8 @@
 #!/bin/bash -e
 
-SOURCES_DIR=$(dirname $0)/sources
+BASE_DIR=$(readlink -f $(dirname $0))
+
+SOURCES_DIR=$BASE_DIR/sources
 
 DISTRO=`basename ${0%.sh}`
 BUILD_DIR=$HOME/build-Ubuntu-15.04
