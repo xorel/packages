@@ -7,7 +7,7 @@ SOURCES_DIR=$BASE_DIR/sources
 DISTRO=`basename ${0%.sh}`
 BUILD_DIR=$HOME/build-Ubuntu-15.04
 PBUILD_DIR=$HOME/pbuilder/vivid_result
-PACKAGES_DIR=$HOME/one-tester/packages
+PACKAGES_DIR=$BASE_DIR
 
 URL=$1
 PKG_VERSION=${2:-1}
