@@ -5,7 +5,7 @@ BASE_DIR=$(readlink -f $(dirname $0))
 SOURCES_DIR=$BASE_DIR/sources
 
 DISTRO=`basename ${0%.sh}`
-BUILD_DIR=$HOME/build-Ubuntu-15.04
+BUILD_DIR=$HOME/build-Ubuntu-15.10
 PBUILD_DIR=$HOME/pbuilder/vivid_result
 PACKAGES_DIR=$BASE_DIR
 
