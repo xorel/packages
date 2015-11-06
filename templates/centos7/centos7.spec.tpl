@@ -274,7 +274,7 @@ Configures an OpenNebula node providing kvm.
 
 # Compile OpenNebula
 # scons -j2 mysql=yes syslog=yes new_xmlrpc=yes
-../build_opennebula.sh syslog=yes
+../build_opennebula.sh #syslog=yes
 cd src/oca/java
 ./build.sh -d
 
