@@ -43,8 +43,7 @@ Depends: apg,
          ruby-amazon-ec2,
          qemu-utils,
          liblog4cpp5v5,
-         ${misc:Depends},
-         ${shlibs:Depends}
+         ${misc:Depends}
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
