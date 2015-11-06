@@ -13,7 +13,6 @@ Build-Depends: bash-completion,
                javahelper (>= 0.32),
                libmysql++-dev,
                liblog4cpp5-dev,
-               libxmlrpc-c++8-dev,
                libsqlite3-dev,
                libssl-dev,
                libws-commons-util-java,
@@ -21,6 +20,7 @@ Build-Depends: bash-completion,
                libxmlrpc3-client-java,
                libxmlrpc3-common-java,
                libxslt1-dev,
+               libcurl4-openssl-dev,
                ruby,
                scons
 Replaces: opennebula-ozones
@@ -43,7 +43,8 @@ Depends: apg,
          ruby-amazon-ec2,
          qemu-utils,
          liblog4cpp5v5,
-         libxmlrpc-c++8v5
+         ${misc:Depends},
+         ${shlibs:Depends}
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
