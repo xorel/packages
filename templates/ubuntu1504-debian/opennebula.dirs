@@ -2,4 +2,3 @@
 /var/lib/one/
 /var/lib/one/.one
 /etc/one/auth/certificates/
-/usr/lib/one/ruby/zona/
