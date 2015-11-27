@@ -42,7 +42,7 @@ Depends: apg,
          ruby-uuidtools,
          ruby-amazon-ec2,
          qemu-utils,
-         liblog4cpp5v5,
+         liblog4cpp5,
          ${misc:Depends},
          ${shlibs:Depends}
 Suggests: mysql-server
