@@ -497,6 +497,7 @@ EOF
 %config %{_sysconfdir}/one/sunstone-views/*
 %config %{_sysconfdir}/one/ec2_driver.conf
 %config %{_sysconfdir}/one/ec2_driver.default
+%config %{_sysconfdir}/one/sunstone-logos.yaml
 
 %defattr(-, root, root, 0755)
 /usr/lib/one/sunstone/*
