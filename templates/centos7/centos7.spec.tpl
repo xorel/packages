@@ -481,8 +481,6 @@ EOF
 
 %{_datadir}/one/install_gems
 
-/usr/lib/one/ruby/cloud/marketplace/*
-
 ################################################################################
 # sunstone - files
 ################################################################################
@@ -491,6 +489,7 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/sunstone-server.conf
+%config %{_sysconfdir}/one/sunstone-logos.yaml
 %config %{_sysconfdir}/one/ec2query_templates/*
 %config %{_sysconfdir}/one/econe.conf
 %config %{_sysconfdir}/one/sunstone-views.yaml
@@ -677,6 +676,7 @@ EOF
 %{_bindir}/onehost
 %{_bindir}/oneimage
 %{_bindir}/onemarket
+%{_bindir}/onemarketapp
 %{_bindir}/onetemplate
 %{_bindir}/oneuser
 %{_bindir}/onevm
@@ -687,6 +687,7 @@ EOF
 %{_bindir}/onesecgroup
 %{_bindir}/oneshowback
 %{_bindir}/onevdc
+%{_bindir}/onevrouter
 
 %{_bindir}/oneflow
 %{_bindir}/oneflow-template

@@ -23,7 +23,6 @@ dist/usr/lib/one/sunstone/routes/* /usr/lib/one/sunstone/routes/
 dist/usr/bin/sunstone-server    /usr/bin/
 
 dist/usr/lib/one/ruby/cloud/CloudAuth/SunstoneCloudAuth.rb  /usr/lib/one/ruby/cloud/CloudAuth/
-dist/usr/lib/one/ruby/cloud/marketplace/marketplace_client.rb   /usr/lib/one/ruby/cloud/marketplace
 
 dist/usr/share/one/websockify/* /usr/share/one/websockify/
 
