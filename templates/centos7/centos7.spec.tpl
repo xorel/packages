@@ -46,7 +46,6 @@ BuildRequires: libxml2-devel
 BuildRequires: xmlrpc-c-devel
 BuildRequires: openssl-devel
 BuildRequires: mysql-devel
-#BuildRequires: log4cpp-devel
 BuildRequires: sqlite-devel
 BuildRequires: openssh
 BuildRequires: pkgconfig
@@ -103,7 +102,6 @@ Requires: xmlrpc-c
 Requires: nfs-utils
 Requires: wget
 Requires: curl
-#Requires: log4cpp
 Obsoletes: %{name}-ozones
 #TODO: Requires http://rubygems.org/gems/net-ldap
 
@@ -271,8 +269,8 @@ Configures an OpenNebula node providing kvm.
 )
 
 # Compile OpenNebula
-# scons -j2 mysql=yes syslog=yes new_xmlrpc=yes
-../build_opennebula.sh #syslog=yes
+# scons -j2 mysql=yes new_xmlrpc=yes
+../build_opennebula.sh
 cd src/oca/java
 ./build.sh -d
 

@@ -14,10 +14,10 @@ export LDFLAGS:=$(shell $(dpkg_buildflags) --get LDFLAGS)
 	dh $@ --with javahelper --with bash-completion
 
 override_dh_auto_build:
-	#scons  mysql=yes new_xmlrpc=yes syslog=yes
+	#scons  mysql=yes new_xmlrpc=yes
 	tar xzvf build_opennebula.tar.gz
-	#XMLRPC_DIR="debian/" debian/build_opennebula.sh syslog=yes
-	./build_opennebula.sh syslog=yes
+	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
+	./build_opennebula.sh
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
 	ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
