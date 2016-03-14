@@ -13,6 +13,7 @@ dist/usr/bin/onegroup      /usr/bin/
 dist/usr/bin/onehost       /usr/bin/
 dist/usr/bin/oneimage      /usr/bin/
 dist/usr/bin/onemarket     /usr/bin/
+dist/usr/bin/onemarketapp  /usr/bin/
 dist/usr/bin/onetemplate   /usr/bin/
 dist/usr/bin/oneuser       /usr/bin/
 dist/usr/bin/onevm         /usr/bin/
@@ -23,6 +24,7 @@ dist/usr/bin/onevcenter    /usr/bin/
 dist/usr/bin/onesecgroup   /usr/bin/
 dist/usr/bin/oneshowback   /usr/bin/
 dist/usr/bin/onevdc        /usr/bin/
+dist/usr/bin/onevrouter    /usr/bin/
 
 dist/usr/bin/oneflow             /usr/bin/
 dist/usr/bin/oneflow-template    /usr/bin/
