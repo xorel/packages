@@ -327,6 +327,10 @@ else
     -s /bin/bash oneadmin 2> /dev/null
 fi
 
+if ! getent group disk | grep '\b$ONE_USER\b' &>/dev/null; then
+    usermod -a -G disk $ONE_USER
+fi
+
 ################################################################################
 # server - scripts
 ################################################################################
