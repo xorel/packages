@@ -593,7 +593,6 @@ EOF
 %config %{_sysconfdir}/one/oned.conf
 %config %{_sysconfdir}/one/sched.conf
 %config %{_sysconfdir}/one/vmm_exec/*
-%config %{_sysconfdir}/one/vmwarerc
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
 %config %{_sysconfdir}/one/sl_driver.conf

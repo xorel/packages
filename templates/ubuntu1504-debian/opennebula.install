@@ -3,7 +3,6 @@ dist/var/lib/one/*      /var/lib/one/
 dist/etc/one/defaultrc           /etc/one/
 dist/etc/one/oned.conf           /etc/one/
 dist/etc/one/sched.conf          /etc/one/
-dist/etc/one/vmwarerc            /etc/one/
 dist/etc/one/ec2_driver.conf     /etc/one/
 dist/etc/one/ec2_driver.default  /etc/one/
 dist/etc/one/az_*                /etc/one/
