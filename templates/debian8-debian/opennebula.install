@@ -6,7 +6,6 @@ dist/etc/one/sched.conf          /etc/one/
 dist/etc/one/ec2_driver.conf     /etc/one/
 dist/etc/one/ec2_driver.default  /etc/one/
 dist/etc/one/az_*                /etc/one/
-dist/etc/one/sl_*                /etc/one/
 
 dist/etc/one/hm/*                  /etc/one/hm/
 #dist/etc/one/im_ec2/*              /etc/one/im_ec2/
