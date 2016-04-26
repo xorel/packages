@@ -23,7 +23,6 @@ dist/usr/lib/one/ruby/ssh_stream.rb        /usr/lib/one/ruby/
 
 dist/usr/lib/one/ruby/az_driver.rb  /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/ec2_driver.rb /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/sl_driver.rb  /usr/lib/one/ruby/
 
 dist/usr/lib/one/ruby/onedb/*              /usr/lib/one/ruby/onedb/
 

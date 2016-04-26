@@ -608,8 +608,6 @@ EOF
 %config %{_sysconfdir}/one/vmm_exec/*
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
-%config %{_sysconfdir}/one/sl_driver.conf
-%config %{_sysconfdir}/one/sl_driver.default
 %config %{_sysconfdir}/logrotate.d/opennebula
 
 %defattr(-, root, root, 0755)
@@ -636,7 +634,6 @@ EOF
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb
 /usr/lib/one/ruby/scripts_common.rb
-/usr/lib/one/ruby/sl_driver.rb
 /usr/lib/one/ruby/ssh_stream.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/sh/*
