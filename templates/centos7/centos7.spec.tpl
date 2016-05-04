@@ -602,6 +602,7 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/defaultrc
+%config %{_sysconfdir}/one/tmrc
 %config %{_sysconfdir}/one/hm/*
 %config %{_sysconfdir}/one/oned.conf
 %config %{_sysconfdir}/one/sched.conf
