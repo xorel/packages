@@ -6,7 +6,7 @@ SOURCES_DIR=$BASE_DIR/sources
 
 DISTRO=`basename ${0%.sh}`
 BUILD_DIR=$HOME/build-Ubuntu-16.04
-PBUILD_DIR=$HOME/pbuilder/vivid_result
+PBUILD_DIR=$HOME/pbuilder/xenial_result
 PACKAGES_DIR=$BASE_DIR
 
 URL=$1
