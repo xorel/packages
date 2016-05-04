@@ -306,6 +306,9 @@ install -p -D -m 440 share/pkgs/logrotate/opennebula %{buildroot}%{_sysconfdir}/
 # Java
 install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_javadir}/org.opennebula.client.jar
 
+# sysctl
+install -p -D -m 644 share/etc/sysctld.d/bridge-nf-call.conf %{buildroot}%{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -442,6 +445,8 @@ EOF
 
 %files node-kvm
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
+%config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+
 
 ################################################################################
 # node-xen - files
