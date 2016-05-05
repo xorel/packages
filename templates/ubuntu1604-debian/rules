@@ -40,26 +40,39 @@ ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
 		debian/%NAME%-common/etc/sudoers.d/%NAME%
 endif
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
-	dh_install -p %NAME% share/pkgs/${DISTRO}/opennebula /etc/init.d/
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME% --name=%NAME% --onlyscripts
 	dh_install -p %NAME% share/pkgs/logrotate/opennebula /etc/logrotate.d/
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf /lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
-	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-sunstone /etc/init.d/
+	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-sunstone.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME%-sunstone --name=%NAME%-sunstone --onlyscripts
 
-	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-econe /etc/init.d/
+	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-econe.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME%-sunstone --name=%NAME%-econe --onlyscripts
 
-	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-novnc /etc/init.d/
+	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-novnc.service \
+		/lib/systemd/system/
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf \
+		/lib/tmpfiles.d/opennebula-sunstone.conf
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
-	dh_install -p %NAME%-gate share/pkgs/${DISTRO}/%NAME%-gate /etc/init.d/
+	dh_install -p %NAME%-gate share/pkgs/${DISTRO}-systemd/%NAME%-gate.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME%-gate --name=%NAME%-gate --onlyscripts
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf \
+		/lib/tmpfiles.d/opennebula-gate.conf
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
-	dh_install -p %NAME%-flow share/pkgs/${DISTRO}/%NAME%-flow /etc/init.d/
+	dh_install -p %NAME%-flow share/pkgs/${DISTRO}-systemd/%NAME%-flow.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME%-flow --name=%NAME%-flow --onlyscripts
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf \
+		/lib/tmpfiles.d/opennebula-flow.conf
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/etc/sysctld.d/bridge-nf-call.conf /etc/sysctl.d/
