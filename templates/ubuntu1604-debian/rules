@@ -17,7 +17,7 @@ export CXXFLAGS:=$(shell $(dpkg_buildflags) --get CXXFLAGS) $(CPPFLAGS)
 export LDFLAGS:=$(shell $(dpkg_buildflags) --get LDFLAGS)
 
 %:
-	dh $@ --with javahelper --with bash-completion --with systemd
+	dh $@ --with javahelper --with bash-completion
 
 override_dh_auto_build:
 	#scons  mysql=yes new_xmlrpc=yes
