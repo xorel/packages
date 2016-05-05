@@ -42,7 +42,10 @@ endif
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.service \
 		/lib/systemd/system/
+	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-scheduler.service \
+		/lib/systemd/system/
 	dh_installinit -p %NAME% --name=%NAME% --onlyscripts
+	dh_installinit -p %NAME% --name=%NAME%-scheduler --onlyscripts
 	dh_install -p %NAME% share/pkgs/logrotate/opennebula /etc/logrotate.d/
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf /lib/tmpfiles.d/
 endif
@@ -57,6 +60,8 @@ ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-novnc.service \
 		/lib/systemd/system/
+	dh_installinit -p %NAME%-sunstone --name=%NAME%-novnc --onlyscripts
+
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf \
 		/lib/tmpfiles.d/opennebula-sunstone.conf
 endif
