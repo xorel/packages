@@ -9,6 +9,7 @@ dist/usr/bin/novnc-server /usr/bin/
 dist/usr/lib/one/sunstone/config.ru /usr/lib/one/sunstone/
 
 dist/etc/one/sunstone-server.conf  /etc/one/
+dist/etc/one/sunstone-logos.yaml  /etc/one/
 
 dist/etc/one/sunstone-views.yaml   /etc/one/
 dist/etc/one/sunstone-views/*      /etc/one/sunstone-views/
