@@ -89,7 +89,7 @@ ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/etc/sysctl.d/bridge-nf-call.conf /etc/sysctl.d/
-	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-node.conf \
+	dh_install -p %NAME%-node share/pkgs/${DISTRO}-systemd/opennebula-node.conf \
 		/usr/lib/tmpfiles.d/
 endif
 
