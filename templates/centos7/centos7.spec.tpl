@@ -291,6 +291,7 @@ install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfile
 install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
 install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
 install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
+install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
@@ -447,6 +448,7 @@ EOF
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 
+/lib/tmpfiles.d/opennebula-node.conf
 
 ################################################################################
 # node-xen - files
