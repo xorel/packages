@@ -356,8 +356,8 @@ if [ $1 = 1 ]; then
     fi
 
     if [ ! -d "%{oneadmin_home}/.ssh" ]; then
-        su oneadmin -c "ssh-keygen -N '' -t dsa -f %{oneadmin_home}/.ssh/id_dsa"
-        cp -p %{oneadmin_home}/.ssh/id_dsa.pub %{oneadmin_home}/.ssh/authorized_keys
+        su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh/id_rsa"
+        cp -p %{oneadmin_home}/.ssh/id_rsa.pub %{oneadmin_home}/.ssh/authorized_keys
         /bin/chmod 600 %{oneadmin_home}/.ssh/authorized_keys
     fi
 fi
