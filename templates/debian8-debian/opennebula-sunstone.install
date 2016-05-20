@@ -23,8 +23,6 @@ dist/usr/lib/one/sunstone/routes/* /usr/lib/one/sunstone/routes/
 
 dist/usr/bin/sunstone-server    /usr/bin/
 
-dist/usr/lib/one/ruby/cloud/CloudAuth/SunstoneCloudAuth.rb  /usr/lib/one/ruby/cloud/CloudAuth/
-
 dist/usr/share/one/websockify/* /usr/share/one/websockify/
 
 # ECONE
@@ -34,8 +32,6 @@ dist/etc/one/econe.conf          /etc/one/
 dist/etc/one/ec2query_templates/*  /etc/one/ec2query_templates/
 
 dist/usr/bin/econe-server  /usr/bin/
-
-dist/usr/lib/one/ruby/cloud/CloudAuth/EC2CloudAuth.rb         /usr/lib/one/ruby/cloud/CloudAuth/
 
 dist/usr/lib/one/ruby/cloud/econe/econe-server.rb         /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/econe_application.rb    /usr/lib/one/ruby/cloud/econe/
