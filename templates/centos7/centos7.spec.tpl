@@ -469,12 +469,6 @@ EOF
 ################################################################################
 
 %files ruby
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%config %{_sysconfdir}/one/auth/server_x509_auth.conf
-%config %{_sysconfdir}/one/auth/ldap_auth.conf
-%config %{_sysconfdir}/one/auth/x509_auth.conf
-
 %defattr(-, root, root, 0755)
 /usr/lib/one/ruby/opennebula.rb
 /usr/lib/one/ruby/opennebula/*
@@ -616,6 +610,9 @@ EOF
 %config %{_sysconfdir}/one/vmm_exec/*
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
+%config %{_sysconfdir}/one/auth/server_x509_auth.conf
+%config %{_sysconfdir}/one/auth/ldap_auth.conf
+%config %{_sysconfdir}/one/auth/x509_auth.conf
 %config %{_sysconfdir}/logrotate.d/opennebula
 
 %defattr(-, root, root, 0755)

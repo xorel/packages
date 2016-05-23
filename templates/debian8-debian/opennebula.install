@@ -12,6 +12,7 @@ dist/etc/one/hm/*                  /etc/one/hm/
 #dist/etc/one/im_ec2/*              /etc/one/im_ec2/
 #dist/etc/one/vmm_ec2/*             /etc/one/vmm_ec2/
 dist/etc/one/vmm_exec/*            /etc/one/vmm_exec/
+dist/etc/one/auth/*                /etc/one/auth/
 
 dist/usr/lib/one/sh/*           /usr/lib/one/sh/
 dist/usr/lib/one/mads/*         /usr/lib/one/mads/
