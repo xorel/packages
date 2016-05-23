@@ -41,25 +41,25 @@ ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
 endif
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
 	dh_install -p %NAME% share/pkgs/${DISTRO}/opennebula /etc/init.d/
-	dh_installinit -p %NAME% --name=%NAME% --onlyscripts
+	dh_installinit -p %NAME% --name=%NAME% --onlyscripts --no-start
 	dh_install -p %NAME% share/pkgs/logrotate/opennebula /etc/logrotate.d/
 endif
 ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-sunstone /etc/init.d/
-	dh_installinit -p %NAME%-sunstone --name=%NAME%-sunstone --onlyscripts
+	dh_installinit -p %NAME%-sunstone --name=%NAME%-sunstone --onlyscripts --no-start
 
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-econe /etc/init.d/
-	dh_installinit -p %NAME%-sunstone --name=%NAME%-econe --onlyscripts
+	dh_installinit -p %NAME%-sunstone --name=%NAME%-econe --onlyscripts --no-start
 
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-novnc /etc/init.d/
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
 	dh_install -p %NAME%-gate share/pkgs/${DISTRO}/%NAME%-gate /etc/init.d/
-	dh_installinit -p %NAME%-gate --name=%NAME%-gate --onlyscripts
+	dh_installinit -p %NAME%-gate --name=%NAME%-gate --onlyscripts --no-start
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
 	dh_install -p %NAME%-flow share/pkgs/${DISTRO}/%NAME%-flow /etc/init.d/
-	dh_installinit -p %NAME%-flow --name=%NAME%-flow --onlyscripts
+	dh_installinit -p %NAME%-flow --name=%NAME%-flow --onlyscripts --no-start
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/etc/sysctl.d/bridge-nf-call.conf /etc/sysctl.d/
