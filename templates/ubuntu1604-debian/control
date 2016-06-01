@@ -1,7 +1,7 @@
 Source: opennebula
 Section: utils
 Priority: extra
-Maintainer: Debian OpenNebula Maintainers <pkg-opennebula-devel@lists.alioth.debian.org>
+Maintainer: OpenNebula Team <contact@opennebula.org>
 Uploaders: Damien Raude-Morvan <drazzib@debian.org>,
            Soren Hansen <soren@ubuntu.com>,
            Jaime Melis <jmelis@opennebula.org>
