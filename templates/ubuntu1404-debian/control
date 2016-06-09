@@ -22,9 +22,6 @@ Build-Depends: bash-completion,
                libcurl4-openssl-dev,
                ruby,
                scons
-Replaces: opennebula-ozones
-Conflicts: opennebula-ozones
-Breaks: opennebula-ozones
 Standards-Version: 3.9.3
 Homepage: http://opennebula.org/
 Vcs-Git: git://git.debian.org/pkg-opennebula/opennebula.git
@@ -35,6 +32,7 @@ Architecture: any
 Depends: apg,
          genisoimage,
          opennebula-tools (= ${source:Version}),
+         ruby-opennebula (= ${source:Version}),
          wget,
          curl,
          ruby-json,
@@ -43,6 +41,8 @@ Depends: apg,
          qemu-utils,
          ${misc:Depends},
          ${shlibs:Depends}
+Replaces: ruby-opennebula (<< 4.90.5)
+Breaks: ruby-opennebula (<< 4.90.5)
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
@@ -172,6 +172,8 @@ Depends: ruby,
          ruby-builder,
          ${misc:Depends},
          ${ruby:Depends}
+Breaks: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
+Replaces: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
 Description: Ruby bindings for OpenNebula Cloud API (OCA)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
