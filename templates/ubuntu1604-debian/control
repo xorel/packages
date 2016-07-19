@@ -38,6 +38,8 @@ Depends: apg,
          ruby-json,
          ruby-uuidtools,
          ruby-amazon-ec2,
+         ruby-treetop,
+         ruby-parse-cron,
          qemu-utils,
          libcurl3,
          ${misc:Depends}
