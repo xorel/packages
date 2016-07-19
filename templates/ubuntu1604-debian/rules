@@ -64,7 +64,7 @@ ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 
 	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
 		share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf
-	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf \
+	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
@@ -74,7 +74,7 @@ ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
 
 	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
 		share/pkgs/${DISTRO}-systemd/opennebula-gate.conf
-	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-gate.conf \
+	dh_install -p %NAME%-gate share/pkgs/${DISTRO}-systemd/opennebula-gate.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
@@ -84,7 +84,7 @@ ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
 
 	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
 		share/pkgs/${DISTRO}-systemd/opennebula-flow.conf
-	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-flow.conf \
+	dh_install -p %NAME%-flow share/pkgs/${DISTRO}-systemd/opennebula-flow.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
