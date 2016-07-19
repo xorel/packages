@@ -25,4 +25,6 @@ if [ "$1" = "configure" ]; then
     fi
 fi
 
+systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf
+
 #DEBHELPER#
