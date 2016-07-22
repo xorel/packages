@@ -1,0 +1,197 @@
+commit d78339e7b3c29e64fdcb3ea2d61ae8b5c9133517
+Author: Carlos Martín <cmartin@opennebula.org>
+Date:   Fri Jul 22 16:23:25 2016 +0200
+
+    Bug #4677: Fix datatables with utf-8 search field values
+
+diff --git a/src/sunstone/public/app/tabs/datastores-tab/datatable.js b/src/sunstone/public/app/tabs/datastores-tab/datatable.js
+index d0e9e73..c14faba 100644
+--- a/src/sunstone/public/app/tabs/datastores-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/datastores-tab/datatable.js
+@@ -154,7 +154,7 @@ define(function(require) {
+         OpenNebulaDatastore.typeStr(element.TYPE),
+         state,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/tabs/hosts-tab/datatable.js b/src/sunstone/public/app/tabs/hosts-tab/datatable.js
+index 8280d28..118b272 100644
+--- a/src/sunstone/public/app/tabs/hosts-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/hosts-tab/datatable.js
+@@ -181,7 +181,7 @@ define(function(require) {
+         element.VM_MAD,
+         Humanize.prettyTime(element.LAST_MON_TIME),
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/images-tab/datatable-common.js b/src/sunstone/public/app/tabs/images-tab/datatable-common.js
+index 260df99..d2688d4 100644
+--- a/src/sunstone/public/app/tabs/images-tab/datatable-common.js
++++ b/src/sunstone/public/app/tabs/images-tab/datatable-common.js
+@@ -128,7 +128,7 @@ define(function(require) {
+       element.RUNNING_VMS,
+       element.TEMPLATE.TARGET ? element.TEMPLATE.TARGET : '--',
+       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-      btoa(JSON.stringify(search))
++      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/tabs/marketplaceapps-tab/datatable.js b/src/sunstone/public/app/tabs/marketplaceapps-tab/datatable.js
+index c31e07a..444ce80 100644
+--- a/src/sunstone/public/app/tabs/marketplaceapps-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/marketplaceapps-tab/datatable.js
+@@ -154,7 +154,7 @@ define(function(require) {
+         element.MARKETPLACE,
+         zone,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/marketplaces-tab/datatable.js b/src/sunstone/public/app/tabs/marketplaces-tab/datatable.js
+index 6c5720c..3afb4b8 100644
+--- a/src/sunstone/public/app/tabs/marketplaces-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/marketplaces-tab/datatable.js
+@@ -143,7 +143,7 @@ define(function(require) {
+         element.MARKET_MAD,
+         zone,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/oneflow-services-tab/datatable.js b/src/sunstone/public/app/tabs/oneflow-services-tab/datatable.js
+index b3dbba0..0f0c218 100644
+--- a/src/sunstone/public/app/tabs/oneflow-services-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/oneflow-services-tab/datatable.js
+@@ -118,7 +118,7 @@ define(function(require) {
+         element.NAME,
+         state,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/tabs/oneflow-templates-tab/datatable.js b/src/sunstone/public/app/tabs/oneflow-templates-tab/datatable.js
+index b93d719..e574621 100644
+--- a/src/sunstone/public/app/tabs/oneflow-templates-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/oneflow-templates-tab/datatable.js
+@@ -112,7 +112,7 @@ define(function(require) {
+         element.GNAME,
+         element.NAME,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/tabs/secgroups-tab/datatable.js b/src/sunstone/public/app/tabs/secgroups-tab/datatable.js
+index 7058bb8..7236b0b 100644
+--- a/src/sunstone/public/app/tabs/secgroups-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/secgroups-tab/datatable.js
+@@ -112,7 +112,7 @@ define(function(require) {
+         element.GNAME,
+         element.NAME,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/tabs/templates-tab/datatable-common.js b/src/sunstone/public/app/tabs/templates-tab/datatable-common.js
+index c54aca8..139ea09 100644
+--- a/src/sunstone/public/app/tabs/templates-tab/datatable-common.js
++++ b/src/sunstone/public/app/tabs/templates-tab/datatable-common.js
+@@ -120,7 +120,7 @@ define(function(require) {
+         element.NAME,
+         Humanize.prettyTime(element.REGTIME),
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/users-tab/datatable.js b/src/sunstone/public/app/tabs/users-tab/datatable.js
+index 48a0246..0f57b59 100644
+--- a/src/sunstone/public/app/tabs/users-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/users-tab/datatable.js
+@@ -163,7 +163,7 @@ define(function(require) {
+       element.GID,
+       hidden_template,
+       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-      btoa(JSON.stringify(search))
++      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/vms-tab/utils/datatable-common.js b/src/sunstone/public/app/tabs/vms-tab/utils/datatable-common.js
+index f1b681b..91b220c 100644
+--- a/src/sunstone/public/app/tabs/vms-tab/utils/datatable-common.js
++++ b/src/sunstone/public/app/tabs/vms-tab/utils/datatable-common.js
+@@ -126,7 +126,7 @@ define(function(require) {
+       vncIcon,
+       TemplateUtils.templateToString(element),
+       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-      btoa(JSON.stringify(search))
++      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/vnets-tab/datatable.js b/src/sunstone/public/app/tabs/vnets-tab/datatable.js
+index 5c69b8d..fff8443 100644
+--- a/src/sunstone/public/app/tabs/vnets-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/vnets-tab/datatable.js
+@@ -155,7 +155,7 @@ define(function(require) {
+       ProgressBar.html(element.USED_LEASES, total_size),
+       element.VLAN_ID.length ? element.VLAN_ID : "-",
+       (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-      btoa(JSON.stringify(search))
++      btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ 
+diff --git a/src/sunstone/public/app/tabs/vrouters-tab/datatable.js b/src/sunstone/public/app/tabs/vrouters-tab/datatable.js
+index d40a8d0..ece6b9b 100644
+--- a/src/sunstone/public/app/tabs/vrouters-tab/datatable.js
++++ b/src/sunstone/public/app/tabs/vrouters-tab/datatable.js
+@@ -112,7 +112,7 @@ define(function(require) {
+         element.GNAME,
+         element.NAME,
+         (LabelsUtils.labelsStr(element[TEMPLATE_ATTR])||''),
+-        btoa(JSON.stringify(search))
++        btoa(unescape(encodeURIComponent(JSON.stringify(search))))
+     ];
+   }
+ });
+diff --git a/src/sunstone/public/app/utils/tab-datatable.js b/src/sunstone/public/app/utils/tab-datatable.js
+index b9afad7..279a2a3 100644
+--- a/src/sunstone/public/app/utils/tab-datatable.js
++++ b/src/sunstone/public/app/utils/tab-datatable.js
+@@ -355,7 +355,7 @@ define(function(require) {
+         }
+ 
+         try {
+-          var values = JSON.parse(atob(data[that.searchColumn]));
++          var values = JSON.parse( decodeURIComponent(escape(atob(data[that.searchColumn]))) );
+ 
+           var match = true;
+ 
+@@ -616,7 +616,7 @@ define(function(require) {
+ 
+             if(that.searchColumn != undefined){
+               try{
+-                var values = JSON.parse(atob(item[that.searchColumn]));
++                var values = JSON.parse( decodeURIComponent(escape(atob(item[that.searchColumn]))) );
+ 
+                 that.searchFields.forEach(function(name){
+                   that.searchSets[name].add(values[name]);
