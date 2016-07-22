@@ -33,7 +33,6 @@ Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
 
 Patch0: proper_path_emulator.diff
-Patch1: fix_5.0.2_config.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -260,7 +259,6 @@ Configures an OpenNebula node providing kvm.
 %setup -q
 
 %patch0 -p1
-%patch1 -p1
 
 %build
 # Uncompress xmlrpc-c and copy build_opennebula.sh
