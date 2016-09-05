@@ -38,7 +38,6 @@ Depends: apg,
          ruby-json,
          ruby-uuidtools,
          ruby-amazon-ec2,
-         ruby-treetop,
          qemu-utils,
          ${misc:Depends},
          ${shlibs:Depends}
