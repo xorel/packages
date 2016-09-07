@@ -696,6 +696,8 @@ EOF
 
 /usr/lib/one/ruby/cli/*
 
+/usr/share/one/onetoken.sh
+
 
 ################################################################################
 # Changelog
