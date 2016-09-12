@@ -310,6 +310,9 @@ install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_j
 # sysctl
 install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 
+# Gemfile
+install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -483,6 +486,8 @@ EOF
 /usr/lib/one/ruby/cloud/CloudAuth/*
 
 %{_datadir}/one/install_gems
+%{_datadir}/one/Gemfile
+%{_datadir}/one/Gemfile.lock
 
 ################################################################################
 # sunstone - files
