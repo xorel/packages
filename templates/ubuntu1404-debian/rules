@@ -65,8 +65,7 @@ ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/etc/sysctl.d/bridge-nf-call.conf /etc/sysctl.d/
 endif
 ifneq (,$(filter %NAME%-tools, $(shell dh_listpackages)))
-	dh_install -p %NAME%-tools share/install_gems/Ubuntu1404/Gemfile.lock \
-		/usr/share/one/
+	cp share/install_gems/Ubuntu1404/Gemfile.lock /usr/share/one/
 endif
 
 override_dh_install:
