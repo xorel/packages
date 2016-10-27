@@ -31,6 +31,7 @@ Source1: 50-org.libvirt.unix.manage-opennebula.pkla
 Source2: xmlrpc-c.tar.gz
 Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
+Source5: install_gems
 
 Patch0: proper_path_emulator.diff
 #Patch1: enable_xen.diff
@@ -306,6 +307,10 @@ install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_j
 
 # sysctl
 install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+
+# install_gems
+install -p -D -m 644 %{SOURCE5} %{buildroot}%{_datadir}/one/install_gems/install_gems
+%{__rm} -f %{buildroot}%{_datadir}/one/install_gems/install_gems/Gemfile
 
 %clean
 %{__rm} -rf %{buildroot}
