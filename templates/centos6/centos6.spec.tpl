@@ -33,7 +33,7 @@ Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
 
 Patch0: proper_path_emulator.diff
-Patch1: enable_xen.diff
+#Patch1: enable_xen.diff
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -47,7 +47,7 @@ BuildRequires: libxml2-devel
 BuildRequires: xmlrpc-c-devel
 BuildRequires: openssl-devel
 BuildRequires: mysql-devel
-BuildRequires: log4cpp-devel
+#BuildRequires: log4cpp-devel
 BuildRequires: sqlite-devel
 BuildRequires: openssh
 BuildRequires: pkgconfig
@@ -104,7 +104,7 @@ Requires: xmlrpc-c
 Requires: nfs-utils
 Requires: wget
 Requires: curl
-Requires: log4cpp
+#Requires: log4cpp
 Obsoletes: %{name}-ozones
 #TODO: Requires http://rubygems.org/gems/net-ldap
 
@@ -119,6 +119,9 @@ This package provides the OpenNebula servers: oned (main daemon) and mm_sched
 %package common
 Summary: Provides the OpenNebula user
 Group: System
+Requires: shadow-utils
+Requires: coreutils
+Requires: glibc-common
 
 %description common
 This package creates the oneadmin user and group, with id/gid 9869.
@@ -258,7 +261,6 @@ Configures an OpenNebula node providing kvm.
 %setup -q
 
 %patch0 -p1
-%patch1 -p1
 
 %build
 # Uncompress xmlrpc-c and copy build_opennebula.sh
@@ -269,8 +271,8 @@ Configures an OpenNebula node providing kvm.
 )
 
 # Compile OpenNebula
-# scons -j2 mysql=yes syslog=yes new_xmlrpc=yes
-../build_opennebula.sh syslog=yes
+# scons -j2 mysql=yes new_xmlrpc=yes
+../build_opennebula.sh
 cd src/oca/java
 ./build.sh -d
 
@@ -302,6 +304,9 @@ install -p -D -m 440 share/pkgs/logrotate/opennebula %{buildroot}%{_sysconfdir}/
 # Java
 install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_javadir}/org.opennebula.client.jar
 
+# sysctl
+install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -314,9 +319,17 @@ getent group oneadmin >/dev/null || groupadd -r -g %{oneadmin_gid} oneadmin
 if getent passwd oneadmin >/dev/null; then
     /usr/sbin/usermod -a -G oneadmin oneadmin > /dev/null
 else
+    mkdir %{oneadmin_home}
+    cp /etc/skel/.bash* %{oneadmin_home}
+    chown -R %{oneadmin_uid}:%{oneadmin_gid} %{oneadmin_home}
+    chcon -t user_home_dir_t %{oneadmin_home}
     /usr/sbin/useradd -r -m -d %{oneadmin_home} \
     -u %{oneadmin_uid} -g %{oneadmin_gid} \
     -s /bin/bash oneadmin 2> /dev/null
+fi
+
+if ! getent group disk | grep '\boneadmin\b' &>/dev/null; then
+    usermod -a -G disk oneadmin
 fi
 
 ################################################################################
@@ -340,8 +353,8 @@ if [ $1 = 1 ]; then
     fi
 
     if [ ! -d "%{oneadmin_home}/.ssh" ]; then
-        su oneadmin -c "ssh-keygen -N '' -t dsa -f %{oneadmin_home}/.ssh/id_dsa"
-        cp -p %{oneadmin_home}/.ssh/id_dsa.pub %{oneadmin_home}/.ssh/authorized_keys
+        su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh/id_rsa"
+        cp -p %{oneadmin_home}/.ssh/id_rsa.pub %{oneadmin_home}/.ssh/authorized_keys
         /bin/chmod 600 %{oneadmin_home}/.ssh/authorized_keys
     fi
 fi
@@ -349,7 +362,7 @@ fi
 %preun server
 if [ $1 = 0 ]; then
     /sbin/service opennebula stop >/dev/null || :
-    /sbin/chkconfig --del opennebula >/dev/null
+    /sbin/chkconfig --del opennebula >/dev/null || :
 fi
 
 ################################################################################
@@ -393,15 +406,15 @@ fi
 
 %post sunstone
 if [ $1 = 1 ]; then
-    /sbin/chkconfig --add opennebula-sunstone >/dev/null
+    /sbin/chkconfig --add opennebula-sunstone >/dev/null || :
 fi
 
 %preun sunstone
 if [ $1 = 0 ]; then
     /sbin/service opennebula-sunstone stop >/dev/null  || :
-    /sbin/chkconfig --del opennebula-sunstone >/dev/null
+    /sbin/chkconfig --del opennebula-sunstone >/dev/null || :
     /sbin/service opennebula-novnc stop >/dev/null  || :
-    /sbin/chkconfig --del opennebula-novnc >/dev/null
+    /sbin/chkconfig --del opennebula-novnc >/dev/null || :
 fi
 
 ################################################################################
@@ -423,12 +436,14 @@ EOF
 
 /usr/share/docs/one/*
 
+
 ################################################################################
 # node-kvm - files
 ################################################################################
 
 %files node-kvm
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
+%config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 
 ################################################################################
 # node-xen - files
@@ -470,8 +485,6 @@ EOF
 
 %{_datadir}/one/install_gems
 
-/usr/lib/one/ruby/cloud/marketplace/*
-
 ################################################################################
 # sunstone - files
 ################################################################################
@@ -480,6 +493,7 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/sunstone-server.conf
+%config %{_sysconfdir}/one/sunstone-logos.yaml
 %config %{_sysconfdir}/one/ec2query_templates/*
 %config %{_sysconfdir}/one/econe.conf
 %config %{_sysconfdir}/one/sunstone-views.yaml
@@ -586,15 +600,16 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/defaultrc
+%config %{_sysconfdir}/one/tmrc
 %config %{_sysconfdir}/one/hm/*
 %config %{_sysconfdir}/one/oned.conf
 %config %{_sysconfdir}/one/sched.conf
 %config %{_sysconfdir}/one/vmm_exec/*
-%config %{_sysconfdir}/one/vmwarerc
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
-%config %{_sysconfdir}/one/sl_driver.conf
-%config %{_sysconfdir}/one/sl_driver.default
+%config %{_sysconfdir}/one/auth/server_x509_auth.conf
+%config %{_sysconfdir}/one/auth/ldap_auth.conf
+%config %{_sysconfdir}/one/auth/x509_auth.conf
 %config %{_sysconfdir}/logrotate.d/opennebula
 
 %defattr(-, root, root, 0755)
@@ -619,7 +634,6 @@ EOF
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb
 /usr/lib/one/ruby/scripts_common.rb
-/usr/lib/one/ruby/sl_driver.rb
 /usr/lib/one/ruby/ssh_stream.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/sh/*
@@ -639,6 +653,7 @@ EOF
 
 %{_sharedstatedir}/one/datastores/*
 %{_sharedstatedir}/one/vms
+
 %config %{_sharedstatedir}/one/remotes/*
 
 ################################################################################
@@ -658,6 +673,7 @@ EOF
 %{_bindir}/onehost
 %{_bindir}/oneimage
 %{_bindir}/onemarket
+%{_bindir}/onemarketapp
 %{_bindir}/onetemplate
 %{_bindir}/oneuser
 %{_bindir}/onevm
@@ -668,11 +684,14 @@ EOF
 %{_bindir}/onesecgroup
 %{_bindir}/oneshowback
 %{_bindir}/onevdc
+%{_bindir}/onevrouter
 
 %{_bindir}/oneflow
 %{_bindir}/oneflow-template
 
 /usr/lib/one/ruby/cli/*
+
+/usr/share/one/onetoken.sh
 
 
 ################################################################################
