@@ -20,6 +20,7 @@ dist/usr/bin/onemarketapp  /usr/bin/
 dist/usr/bin/onetemplate   /usr/bin/
 dist/usr/bin/oneuser       /usr/bin/
 dist/usr/bin/onevm         /usr/bin/
+dist/usr/bin/onevmgroup    /usr/bin/
 dist/usr/bin/onevnet       /usr/bin/
 dist/usr/bin/oneacct       /usr/bin/
 dist/usr/bin/onezone       /usr/bin/
