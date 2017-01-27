@@ -687,6 +687,7 @@ EOF
 %{_bindir}/onetemplate
 %{_bindir}/oneuser
 %{_bindir}/onevm
+%{_bindir}/onevmgroup
 %{_bindir}/onevnet
 %{_bindir}/oneacct
 %{_bindir}/onezone
