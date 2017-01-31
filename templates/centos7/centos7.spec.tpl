@@ -302,7 +302,7 @@ install -p -D -m 440 share/pkgs/CentOS/opennebula.sudoers %{buildroot}%{_sysconf
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
-install -p -D -m 440 share/pkgs/logrotate/opennebula %{buildroot}%{_sysconfdir}/logrotate.d/opennebula
+install -p -D -m 644 share/pkgs/logrotate/opennebula %{buildroot}%{_sysconfdir}/logrotate.d/opennebula
 
 # Java
 install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_javadir}/org.opennebula.client.jar
@@ -439,6 +439,7 @@ EOF
 
 %files common
 %config %{_sysconfdir}/sudoers.d/opennebula
+%config %{_sysconfdir}/logrotate.d/opennebula
 
 /usr/share/docs/one/*
 
@@ -618,7 +619,6 @@ EOF
 %config %{_sysconfdir}/one/auth/server_x509_auth.conf
 %config %{_sysconfdir}/one/auth/ldap_auth.conf
 %config %{_sysconfdir}/one/auth/x509_auth.conf
-%config %{_sysconfdir}/logrotate.d/opennebula
 
 %defattr(-, root, root, 0755)
 /lib/systemd/system/opennebula.service
