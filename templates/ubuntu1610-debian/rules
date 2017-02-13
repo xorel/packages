@@ -2,7 +2,7 @@
 
 # Handle group assignment: libvirt (Debian) and libvirtd (Ubuntu)
 ifeq ($(shell dpkg-vendor --derives-from Ubuntu && echo yes),yes)
-	LIB_VIRT_GROUP = libvirtd
+	LIB_VIRT_GROUP = libvirt
 	DISTRO = Ubuntu
 else
 	LIB_VIRT_GROUP = libvirt
