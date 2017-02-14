@@ -84,6 +84,17 @@ done
 
 rm -rf $PBUILD_DIR/*
 
+# if host uses package mirror, use this for pbuilder as well
+if [ -f /etc/apt/sources.list.d/local-mirror.list ]; then
+    MIRRORSITE=$(dirname `cut -d' ' -f2 /etc/apt/sources.list.d/local-mirror.list | head -1`)
+    if [[ "${DISTRO}" =~ ubuntu ]]; then
+        export MIRRORSITE="${MIRRORSITE}/ubuntu/"
+    elif [[ "${DISTRO}" =~ debian ]]; then
+        export MIRRORSITE="${MIRRORSITE}/debian/"
+    fi
+fi
+
+debuild -S -us -uc --source-option=--include-binaries
 #debuild -S -us -uc
 debuild -S -us -uc --source-option=--include-binaries
 
