@@ -117,7 +117,7 @@ endif
 override_dh_fixperms:
 	dh_fixperms
 ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
-	chmod 0440 debian/opennebula-common/etc/sudoers.d/%NAME%
+	chmod 0440 debian/%NAME%-common/etc/sudoers.d/%NAME%
 endif
 
 override_dh_auto_clean:
