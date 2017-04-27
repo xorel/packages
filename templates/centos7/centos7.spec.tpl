@@ -478,6 +478,7 @@ EOF
 /usr/lib/one/ruby/opennebula/*
 /usr/lib/one/ruby/vendors/rbvmomi/*
 /usr/lib/one/ruby/vcenter_driver.rb
+/usr/lib/one/ruby/vcenter_driver/*
 
 /usr/lib/one/ruby/OpenNebula.rb
 
@@ -616,6 +617,7 @@ EOF
 %config %{_sysconfdir}/one/vmm_exec/*
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
+%config %{_sysconfdir}/one/vcenter_driver.default
 %config %{_sysconfdir}/one/auth/server_x509_auth.conf
 %config %{_sysconfdir}/one/auth/ldap_auth.conf
 %config %{_sysconfdir}/one/auth/x509_auth.conf
