@@ -147,7 +147,7 @@ Description: empty package to create OpenNebula users and directories
 Package: opennebula-node
 Architecture: all
 Depends: adduser,
-         libvirt-bin,
+         libvirt-daemon-system,
          qemu-kvm,
          opennebula-common (= ${source:Version}),
          ruby,
