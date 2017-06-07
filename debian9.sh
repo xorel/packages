@@ -6,7 +6,7 @@ SOURCES_DIR=$BASE_DIR/sources
 
 DISTRO=`basename ${0%.sh}`
 BUILD_DIR=$HOME/build-Debian-9
-PBUILD_DIR=$HOME/pbuilder/jessie_result
+PBUILD_DIR=$HOME/pbuilder/stretch_result
 PACKAGES_DIR=$HOME/one-tester/packages
 PACKAGES_DIR=$BASE_DIR
 
@@ -98,8 +98,8 @@ debuild -S -us -uc --source-option=--include-binaries
 #debuild -S -us -uc
 debuild -S -us -uc --source-option=--include-binaries
 
-pbuilder-dist jessie amd64 create
-pbuilder-dist jessie amd64 build ../*dsc
+pbuilder-dist stretch amd64 create
+pbuilder-dist stretch amd64 build ../*dsc
 #pbuilder --build ../*dsc
 
 # build a tar.gz with the files
