@@ -635,6 +635,7 @@ EOF
 %{_bindir}/tty_expect
 
 %{_datadir}/one/examples/*
+%{_datadir}/one/esx-fw-vnc/*
 
 /usr/lib/one/mads/*
 /usr/lib/one/ruby/ActionManager.rb

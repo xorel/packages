@@ -33,7 +33,8 @@ dist/usr/lib/one/ruby/DriverExecHelper.rb                     /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/ActionManager.rb                        /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/VirtualMachineDriver.rb                 /usr/lib/one/ruby/
 
-dist/usr/share/one/examples/*  /usr/share/doc/opennebula/examples/
+dist/usr/share/one/examples/*   /usr/share/doc/opennebula/examples/
+dist/usr/share/one/esx-fw-vnc/* /usr/share/doc/opennebula/esx-fw-vnc/
 
 dist/usr/bin/oned          /usr/bin/
 dist/usr/bin/mm_sched      /usr/bin/
