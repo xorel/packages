@@ -279,19 +279,19 @@ export DESTDIR=%{buildroot}
 ./install.sh
 
 # Init scripts
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-sunstone.service %{buildroot}/lib/systemd/system/opennebula-sunstone.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-gate.service  %{buildroot}/lib/systemd/system/opennebula-gate.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-econe.service %{buildroot}/lib/systemd/system/opennebula-econe.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-flow.service  %{buildroot}/lib/systemd/system/opennebula-flow.service
-install -p -D -m 755 share/pkgs/CentOS7/opennebula-novnc.service %{buildroot}/lib/systemd/system/opennebula-novnc.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-sunstone.service %{buildroot}/lib/systemd/system/opennebula-sunstone.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-gate.service  %{buildroot}/lib/systemd/system/opennebula-gate.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-econe.service %{buildroot}/lib/systemd/system/opennebula-econe.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-flow.service  %{buildroot}/lib/systemd/system/opennebula-flow.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-novnc.service %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula.conf
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
-install -p -D -m 755 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
