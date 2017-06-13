@@ -172,7 +172,7 @@ Package: ruby-opennebula
 Section: ruby
 Architecture: all
 Depends: ruby,
-         ruby-mysql,
+         ruby-mysql2,
          ruby-password,
          ruby-sequel,
          ruby-sqlite3,
