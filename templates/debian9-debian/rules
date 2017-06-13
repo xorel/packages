@@ -8,7 +8,7 @@ ifeq ($(shell dpkg-vendor --derives-from Ubuntu && echo yes),yes)
 	DISTRO = Ubuntu
 else
 	LIB_VIRT_GROUP = libvirt
-	DISTRO = Debian9
+	DISTRO = Debian8
 endif
 
 dpkg_buildflags = DEB_LDFLAGS_MAINT_APPEND="-Wl,--as-needed" dpkg-buildflags
@@ -86,9 +86,9 @@ ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/pkgs/${DISTRO}-systemd/opennebula-node.conf \
 		/usr/lib/tmpfiles.d/
 endif
-#ifneq (,$(filter %NAME%-tools, $(shell dh_listpackages)))
+ifneq (,$(filter %NAME%-tools, $(shell dh_listpackages)))
 #	cp share/install_gems/Debian9/Gemfile.lock dist/usr/share/one/
-#endif
+endif
 
 override_dh_installinit:
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
