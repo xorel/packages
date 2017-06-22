@@ -39,6 +39,7 @@ Depends: apg,
          ruby-uuidtools,
          ruby-amazon-ec2,
          qemu-utils,
+         iputils-arping,
          ${misc:Depends},
          ${shlibs:Depends}
 Replaces: ruby-opennebula (<< 4.90.5)

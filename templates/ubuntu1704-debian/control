@@ -41,6 +41,7 @@ Depends: apg,
          ruby-parse-cron,
          qemu-utils,
          libcurl3,
+         iputils-arping,
          ${misc:Depends}
 Replaces: ruby-opennebula (<< 4.90.5),
           opennebula-sunstone (<< 5.0.2),
