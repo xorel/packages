@@ -636,6 +636,7 @@ EOF
 
 %{_datadir}/one/examples/*
 %{_datadir}/one/esx-fw-vnc/*
+%{_datadir}/one/follower_cleanup
 
 /usr/lib/one/mads/*
 /usr/lib/one/ruby/ActionManager.rb
