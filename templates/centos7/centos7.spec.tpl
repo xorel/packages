@@ -292,7 +292,7 @@ install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfile
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-node.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
