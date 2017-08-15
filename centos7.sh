@@ -13,6 +13,7 @@ SOURCES_DIR=$PWD/sources
 
 URL=$1
 PKG_VERSION=${2:-1}
+LOCAL_URL=$(readlink --canonicalize "${URL}" || :)
 
 SOURCE=`basename $URL`
 PACKAGE=${SOURCE%.tar.gz}
@@ -59,7 +60,7 @@ case $URL in
         wget -q $URL || exit 1
         ;;
     *)
-        cp $URL . || exit 1
+        cp "${LOCAL_URL}" . || exit 1
 esac
 
 ################################################################################

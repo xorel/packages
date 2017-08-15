@@ -12,6 +12,7 @@ PACKAGES_DIR=$BASE_DIR
 
 URL=$1
 PKG_VERSION=${2:-1}
+LOCAL_URL=$(readlink -f "${URL}" || :)
 
 SOURCE=`basename $URL` # opennebula-1.9.90.tar.gz
 PACKAGE=${SOURCE%.tar.gz} # opennebula-1.9.90
@@ -33,7 +34,7 @@ case $URL in
         wget -q $URL || exit 1
         ;;
     *)
-        cp $URL . || exit 1
+        cp "${LOCAL_URL}" . || exit 1
 esac
 
 # rename source
