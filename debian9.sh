@@ -95,9 +95,9 @@ if [ -f /etc/apt/sources.list.d/local-mirror.list ]; then
     fi
 fi
 
-debuild -S -us -uc --source-option=--include-binaries
+debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
-debuild -S -us -uc --source-option=--include-binaries
+debuild -S -us -uc -d --source-option=--include-binaries
 
 pbuilder-dist stretch amd64 create
 pbuilder-dist stretch amd64 build ../*dsc
