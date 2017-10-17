@@ -54,6 +54,9 @@ BuildRequires: scons
 BuildRequires: sqlite-devel
 BuildRequires: xmlrpc-c
 BuildRequires: java-1.7.0-openjdk-devel
+BuildRequires: ws-commons-util
+BuildRequires: xmlrpc-common
+BuildRequires: xmlrpc-client
 
 ################################################################################
 # Requires
