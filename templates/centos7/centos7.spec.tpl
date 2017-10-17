@@ -204,6 +204,9 @@ Manage OpenNebula Services
 %package java
 Summary: Java interface to OpenNebula Cloud API
 Group:   System
+Requires: ws-commons-util
+Requires: xmlrpc-common
+Requires: xmlrpc-client
 
 %description java
 Java interface to OpenNebula Cloud API.
