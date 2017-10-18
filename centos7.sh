@@ -97,6 +97,7 @@ rm -rf $HOME/rpmbuild/RPMS/x86_64/* $HOME/rpmbuild/SRPMS/*
 # Build the package
 ################################################################################
 
+sudo -n yum-builddep -y "$SPEC" || :
 rpmbuild -ba $SPEC || exit 1
 
 ################################################################################
