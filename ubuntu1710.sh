@@ -6,7 +6,7 @@ SOURCES_DIR=$BASE_DIR/sources
 
 DISTRO=`basename ${0%.sh}`
 BUILD_DIR=$HOME/build-Ubuntu-17.10
-PBUILD_DIR=$HOME/pbuilder/artful result
+PBUILD_DIR=$HOME/pbuilder/artful_result
 PACKAGES_DIR=$BASE_DIR
 
 URL=$1
