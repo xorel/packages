@@ -206,7 +206,10 @@ Description: Command-line tools for OpenNebula Cloud
 Package: libopennebula-java
 Section: java
 Architecture: all
-Depends: ${java:Depends}, ${misc:Depends}
+Depends: ${java:Depends}, ${misc:Depends},
+         libws-commons-util-java,
+         libxmlrpc3-client-java,
+         libxmlrpc3-common-java
 Description: Java bindings for OpenNebula Cloud API (OCA)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
