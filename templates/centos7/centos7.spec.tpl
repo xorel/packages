@@ -673,9 +673,10 @@ EOF
 %dir %{_localstatedir}/run/one
 
 %{_sharedstatedir}/one/datastores/*
+%{_sharedstatedir}/one/remotes/*
 %{_sharedstatedir}/one/vms
 
-%config %{_sharedstatedir}/one/remotes/*
+%config %{_sharedstatedir}/one/remotes/etc/*
 
 ################################################################################
 # main package - files
