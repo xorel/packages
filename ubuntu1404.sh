@@ -95,7 +95,7 @@ fi
 
 debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
-pbuilder-dist trusty amd64 create
+pbuilder-dist trusty amd64 create --updates-only
 pbuilder-dist trusty amd64 build ../*dsc
 
 # build a tar.gz with the files
