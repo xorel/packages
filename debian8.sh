@@ -99,7 +99,7 @@ debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
 debuild -S -us -uc -d --source-option=--include-binaries
 
-pbuilder-dist jessie amd64 create
+pbuilder-dist jessie amd64 create --updates-only
 pbuilder-dist jessie amd64 build ../*dsc
 #pbuilder --build ../*dsc
 

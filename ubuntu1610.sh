@@ -96,7 +96,7 @@ fi
 
 debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
-pbuilder-dist yakkety amd64 create
+pbuilder-dist yakkety amd64 create --updates-only
 pbuilder-dist yakkety amd64 build ../*dsc
 
 # build a tar.gz with the files
