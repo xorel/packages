@@ -31,7 +31,7 @@ apt-get install -y pbuilder debhelper ubuntu-dev-tools bash-completion \
 ## Source archive
 
 Build scripts require the source archive containing the OpenNebula source
-codes and all JavaScript dependencies. The archive is available for each public
+codes, generated manual pages, and all JavaScript dependencies. The archive is available for each public
 release or can be created from the source code taken from the
 [VCS](https://github.com/OpenNebula/one).
 
@@ -49,25 +49,32 @@ For example, the release 5.4.0 has source archive here:
 
 If you take the source code from the [VCS](https://github.com/OpenNebula/one),
 you have to install all the dependencies on your own. You need to have
-`npm` installed. We use the CentOS 7 instance to generate single archive
+`ronn` and `npm` installed. We use the CentOS 7 instance to generate single archive
 for all platforms.
 
-Example, how to get sources for the OpenNebula 5.4.0 and create the archive.
+Steps required to get sources for the OpenNebula X.Y.Z (change the placeholders with particular version) and create the archive.
 
 ```
-git clone https://github.com/OpenNebula/one opennebula-5.4.0
-cd one/src/sunstone/public
-git checkout tags/release-5.4.0
+git clone https://github.com/OpenNebula/one opennebula-X.Y.Z
+cd opennebula-X.Y.Z
+git checkout tags/release-X.Y.Z
 
+# manual pages
+cd share/man
+./build.sh
+cd ../../
+
+# sunstone
+cd src/sunstone/public
 npm install -g bower grunt grunt-cli
 npm install
 bower install --allow-root --config.interactive=false
 grunt sass
 grunt requirejs
-
 rm -rf node_modules/
 cd ../../../../
-tar -czf opennebula-5.4.0.tar.gz opennebula-5.4.0/
+
+tar -czf opennebula-X.Y.Z.tar.gz opennebula-X.Y.Z/
 ```
 
 Note: Archive name must have format `${NAME}-${RELEASE}.tar.gz`  and
