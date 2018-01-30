@@ -232,6 +232,7 @@ Requires: nfs-utils
 Requires: bridge-utils
 Requires: ipset
 Requires: pciutils
+Requires: cronie
 # This package does not exist in CentOS 7
 Requires: %{name}-common = %{version}
 
@@ -316,6 +317,9 @@ install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_j
 
 # sysctl
 install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+
+# cron
+install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}/cron.d/opennebula-node
 
 # Gemfile
 install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
@@ -458,6 +462,7 @@ EOF
 %files node-kvm
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
+%config %{_sysconfdir}/cron.d/opennebula-node
 
 /lib/tmpfiles.d/opennebula-node.conf
 

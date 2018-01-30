@@ -155,6 +155,7 @@ Depends: adduser,
          vlan,
          ipset,
          pciutils,
+         cron,
          ${misc:Depends}
 Recommends: openssh-server | ssh-server
 Description: empty package to prepare a machine as OpenNebula Node
