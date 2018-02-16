@@ -121,6 +121,6 @@ tar czf $NAME-$VERSION-$PKG_VERSION.tar.gz \
 # Move tar.gz to ~/tar
 ################################################################################
 
-mkdir ~/tar
-cp $NAME-$VERSION-$PKG_VERSION.tar.gz ~/tar
+mkdir -p ~/tar
+cp -f $NAME-$VERSION-$PKG_VERSION.tar.gz ~/tar
 
