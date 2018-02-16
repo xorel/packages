@@ -489,8 +489,6 @@ EOF
 /usr/lib/one/ruby/opennebula.rb
 /usr/lib/one/ruby/opennebula/*
 /usr/lib/one/ruby/vendors/rbvmomi/*
-/usr/lib/one/ruby/vcenter_driver.rb
-/usr/lib/one/ruby/vcenter_driver/*
 
 /usr/lib/one/ruby/OpenNebula.rb
 
@@ -658,9 +656,12 @@ EOF
 /usr/lib/one/ruby/ec2_driver.rb
 /usr/lib/one/ruby/onedb/*
 /usr/lib/one/ruby/one_vnm.rb
+/usr/lib/one/ruby/opennebula_driver.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb
 /usr/lib/one/ruby/scripts_common.rb
 /usr/lib/one/ruby/ssh_stream.rb
+/usr/lib/one/ruby/vcenter_driver.rb
+/usr/lib/one/ruby/vcenter_driver/*
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/sh/*
 
