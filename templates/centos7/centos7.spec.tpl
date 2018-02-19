@@ -57,6 +57,7 @@ BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: ws-commons-util
 BuildRequires: xmlrpc-common
 BuildRequires: xmlrpc-client
+BuildRequires: systemd-devel
 
 ################################################################################
 # Requires
@@ -278,7 +279,7 @@ Configures an OpenNebula node providing kvm.
 
 # Compile OpenNebula
 # scons -j2 mysql=yes new_xmlrpc=yes
-../build_opennebula.sh
+../build_opennebula.sh systemd=yes
 cd src/oca/java
 ./build.sh -d
 
@@ -310,7 +311,13 @@ install -p -D -m 440 share/pkgs/CentOS/opennebula.sudoers %{buildroot}%{_sysconf
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
-install -p -D -m 644 share/pkgs/logrotate/opennebula %{buildroot}%{_sysconfdir}/logrotate.d/opennebula
+install -p -D -m 644 share/pkgs/logrotate/opennebula           %{buildroot}%{_sysconfdir}/logrotate.d/opennebula
+install -p -D -m 644 share/pkgs/logrotate/opennebula-econe     %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-econe
+install -p -D -m 644 share/pkgs/logrotate/opennebula-flow      %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-flow
+install -p -D -m 644 share/pkgs/logrotate/opennebula-gate      %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-gate
+install -p -D -m 644 share/pkgs/logrotate/opennebula-novnc     %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-novnc
+install -p -D -m 644 share/pkgs/logrotate/opennebula-scheduler %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-scheduler
+install -p -D -m 644 share/pkgs/logrotate/opennebula-sunstone  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-sunstone
 
 # Java
 install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_javadir}/org.opennebula.client.jar
@@ -450,7 +457,6 @@ EOF
 
 %files common
 %config %{_sysconfdir}/sudoers.d/opennebula
-%config %{_sysconfdir}/logrotate.d/opennebula
 
 /usr/share/docs/one/*
 
@@ -516,6 +522,9 @@ EOF
 %config %{_sysconfdir}/one/sunstone-views/*
 %config %{_sysconfdir}/one/ec2_driver.conf
 %config %{_sysconfdir}/one/ec2_driver.default
+%config %{_sysconfdir}/logrotate.d/opennebula-econe
+%config %{_sysconfdir}/logrotate.d/opennebula-sunstone
+%config %{_sysconfdir}/logrotate.d/opennebula-novnc
 
 %defattr(-, root, root, 0755)
 /usr/lib/one/sunstone/*
@@ -573,6 +582,7 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/onegate-server.conf
+%config %{_sysconfdir}/logrotate.d/opennebula-gate
 
 %defattr(-, root, root, 0755)
 /usr/lib/one/onegate/*
@@ -597,6 +607,7 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/oneflow-server.conf
+%config %{_sysconfdir}/logrotate.d/opennebula-flow
 
 %defattr(-, root, root, 0755)
 /usr/lib/one/oneflow/*
@@ -631,6 +642,8 @@ EOF
 %config %{_sysconfdir}/one/auth/server_x509_auth.conf
 %config %{_sysconfdir}/one/auth/ldap_auth.conf
 %config %{_sysconfdir}/one/auth/x509_auth.conf
+%config %{_sysconfdir}/logrotate.d/opennebula
+%config %{_sysconfdir}/logrotate.d/opennebula-scheduler
 
 %defattr(-, root, root, 0755)
 /lib/systemd/system/opennebula.service

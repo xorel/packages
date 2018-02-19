@@ -37,24 +37,34 @@ override_dh_auto_install:
 	DESTDIR=dist ./install.sh
 	dh_auto_install
 ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
-	dh_install -p %NAME%-common share/pkgs/logrotate/opennebula /etc/logrotate.d/
 	dh_install -p %NAME%-common share/pkgs/${DISTRO}/opennebula.sudoers \
 		/etc/sudoers.d
 	mv debian/%NAME%-common/etc/sudoers.d/opennebula.sudoers \
 		debian/%NAME%-common/etc/sudoers.d/%NAME%
 endif
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
+	dh_install -p %NAME% share/pkgs/logrotate/opennebula /etc/logrotate.d/
+	dh_install -p %NAME% share/pkgs/logrotate/opennebula-scheduler /etc/logrotate.d/
+
 	dh_install -p %NAME% share/pkgs/${DISTRO}/opennebula /etc/init.d/
 endif
 ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-econe /etc/logrotate.d/
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-novnc /etc/logrotate.d/
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-sunstone /etc/logrotate.d/
+
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-sunstone /etc/init.d/
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-econe /etc/init.d/
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}/%NAME%-novnc /etc/init.d/
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
+	dh_install -p %NAME%-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
+
 	dh_install -p %NAME%-gate share/pkgs/${DISTRO}/%NAME%-gate /etc/init.d/
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
+	dh_install -p %NAME%-flow share/pkgs/logrotate/opennebula-flow /etc/logrotate.d/
+
 	dh_install -p %NAME%-flow share/pkgs/${DISTRO}/%NAME%-flow /etc/init.d/
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))

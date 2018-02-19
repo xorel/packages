@@ -26,7 +26,7 @@ override_dh_auto_build:
 	#scons  mysql=yes new_xmlrpc=yes
 	tar xzvf build_opennebula.tar.gz
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
-	./build_opennebula.sh
+	./build_opennebula.sh systemd=yes
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
 	ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
@@ -37,13 +37,15 @@ override_dh_auto_install:
 	DESTDIR=dist ./install.sh
 	dh_auto_install
 ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
-	dh_install -p %NAME%-common share/pkgs/logrotate/opennebula /etc/logrotate.d/
 	dh_install -p %NAME%-common share/pkgs/${DISTRO}/opennebula.sudoers \
 		/etc/sudoers.d
 	mv debian/%NAME%-common/etc/sudoers.d/opennebula.sudoers \
 		debian/%NAME%-common/etc/sudoers.d/%NAME%
 endif
 ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
+	dh_install -p %NAME% share/pkgs/logrotate/opennebula /etc/logrotate.d/
+	dh_install -p %NAME% share/pkgs/logrotate/opennebula-scheduler /etc/logrotate.d/
+
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.service \
 		/lib/systemd/system/
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-scheduler.service \
@@ -51,6 +53,10 @@ ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf /usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-econe /etc/logrotate.d/
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-novnc /etc/logrotate.d/
+	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-sunstone /etc/logrotate.d/
+
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-sunstone.service \
 		/lib/systemd/system/
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/%NAME%-econe.service \
@@ -64,6 +70,8 @@ ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
+	dh_install -p %NAME%-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
+
 	dh_install -p %NAME%-gate share/pkgs/${DISTRO}-systemd/%NAME%-gate.service \
 		/lib/systemd/system/
 
@@ -73,6 +81,8 @@ ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
+	dh_install -p %NAME%-flow share/pkgs/logrotate/opennebula-flow /etc/logrotate.d/
+
 	dh_install -p %NAME%-flow share/pkgs/${DISTRO}-systemd/%NAME%-flow.service \
 		/lib/systemd/system/
 
