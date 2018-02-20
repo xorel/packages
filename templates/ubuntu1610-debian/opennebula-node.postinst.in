@@ -18,11 +18,24 @@ if [ "$1" = "configure" ]; then
     fi
 
     if [ -e /etc/libvirt/qemu.conf ]; then
-        cp /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.orig
+        cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
+    fi
 
-        echo 'user  = "oneadmin"'    >  /etc/libvirt/qemu.conf
-        echo 'group = "oneadmin"'    >> /etc/libvirt/qemu.conf
-        echo 'dynamic_ownership = 0' >> /etc/libvirt/qemu.conf
+    AUGTOOL=$(augtool -A 2>/dev/null <<EOF
+set /augeas/load/Libvirtd_qemu/lens Libvirtd_qemu.lns
+set /augeas/load/Libvirtd_qemu/incl /etc/libvirt/qemu.conf
+load
+
+set /files/etc/libvirt/qemu.conf/user oneadmin
+set /files/etc/libvirt/qemu.conf/group oneadmin
+set /files/etc/libvirt/qemu.conf/dynamic_ownership 0
+
+save
+EOF
+)
+
+    if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
+        systemctl try-restart libvirt-bin
     fi
 fi
 
