@@ -388,17 +388,16 @@ fi
 ################################################################################
 
 %post node-kvm
-if [ $1 = 1 ]; then
-    # Install
-    if [ -e /etc/libvirt/qemu.conf ]; then
-        cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
-    fi
+# Install
+if [ -e /etc/libvirt/qemu.conf ]; then
+    cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
+fi
 
-    if [ -e /etc/libvirt/libvirtd.conf ]; then
-        cp -f /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d')
-    fi
+if [ -e /etc/libvirt/libvirtd.conf ]; then
+    cp -f /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d')
+fi
 
-    AUGTOOL=$(augtool -A 2>/dev/null <<EOF
+AUGTOOL=$(augtool -A 2>/dev/null <<EOF
 set /augeas/load/Libvirtd_qemu/lens Libvirtd_qemu.lns
 set /augeas/load/Libvirtd_qemu/incl /etc/libvirt/qemu.conf
 set /augeas/load/Libvirtd/lens Libvirtd.lns
@@ -419,10 +418,11 @@ save
 EOF
 )
 
-    if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
-        systemctl try-restart libvirtd
-    fi
-elif [ $1 = 2 ]; then
+if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
+    systemctl try-restart libvirtd
+fi
+
+if [ $1 = 2 ]; then
     # Upgrade
     PID=$(cat /tmp/one-collectd-client.pid 2> /dev/null)
     [ -n "$PID" ] && kill $PID 2> /dev/null || :
