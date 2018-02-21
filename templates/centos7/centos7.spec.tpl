@@ -234,6 +234,7 @@ Requires: bridge-utils
 Requires: ipset
 Requires: pciutils
 Requires: cronie
+Requires: augeas
 # This package does not exist in CentOS 7
 Requires: %{name}-common = %{version}
 
@@ -394,16 +395,41 @@ fi
 ################################################################################
 
 %post node-kvm
-if [ $1 = 1 ]; then
-    # Install
-    if [ -e /etc/libvirt/qemu.conf ]; then
-        cp /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.orig
+# Install
+if [ -e /etc/libvirt/qemu.conf ]; then
+    cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
+fi
 
-        echo 'user  = "oneadmin"'    >  /etc/libvirt/qemu.conf
-        echo 'group = "oneadmin"'    >> /etc/libvirt/qemu.conf
-        echo 'dynamic_ownership = 0' >> /etc/libvirt/qemu.conf
-    fi
-elif [ $1 = 2 ]; then
+if [ -e /etc/libvirt/libvirtd.conf ]; then
+    cp -f /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d')
+fi
+
+AUGTOOL=$(augtool -A 2>/dev/null <<EOF
+set /augeas/load/Libvirtd_qemu/lens Libvirtd_qemu.lns
+set /augeas/load/Libvirtd_qemu/incl /etc/libvirt/qemu.conf
+set /augeas/load/Libvirtd/lens Libvirtd.lns
+set /augeas/load/Libvirtd/incl /etc/libvirt/libvirtd.conf
+load
+
+set /files/etc/libvirt/qemu.conf/user oneadmin
+set /files/etc/libvirt/qemu.conf/group oneadmin
+set /files/etc/libvirt/qemu.conf/dynamic_ownership 0
+
+# Disable PolicyKit https://github.com/OpenNebula/one/issues/1768
+set /files/etc/libvirt/libvirtd.conf/auth_unix_ro none
+set /files/etc/libvirt/libvirtd.conf/auth_unix_rw none
+set /files/etc/libvirt/libvirtd.conf/unix_sock_ro_perms 0770
+set /files/etc/libvirt/libvirtd.conf/unix_sock_rw_perms 0770
+
+save
+EOF
+)
+
+if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
+    systemctl try-restart libvirtd
+fi
+
+if [ $1 = 2 ]; then
     # Upgrade
     PID=$(cat /tmp/one-collectd-client.pid 2> /dev/null)
     [ -n "$PID" ] && kill $PID 2> /dev/null || :
