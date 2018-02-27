@@ -418,6 +418,7 @@ set /files/etc/libvirt/qemu.conf/dynamic_ownership 0
 # Disable PolicyKit https://github.com/OpenNebula/one/issues/1768
 set /files/etc/libvirt/libvirtd.conf/auth_unix_ro none
 set /files/etc/libvirt/libvirtd.conf/auth_unix_rw none
+set /files/etc/libvirt/libvirtd.conf/unix_sock_group oneadmin
 set /files/etc/libvirt/libvirtd.conf/unix_sock_ro_perms 0770
 set /files/etc/libvirt/libvirtd.conf/unix_sock_rw_perms 0770
 
