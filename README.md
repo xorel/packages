@@ -48,8 +48,8 @@ For example, the release 5.4.0 has source archive here:
 ### Create archive
 
 If you take the source code from the [VCS](https://github.com/OpenNebula/one),
-you have to install all the dependencies on your own. You need to have
-`ronn` and `npm` installed. We use the CentOS 7 instance to generate single archive
+you have to install all the dependencies on your own. You need to have `npm` and Ruby gem
+`ronn` (https://rubygems.org/gems/ronn/) installed. We use the CentOS 7 instance to generate single archive
 for all platforms.
 
 Steps required to get sources for the OpenNebula X.Y.Z (change the placeholders with particular version) and create the archive.
