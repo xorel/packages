@@ -222,6 +222,7 @@ Java interface to OpenNebula Cloud API.
 Summary: Configures an OpenNebula node providing kvm
 Group: System
 Conflicts: %{name}-node-xen
+BuildArch: noarch
 Requires: ruby
 Requires: openssh-server
 Requires: openssh-clients
