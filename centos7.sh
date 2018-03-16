@@ -91,7 +91,7 @@ fi
 # Clean RPMs
 ################################################################################
 
-rm -rf $HOME/rpmbuild/RPMS/x86_64/* $HOME/rpmbuild/SRPMS/*
+rm -rf $HOME/rpmbuild/RPMS/x86_64/* $HOME/rpmbuild/RPMS/noarch/* $HOME/rpmbuild/SRPMS/*
 
 ################################################################################
 # Build the package
@@ -109,6 +109,7 @@ rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR/src
 
 cp $HOME/rpmbuild/RPMS/x86_64/* $BUILD_DIR
+cp $HOME/rpmbuild/RPMS/noarch/* $BUILD_DIR
 cp $HOME/rpmbuild/SRPMS/* $BUILD_DIR/src
 
 cd $BUILD_DIR
