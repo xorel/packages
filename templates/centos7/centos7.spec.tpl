@@ -120,6 +120,7 @@ This package provides the OpenNebula servers: oned (main daemon) and mm_sched
 %package common
 Summary: Provides the OpenNebula user
 Group: System
+BuildArch: noarch
 Requires: shadow-utils
 Requires: coreutils
 Requires: glibc-common
@@ -134,6 +135,7 @@ This package creates the oneadmin user and group, with id/gid 9869.
 %package ruby
 Summary: Provides the OpenNebula Ruby libraries
 Group: System
+BuildArch: noarch
 Requires: ruby
 Requires: rubygems
 #Requires: rubygem-sqlite3-ruby
@@ -166,6 +168,7 @@ Ruby interface for OpenNebula.
 
 %package sunstone
 Summary: Browser based UI and public cloud interfaces.
+BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-ruby = %{version}
 Requires: python
@@ -182,6 +185,7 @@ API).
 
 %package gate
 Summary: Transfer information from Virtual Machines to OpenNebula
+BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-ruby = %{version}
 
@@ -194,6 +198,7 @@ Transfer information from Virtual Machines to OpenNebula
 
 %package flow
 Summary: Manage OpenNebula Services
+BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-ruby = %{version}
 
@@ -207,6 +212,7 @@ Manage OpenNebula Services
 %package java
 Summary: Java interface to OpenNebula Cloud API
 Group:   System
+BuildArch: noarch
 Requires: ws-commons-util
 Requires: xmlrpc-common
 Requires: xmlrpc-client
