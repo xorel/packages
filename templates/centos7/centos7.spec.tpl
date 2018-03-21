@@ -22,7 +22,6 @@ Name: opennebula
 Version: %VERSION%
 Summary: Cloud computing solution for Data Center Virtualization
 Release: %PKG_VERSION%
-BuildArch: noarch
 License: Apache
 Group: System
 URL: http://opennebula.org
