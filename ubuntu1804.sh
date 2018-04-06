@@ -96,8 +96,13 @@ fi
 
 debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
-pbuilder-dist bionic amd64 create --updates-only
-pbuilder-dist bionic amd64 build ../*dsc
+
+# use APT http proxy for pbuilder
+HTTP_PROXY=$(apt-config dump --format '%v' Acquire::http::proxy)
+PB_HTTP_PROXY=${HTTP_PROXY:+--http-proxy "${HTTP_PROXY}"}
+
+pbuilder-dist bionic amd64 create --updates-only ${PB_HTTP_PROXY}
+pbuilder-dist bionic amd64 build ${PB_HTTP_PROXY} ../*dsc
 
 # build a tar.gz with the files
 cd $PBUILD_DIR

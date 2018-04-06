@@ -99,8 +99,12 @@ debuild -S -us -uc -d --source-option=--include-binaries
 #debuild -S -us -uc
 debuild -S -us -uc -d --source-option=--include-binaries
 
-pbuilder-dist stretch amd64 create --updates-only
-pbuilder-dist stretch amd64 build ../*dsc
+# use APT http proxy for pbuilder
+HTTP_PROXY=$(apt-config dump --format '%v' Acquire::http::proxy)
+PB_HTTP_PROXY=${HTTP_PROXY:+--http-proxy "${HTTP_PROXY}"}
+
+pbuilder-dist stretch amd64 create --updates-only ${PB_HTTP_PROXY}
+pbuilder-dist stretch amd64 build ${PB_HTTP_PROXY} ../*dsc
 #pbuilder --build ../*dsc
 
 # build a tar.gz with the files
