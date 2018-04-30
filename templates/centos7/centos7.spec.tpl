@@ -374,6 +374,10 @@ if [ $1 = 2 ]; then
     /sbin/service opennebula stop >/dev/null || :
 fi
 
+if [ -d /var/lib/one/remotes/ ]; then
+    cp -a /var/lib/one/remotes/ /var/lib/one/remotes.$(date +'%Y-%m-%d_%H:%M:%S')
+fi
+
 %post server
 if [ $1 = 1 ]; then
     /sbin/chkconfig --add opennebula >/dev/null
