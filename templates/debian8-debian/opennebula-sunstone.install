@@ -1,6 +1,7 @@
 # Common to Sunstone, OCCI and ECONE
 
 dist/usr/lib/one/ruby/OpenNebulaVNC.rb                  /usr/lib/one/ruby/
+dist/usr/lib/one/ruby/OpenNebulaAddons.rb               /usr/lib/one/ruby/
 
 dist/usr/bin/novnc-server /usr/bin/
 

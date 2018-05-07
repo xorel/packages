@@ -567,6 +567,7 @@ EOF
 %defattr(-, root, root, 0755)
 /usr/lib/one/sunstone/*
 /usr/lib/one/ruby/OpenNebulaVNC.rb
+/usr/lib/one/ruby/OpenNebulaAddons.rb
 /usr/lib/one/ruby/cloud/econe/*
 
 %{_bindir}/sunstone-server
