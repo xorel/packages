@@ -375,7 +375,7 @@ if [ $1 = 2 ]; then
 fi
 
 if [ -d /var/lib/one/remotes/ ]; then
-    cp -a /var/lib/one/remotes/ /var/lib/one/remotes.$(date +'%Y-%m-%d_%H:%M:%S')
+    cp -a /var/lib/one/remotes/ /var/lib/one/remotes.$(date +'%Y-%m-%d_%H:%M:%%S')
 fi
 
 %post server
