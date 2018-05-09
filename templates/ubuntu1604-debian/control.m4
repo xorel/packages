@@ -20,6 +20,7 @@ Build-Depends: bash-completion,
                libxmlrpc3-common-java,
                libxslt1-dev,
                libcurl4-openssl-dev,
+               libsystemd-dev,
                ruby,
                scons
 Standards-Version: 3.9.3
@@ -38,12 +39,19 @@ Depends: apg,
          ruby-json,
          ruby-uuidtools,
          ruby-amazon-ec2,
+         ruby-parse-cron,
          qemu-utils,
+         libcurl3,
          iputils-arping,
-         ${misc:Depends},
-         ${shlibs:Depends}
-Replaces: ruby-opennebula (<< 4.90.5)
-Breaks: ruby-opennebula (<< 4.90.5)
+         ${misc:Depends}
+Replaces: ruby-opennebula (<< 4.90.5),
+          opennebula-sunstone (<< 5.0.2),
+          opennebula-flow (<< 5.0.2),
+          opennebula-gate (<< 5.0.2)
+Breaks:  ruby-opennebula (<< 4.90.5),
+         opennebula-sunstone (<< 5.0.2),
+         opennebula-flow (<< 5.0.2),
+         opennebula-gate (<< 5.0.2)
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
@@ -69,6 +77,7 @@ Depends: opennebula-common (= ${source:Version}),
          python,
          python-numpy,
          ${misc:Depends}
+Conflicts: opennebula (<< ${source:Version})
 Description: web interface to which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
@@ -112,6 +121,7 @@ Depends: opennebula-common (= ${source:Version}),
          thin,
          curl,
          ${misc:Depends}
+Conflicts: opennebula (<< ${source:Version})
 Description: Manage services.
  .
  ONE (OpenNebula) extends the benefits of virtualization platforms from a
@@ -239,3 +249,9 @@ Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
  .
  This package provides the documentation (Javadoc API) and examples for
  OpenNebula Cloud API (OCA) Java bindings.
+
+ifdef(`_WITH_DOCKER_MACHINE_',`
+Package: docker-machine-opennebula
+Architecture: any
+Description: OpenNebula driver for Docker Machine
+')

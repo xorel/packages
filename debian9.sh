@@ -57,6 +57,18 @@ tar czvf build_opennebula.tar.gz build_opennebula.sh xml_parse_huge.patch
 rm build_opennebula.sh
 rm xml_parse_huge.patch
 
+# download other sources
+shift 2
+for S in $@; do
+    case $S in
+        http*)
+            wget -q $S || exit 1
+            ;;
+        *)
+            cp $(readlink --canonicalize "${S}") . || exit 1
+    esac
+done
+
 # Prepare files in debian/
 (
 cd debian
@@ -81,6 +93,10 @@ for f in `ls`; do
         fi
     done
 done
+
+# process control.m4
+_BUILD_COMPONENTS=${BUILD_COMPONENTS^^}
+m4 ${_BUILD_COMPONENTS:+ -D_WITH_${_BUILD_COMPONENTS//[[:space:]]/_ -D_}_} control.m4 >control
 )
 
 rm -rf $PBUILD_DIR/*

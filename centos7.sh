@@ -13,7 +13,6 @@ SOURCES_DIR=$PWD/sources
 
 URL=$1
 PKG_VERSION=${2:-1}
-LOCAL_URL=$(readlink --canonicalize "${URL}" || :)
 
 SOURCE=`basename $URL`
 PACKAGE=${SOURCE%.tar.gz}
@@ -55,13 +54,17 @@ cp -f $DISTRO.spec.tpl $SPEC
 ################################################################################
 
 rm -f $SOURCE
-case $URL in
-    http*)
-        wget -q $URL || exit 1
-        ;;
-    *)
-        cp "${LOCAL_URL}" . || exit 1
-esac
+
+shift 2
+for S in $URL $@; do
+    case $S in
+        http*)
+            wget -q $S || exit 1
+            ;;
+        *)
+            cp $(readlink --canonicalize "${S}") . || exit 1
+    esac
+done
 
 ################################################################################
 # Copy xmlrpc-c and build_opennebula.sh sources to SOURCE dir
@@ -98,7 +101,8 @@ rm -rf $HOME/rpmbuild/RPMS/x86_64/* $HOME/rpmbuild/RPMS/noarch/* $HOME/rpmbuild/
 ################################################################################
 
 sudo -n yum-builddep -y "$SPEC" || :
-rpmbuild -ba $SPEC || exit 1
+_BUILD_COMPONENTS=${BUILD_COMPONENTS,,}
+rpmbuild -ba $SPEC ${_BUILD_COMPONENTS:+ --with ${_BUILD_COMPONENTS//[[:space:]]/ --with }} || exit 1
 
 ################################################################################
 # Put all the RPMs into a tar.gz

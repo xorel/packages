@@ -18,6 +18,8 @@
 %define oneadmin_uid 9869
 %define oneadmin_gid 9869
 
+%define with_docker_machine 0%{?_with_docker_machine:1}
+
 Name: opennebula
 Version: %VERSION%
 Summary: Cloud computing solution for Data Center Virtualization
@@ -31,6 +33,9 @@ Source1: 50-org.libvirt.unix.manage-opennebula.pkla
 Source2: xmlrpc-c.tar.gz
 Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
+%if %{with_docker_machine}
+Source5: opennebula-docker-machine-%{version}.tar.gz
+%endif
 
 Patch0: proper_path_emulator.diff
 
@@ -207,6 +212,18 @@ Requires: %{name}-ruby = %{version}
 Manage OpenNebula Services
 
 ################################################################################
+# Package Docker Machine ONE driver
+################################################################################
+
+%if %{with_docker_machine}
+%package -n docker-machine-opennebula
+Summary: OpenNebula driver for Docker Machine
+
+%description -n docker-machine-opennebula
+OpenNebula driver for the Docker Macihne
+%endif
+
+################################################################################
 # Package java
 ################################################################################
 
@@ -274,6 +291,9 @@ Configures an OpenNebula node providing kvm.
 
 %prep
 %setup -q
+%if %{with_docker_machine}
+%setup -T -D -a 5
+%endif
 
 %patch0 -p1
 
@@ -294,6 +314,9 @@ cd src/oca/java
 %install
 export DESTDIR=%{buildroot}
 ./install.sh
+%if %{with_docker_machine}
+    ./install.sh -e
+%endif
 
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
@@ -661,6 +684,15 @@ EOF
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
+
+################################################################################
+# docker-machine - files
+################################################################################
+
+%if %{with_docker_machine}
+%files -n docker-machine-opennebula
+%{_bindir}/docker-machine-driver-opennebula
+%endif
 
 ################################################################################
 # server - files

@@ -16,10 +16,11 @@ Build-Depends: bash-completion,
                libssl-dev,
                libws-commons-util-java,
                libxml2-dev,
-               libxmlrpc-c++8-dev,
                libxmlrpc3-client-java,
                libxmlrpc3-common-java,
                libxslt1-dev,
+               libcurl4-openssl-dev,
+               libcurl4,
                libsystemd-dev,
                ruby,
                scons
@@ -39,10 +40,11 @@ Depends: apg,
          ruby-json,
          ruby-uuidtools,
          ruby-amazon-ec2,
+         ruby-parse-cron,
          qemu-utils,
+         libcurl4,
          iputils-arping,
-         ${misc:Depends},
-         ${shlibs:Depends}
+         ${misc:Depends}
 Replaces: ruby-opennebula (<< 4.90.5),
           opennebula-sunstone (<< 5.0.2),
           opennebula-flow (<< 5.0.2),
@@ -176,7 +178,7 @@ Package: ruby-opennebula
 Section: ruby
 Architecture: all
 Depends: ruby,
-         ruby-mysql,
+         ruby-mysql2,
          ruby-password,
          ruby-sequel,
          ruby-sqlite3,
@@ -248,3 +250,9 @@ Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
  .
  This package provides the documentation (Javadoc API) and examples for
  OpenNebula Cloud API (OCA) Java bindings.
+
+ifdef(`_WITH_DOCKER_MACHINE_',`
+Package: docker-machine-opennebula
+Architecture: any
+Description: OpenNebula driver for Docker Machine
+')

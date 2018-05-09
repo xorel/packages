@@ -176,7 +176,7 @@ Package: ruby-opennebula
 Section: ruby
 Architecture: all
 Depends: ruby,
-         ruby-mysql2,
+         ruby-mysql,
          ruby-password,
          ruby-sequel,
          ruby-sqlite3,
@@ -248,3 +248,9 @@ Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
  .
  This package provides the documentation (Javadoc API) and examples for
  OpenNebula Cloud API (OCA) Java bindings.
+
+ifdef(`_WITH_DOCKER_MACHINE_',`
+Package: docker-machine-opennebula
+Architecture: any
+Description: OpenNebula driver for Docker Machine
+')
