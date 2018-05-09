@@ -26,6 +26,8 @@ dist/usr/bin/sunstone-server    /usr/bin/
 
 dist/usr/share/one/websockify/* /usr/share/one/websockify/
 
+dist/var/lib/one/sunstone/main.js /var/lib/one/sunstone/main.js
+
 # ECONE
 
 dist/etc/one/econe.conf          /etc/one/

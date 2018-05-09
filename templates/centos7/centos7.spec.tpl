@@ -629,11 +629,16 @@ EOF
 
 %{_datadir}/one/websockify/*
 
-%defattr(-, oneadmin, oneadmin, 0750)
+%defattr(0640, oneadmin, oneadmin, 0750)
 
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
+
+%dir %{_sharedstatedir}/one
+%dir %{_sharedstatedir}/one/sunstone
+
+%{_localstatedir}/one/sunstone/main.js
 
 ################################################################################
 # gate - files
