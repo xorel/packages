@@ -37,7 +37,8 @@ endif
 	./build.sh -d)
 
 override_dh_auto_install:
-	DESTDIR=dist ./install.sh
+	DESTDIR=dist ./install.sh -p
+	DESTDIR=dist ./install.sh -p -s
 ifneq (,$(filter docker-machine-%NAME%, $(shell dh_listpackages)))
 	DESTDIR=dist ./install.sh -e
 endif
