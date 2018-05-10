@@ -636,7 +636,6 @@ EOF
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
 
-%dir %{_sharedstatedir}/one
 %dir %{_sharedstatedir}/one/sunstone
 
 %{_sharedstatedir}/one/sunstone/main.js
