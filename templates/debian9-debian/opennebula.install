@@ -1,4 +1,6 @@
-dist/var/lib/one/*      /var/lib/one/
+dist/var/lib/one/datastores/*    /var/lib/one/datastores
+dist/var/lib/one/remotes/*       /var/lib/one/remotes
+dist/var/lib/one/vms             /var/lib/one/
 
 dist/etc/one/defaultrc           /etc/one/
 dist/etc/one/tmrc                /etc/one/
