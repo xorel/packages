@@ -31,6 +31,7 @@ Package: opennebula
 Architecture: any
 Depends: apg,
          genisoimage,
+         opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          wget,
@@ -42,8 +43,10 @@ Depends: apg,
          iputils-arping,
          ${misc:Depends},
          ${shlibs:Depends}
-Replaces: ruby-opennebula (<< 4.90.5)
-Breaks: ruby-opennebula (<< 4.90.5)
+Replaces: ruby-opennebula (<< 5.5.80),
+          opennebula-common (<< 5.5.80)
+Breaks: ruby-opennebula (<< 5.5.80),
+        opennebula-common (<< 5.5.80)
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
