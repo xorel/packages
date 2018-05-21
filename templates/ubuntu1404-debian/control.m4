@@ -151,6 +151,7 @@ Depends: adduser,
          vlan,
          ipset,
          pciutils,
+         rsync,
          cron,
          augeas-tools,
          ${misc:Depends}

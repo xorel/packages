@@ -251,6 +251,7 @@ BuildArch: noarch
 Requires: ruby
 Requires: openssh-server
 Requires: openssh-clients
+Requires: rsync
 Requires: libvirt
 Requires: qemu-kvm
 Requires: qemu-img
