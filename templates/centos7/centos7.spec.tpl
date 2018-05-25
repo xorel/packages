@@ -19,6 +19,7 @@
 %define oneadmin_gid 9869
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
+%define with_provision      0%{?_with_provision:1}
 
 Name: opennebula
 Version: %VERSION%
@@ -35,6 +36,9 @@ Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
 %if %{with_docker_machine}
 Source5: opennebula-docker-machine-%{version}.tar.gz
+%endif
+%if %{with_provision}
+Source6: provision.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -225,6 +229,27 @@ OpenNebula driver for the Docker Macihne
 %endif
 
 ################################################################################
+# Package provisioning tool
+################################################################################
+
+%if %{with_provision}
+%package provision
+Summary: OpenNebula host provisioning tool
+BuildArch: noarch
+#Requires: %{name} = %{version}
+#Requires: %{name}-common = %{version}
+#Requires: %{name}-server = %{version}
+#Requires: %{name}-ruby = %{version}
+Requires: %{name}        >= 5.5.80, %{name}        < 5.7.0
+Requires: %{name}-common >= 5.5.80, %{name}-common < 5.7.0
+Requires: %{name}-server >= 5.5.80, %{name}-server < 5.7.0
+Requires: %{name}-ruby   >= 5.5.80, %{name}-ruby   < 5.7.0
+
+%description provision
+OpenNebula host provisioning tool
+%endif
+
+################################################################################
 # Package java
 ################################################################################
 
@@ -296,6 +321,9 @@ Configures an OpenNebula node providing kvm.
 %if %{with_docker_machine}
 %setup -T -D -a 5
 %endif
+%if %{with_provision}
+%setup -T -D -a 6
+%endif
 
 %patch0 -p1
 
@@ -320,6 +348,13 @@ export DESTDIR=%{buildroot}
 %if %{with_docker_machine}
     ./install.sh -e
 %endif
+%if %{with_provision}
+    (
+        cd provision
+        ./install.sh
+    )
+%endif
+
 
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
@@ -472,6 +507,20 @@ if [ $1 = 2 ]; then
     PID=$(cat /tmp/one-collectd-client.pid 2> /dev/null)
     [ -n "$PID" ] && kill $PID 2> /dev/null || :
 fi
+
+################################################################################
+# provision - scripts
+################################################################################
+
+%if %{with_provision}
+%post provision
+if [ $1 = 1 ]; then
+    if [ ! -d "%{oneadmin_home}/.ssh/ddc/" ]; then
+        su oneadmin -c "mkdir %{oneadmin_home}/.ssh/ddc/"
+        su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh/ddc/id_rsa"
+    fi
+fi
+%endif
 
 ################################################################################
 # node-xen - scripts
@@ -702,6 +751,24 @@ EOF
 %endif
 
 ################################################################################
+# provision - files
+################################################################################
+
+%if %{with_provision}
+%files provision
+%config %{_sysconfdir}/one/cli/oneprovision.yaml
+%config %{_sysconfdir}/one/packet_driver.default
+%{_bindir}/oneprovision
+/usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
+/usr/lib/one/ruby/packet_driver.rb
+/usr/lib/one/ruby/vendors/packethost/*
+%{_datadir}/one/ansible/*
+%{_sharedstatedir}/one/remotes/hm/packet/*
+%{_sharedstatedir}/one/remotes/im/packet.d/*
+%{_sharedstatedir}/one/remotes/vmm/packet/*
+%endif
+
+################################################################################
 # server - files
 ################################################################################
 
@@ -770,7 +837,30 @@ EOF
 %dir %{_localstatedir}/run/one
 
 %{_sharedstatedir}/one/datastores/*
-%{_sharedstatedir}/one/remotes/*
+%{_sharedstatedir}/one/remotes/auth/*
+%{_sharedstatedir}/one/remotes/datastore/*
+%{_sharedstatedir}/one/remotes/hooks/*
+%{_sharedstatedir}/one/remotes/im/az.d/*
+%{_sharedstatedir}/one/remotes/im/ec2.d/*
+%{_sharedstatedir}/one/remotes/im/kvm.d/*
+%{_sharedstatedir}/one/remotes/im/kvm-probes.d/*
+%{_sharedstatedir}/one/remotes/im/one.d/*
+%{_sharedstatedir}/one/remotes/im/vcenter.d/*
+%{_sharedstatedir}/one/remotes/im/run_probes
+%{_sharedstatedir}/one/remotes/im/stop_probes
+%{_sharedstatedir}/one/remotes/ipam/*
+%{_sharedstatedir}/one/remotes/market/*
+%{_sharedstatedir}/one/remotes/tm/*
+%{_sharedstatedir}/one/remotes/vmm/az/*
+%{_sharedstatedir}/one/remotes/vmm/ec2/*
+%{_sharedstatedir}/one/remotes/vmm/kvm/*
+%{_sharedstatedir}/one/remotes/vmm/lib/*
+%{_sharedstatedir}/one/remotes/vmm/one/*
+%{_sharedstatedir}/one/remotes/vmm/vcenter/*
+%{_sharedstatedir}/one/remotes/vnm/*
+%{_sharedstatedir}/one/remotes/scripts_common.rb
+%{_sharedstatedir}/one/remotes/scripts_common.sh
+%{_sharedstatedir}/one/remotes/VERSION
 %{_sharedstatedir}/one/vms
 
 %config %{_sharedstatedir}/one/remotes/etc/*
@@ -783,7 +873,25 @@ EOF
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %defattr(-, root, root, 0755)
-%config %{_sysconfdir}/one/cli/*
+%config %{_sysconfdir}/one/cli/oneacct.yaml
+%config %{_sysconfdir}/one/cli/oneacl.yaml
+%config %{_sysconfdir}/one/cli/onecluster.yaml
+%config %{_sysconfdir}/one/cli/onedatastore.yaml
+%config %{_sysconfdir}/one/cli/onegroup.yaml
+%config %{_sysconfdir}/one/cli/onehost.yaml
+%config %{_sysconfdir}/one/cli/oneimage.yaml
+%config %{_sysconfdir}/one/cli/onemarketapp.yaml
+%config %{_sysconfdir}/one/cli/onemarket.yaml
+%config %{_sysconfdir}/one/cli/onesecgroup.yaml
+%config %{_sysconfdir}/one/cli/oneshowback.yaml
+%config %{_sysconfdir}/one/cli/onetemplate.yaml
+%config %{_sysconfdir}/one/cli/oneuser.yaml
+%config %{_sysconfdir}/one/cli/onevdc.yaml
+%config %{_sysconfdir}/one/cli/onevmgroup.yaml
+%config %{_sysconfdir}/one/cli/onevm.yaml
+%config %{_sysconfdir}/one/cli/onevnet.yaml
+%config %{_sysconfdir}/one/cli/onevrouter.yaml
+%config %{_sysconfdir}/one/cli/onezone.yaml
 
 %{_bindir}/oneacl
 %{_bindir}/onecluster
@@ -809,7 +917,30 @@ EOF
 %{_bindir}/oneflow
 %{_bindir}/oneflow-template
 
-/usr/lib/one/ruby/cli/*
+/usr/lib/one/ruby/cli/one_helper/oneacct_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onehost_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneimage_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onemarketapp_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onemarket_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onequota_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onesecgroup_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onetemplate_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneuser_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevcenter_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevdc_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevmgroup_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevm_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevnet_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onevrouter_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onezone_helper.rb
+
+/usr/lib/one/ruby/cli/cli_helper.rb
+/usr/lib/one/ruby/cli/command_parser.rb
+/usr/lib/one/ruby/cli/one_helper.rb
 
 /usr/share/one/onetoken.sh
 

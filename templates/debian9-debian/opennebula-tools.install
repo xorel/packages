@@ -1,6 +1,48 @@
-dist/etc/one/cli/*  /etc/one/cli/
+dist/etc/one/cli/oneacct.yaml       /etc/one/cli/
+dist/etc/one/cli/oneacl.yaml        /etc/one/cli/
+dist/etc/one/cli/onecluster.yaml    /etc/one/cli/
+dist/etc/one/cli/onedatastore.yaml  /etc/one/cli/
+dist/etc/one/cli/onegroup.yaml      /etc/one/cli/
+dist/etc/one/cli/onehost.yaml       /etc/one/cli/
+dist/etc/one/cli/oneimage.yaml      /etc/one/cli/
+dist/etc/one/cli/onemarketapp.yaml  /etc/one/cli/
+dist/etc/one/cli/onemarket.yaml     /etc/one/cli/
+dist/etc/one/cli/onesecgroup.yaml   /etc/one/cli/
+dist/etc/one/cli/oneshowback.yaml   /etc/one/cli/
+dist/etc/one/cli/onetemplate.yaml   /etc/one/cli/
+dist/etc/one/cli/oneuser.yaml       /etc/one/cli/
+dist/etc/one/cli/onevdc.yaml        /etc/one/cli/
+dist/etc/one/cli/onevmgroup.yaml    /etc/one/cli/
+dist/etc/one/cli/onevm.yaml         /etc/one/cli/
+dist/etc/one/cli/onevnet.yaml       /etc/one/cli/
+dist/etc/one/cli/onevrouter.yaml    /etc/one/cli/
+dist/etc/one/cli/onezone.yaml       /etc/one/cli/
 
-dist/usr/lib/one/ruby/cli/*                          /usr/lib/one/ruby/cli/
+dist/usr/lib/one/ruby/cli/cli_helper.rb              /usr/lib/one/ruby/cli/
+dist/usr/lib/one/ruby/cli/command_parser.rb          /usr/lib/one/ruby/cli/
+dist/usr/lib/one/ruby/cli/one_helper.rb              /usr/lib/one/ruby/cli/
+
+dist/usr/lib/one/ruby/cli/one_helper/oneacct_helper.rb       /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb        /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb    /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb  /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb      /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onehost_helper.rb       /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/oneimage_helper.rb      /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onemarketapp_helper.rb  /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onemarket_helper.rb     /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onequota_helper.rb      /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onesecgroup_helper.rb   /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onetemplate_helper.rb   /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/oneuser_helper.rb       /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevcenter_helper.rb    /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevdc_helper.rb        /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevmgroup_helper.rb    /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevm_helper.rb         /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevnet_helper.rb       /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onevrouter_helper.rb    /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onezone_helper.rb      /usr/lib/one/ruby/cli/one_helper/
+
 dist/usr/lib/one/ruby/cloud/econe/EC2QueryClient.rb  /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/CloudClient.rb           /usr/lib/one/ruby/cloud/
 
