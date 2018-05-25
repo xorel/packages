@@ -94,7 +94,7 @@ done
 
 # process control.m4
 _BUILD_COMPONENTS=${BUILD_COMPONENTS^^}
-m4 ${_BUILD_COMPONENTS:+ -D_WITH_${_BUILD_COMPONENTS//[[:space:]]/_ -D_WIDTH_}_} control.m4 >control
+m4 ${_BUILD_COMPONENTS:+ -D_WITH_${_BUILD_COMPONENTS//[[:space:]]/_ -D_WITH_}_} control.m4 >control
 )
 
 rm -rf $PBUILD_DIR/*
