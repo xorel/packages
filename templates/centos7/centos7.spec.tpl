@@ -762,7 +762,7 @@ EOF
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/vendors/packethost/*
-%{_datadir}/one/ansible/*
+%{_datadir}/one/oneprovision/*
 %{_sharedstatedir}/one/remotes/hm/packet/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
