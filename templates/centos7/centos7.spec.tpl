@@ -240,10 +240,10 @@ BuildArch: noarch
 #Requires: %{name}-common = %{version}
 #Requires: %{name}-server = %{version}
 #Requires: %{name}-ruby = %{version}
-Requires: %{name}        >= 5.5.80, %{name}        < 5.7.0
-Requires: %{name}-common >= 5.5.80, %{name}-common < 5.7.0
-Requires: %{name}-server >= 5.5.80, %{name}-server < 5.7.0
-Requires: %{name}-ruby   >= 5.5.80, %{name}-ruby   < 5.7.0
+Requires: %{name}        >= 5.4.11, %{name}        < 5.7.0
+Requires: %{name}-common >= 5.4.11, %{name}-common < 5.7.0
+Requires: %{name}-server >= 5.4.11, %{name}-server < 5.7.0
+Requires: %{name}-ruby   >= 5.4.11, %{name}-ruby   < 5.7.0
 
 %description provision
 OpenNebula host provisioning tool
@@ -763,7 +763,7 @@ EOF
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
-%{_sharedstatedir}/one/remotes/hm/packet/*
+%{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
 %endif

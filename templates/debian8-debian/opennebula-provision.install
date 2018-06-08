@@ -9,6 +9,6 @@ dist/usr/lib/one/ruby/vendors/packethost/    /usr/lib/one/ruby/vendors/
 
 dist/usr/share/one/oneprovision/*            /usr/share/one/oneprovision/
 
-dist/var/lib/one/remotes/hm/packet/          /var/lib/one/remotes/hm/
+dist/var/lib/one/remotes/pm/packet/          /var/lib/one/remotes/pm/
 dist/var/lib/one/remotes/im/packet.d/        /var/lib/one/remotes/im/
 dist/var/lib/one/remotes/vmm/packet/         /var/lib/one/remotes/vmm

@@ -255,9 +255,9 @@ ifdef(`_WITH_PROVISION_',`
 Package: opennebula-provision
 Architecture: any
 Description: OpenNebula host provisioning tool
-Depends: opennebula (>= 5.5.80), opennebula(<< 5.7.0),
-         opennebula-common (>= 5.5.80), opennebula-common (<< 5.7.0),
-         opennebula-tools (>= 5.5.80), opennebula-tools (<< 5.7.0),
-         ruby-opennebula (>= 5.5.80), ruby-opennebula (<< 5.7.0),
+Depends: opennebula (>= 5.4.11), opennebula(<< 5.7.0),
+         opennebula-common (>= 5.4.11), opennebula-common (<< 5.7.0),
+         opennebula-tools (>= 5.4.11), opennebula-tools (<< 5.7.0),
+         ruby-opennebula (>= 5.4.11), ruby-opennebula (<< 5.7.0),
          ${misc:Depends}
 ')
