@@ -267,7 +267,7 @@ BuildArch: noarch
 #Requires: %{name}-server >= 5.5.80, %{name}-server < 5.7.0
 #Requires: %{name}-ruby   >= 5.5.80, %{name}-ruby   < 5.7.0
 
-%description enterprise-cli
+%description enterprise-addons
 Enterprise CLI addons for OpenNebula
 #%endif
 
