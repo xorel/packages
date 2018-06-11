@@ -20,7 +20,7 @@
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
 %define with_provision      0%{?_with_provision:1}
-%define with_enterprise-addons      0%{?_with_enterprise-addons:1}
+%define with_enterprise_addons      0%{?_with_enterprise_addons:1}
 
 Name: opennebula
 Version: %VERSION%
@@ -41,8 +41,8 @@ Source5: opennebula-docker-machine-%{version}.tar.gz
 %if %{with_provision}
 Source6: provision.tar.gz
 %endif
-%if %{with_enterprise-addons}
-Source7: enterprise-addons.tar.gz
+%if %{with_enterprise_addons}
+Source7: enterprise_addons.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -257,8 +257,8 @@ OpenNebula host provisioning tool
 # Package enterprise cli addons
 ################################################################################
 
-%if %{with_enterprise-addons}
-%package enterprise-addons
+%if %{with_enterprise_addons}
+%package enterprise_addons
 Summary: Enterprise CLI addons for OpenNebula
 BuildArch: noarch
 #Requires: %{name} = %{version}
@@ -270,7 +270,7 @@ BuildArch: noarch
 #Requires: %{name}-server >= 5.5.80, %{name}-server < 5.7.0
 #Requires: %{name}-ruby   >= 5.5.80, %{name}-ruby   < 5.7.0
 
-%description enterprise-addons
+%description enterprise_addons
 Enterprise CLI addons for OpenNebula
 %endif
 
@@ -383,9 +383,9 @@ export DESTDIR=%{buildroot}
 
 # Install enterprise cli addon
 
-%if %{with_enterprise-addons}
+%if %{with_enterprise_addons}
     (
-        cd enterprise-addons
+        cd enterprise_addons
         ./install.sh -u oneadmin -g oneadmin
     )
 %fi
@@ -806,8 +806,8 @@ EOF
 # Enterprise CLI addons - files
 ################################################################################
 
-%if %{with_enterprise-addons}
-%files enterprise-addons
+%if %{with_enterprise_addons}
+%files enterprise_addons
 /usr/lib/one/ruby/cli/addons/onezone/onezone-serversync.rb
 /etc/sudoers.d/serversync.addon
 %endif
