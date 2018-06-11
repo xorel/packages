@@ -388,7 +388,7 @@ export DESTDIR=%{buildroot}
         cd enterprise_addons
         ./install.sh -u oneadmin -g oneadmin
     )
-%fi
+%endif
 
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
