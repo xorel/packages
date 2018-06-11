@@ -810,7 +810,7 @@ EOF
 
 %if %{with_enterprise_addons}
 %files enterprise_addons
-/usr/lib/one/ruby/cli/addons/onezone/onezone-serversync.rb
+/usr/lib/one/ruby/cli/addons/onezone/serversync.rb
 /etc/sudoers.d/serversync.addon
 %endif
 
