@@ -388,7 +388,7 @@ export DESTDIR=%{buildroot}
 %if %{with_enterprise_addons}
     (
         cd enterprise_addons
-        ./install.sh -u oneadmin -g oneadmin
+        ./install.sh
     )
 %endif
 
