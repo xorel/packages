@@ -673,6 +673,29 @@ EOF
 %{_bindir}/econe-terminate-instances
 %{_bindir}/econe-upload
 
+%{_mandir}/man1/econe-allocate-address.1*
+%{_mandir}/man1/econe-associate-address.1*
+%{_mandir}/man1/econe-attach-volume.1*
+%{_mandir}/man1/econe-create-keypair.1*
+%{_mandir}/man1/econe-create-volume.1*
+%{_mandir}/man1/econe-delete-keypair.1*
+%{_mandir}/man1/econe-delete-volume.1*
+%{_mandir}/man1/econe-describe-addresses.1*
+%{_mandir}/man1/econe-describe-images.1*
+%{_mandir}/man1/econe-describe-instances.1*
+%{_mandir}/man1/econe-describe-keypairs.1*
+%{_mandir}/man1/econe-describe-volumes.1*
+%{_mandir}/man1/econe-detach-volume.1*
+%{_mandir}/man1/econe-disassociate-address.1*
+%{_mandir}/man1/econe-reboot-instances.1*
+%{_mandir}/man1/econe-register.1*
+%{_mandir}/man1/econe-release-address.1*
+%{_mandir}/man1/econe-run-instances.1*
+%{_mandir}/man1/econe-start-instances.1*
+%{_mandir}/man1/econe-stop-instances.1*
+%{_mandir}/man1/econe-terminate-instances.1*
+%{_mandir}/man1/econe-upload.1*
+
 /lib/systemd/system/opennebula-sunstone.service
 /lib/systemd/system/opennebula-econe.service
 /lib/systemd/system/opennebula-novnc.service
@@ -766,6 +789,7 @@ EOF
 %{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
+%{_mandir}/man1/oneprovision.1*
 %endif
 
 ################################################################################
@@ -823,7 +847,7 @@ EOF
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/sh/*
 
-%doc %{_mandir}/man1/
+%{_mandir}/man1/onedb.1*
 %doc LICENSE NOTICE
 
 %defattr(-, oneadmin, oneadmin, 0750)
@@ -880,8 +904,8 @@ EOF
 %config %{_sysconfdir}/one/cli/onegroup.yaml
 %config %{_sysconfdir}/one/cli/onehost.yaml
 %config %{_sysconfdir}/one/cli/oneimage.yaml
-%config %{_sysconfdir}/one/cli/onemarketapp.yaml
 %config %{_sysconfdir}/one/cli/onemarket.yaml
+%config %{_sysconfdir}/one/cli/onemarketapp.yaml
 %config %{_sysconfdir}/one/cli/onesecgroup.yaml
 %config %{_sysconfdir}/one/cli/oneshowback.yaml
 %config %{_sysconfdir}/one/cli/onetemplate.yaml
@@ -893,6 +917,7 @@ EOF
 %config %{_sysconfdir}/one/cli/onevrouter.yaml
 %config %{_sysconfdir}/one/cli/onezone.yaml
 
+%{_bindir}/oneacct
 %{_bindir}/oneacl
 %{_bindir}/onecluster
 %{_bindir}/onedatastore
@@ -901,21 +926,43 @@ EOF
 %{_bindir}/oneimage
 %{_bindir}/onemarket
 %{_bindir}/onemarketapp
+%{_bindir}/onesecgroup
+%{_bindir}/oneshowback
 %{_bindir}/onetemplate
 %{_bindir}/oneuser
+%{_bindir}/onevcenter
+%{_bindir}/onevdc
 %{_bindir}/onevm
 %{_bindir}/onevmgroup
 %{_bindir}/onevnet
-%{_bindir}/oneacct
-%{_bindir}/onezone
-%{_bindir}/onevcenter
-%{_bindir}/onesecgroup
-%{_bindir}/oneshowback
-%{_bindir}/onevdc
 %{_bindir}/onevrouter
+%{_bindir}/onezone
 
 %{_bindir}/oneflow
 %{_bindir}/oneflow-template
+
+%{_mandir}/man1/oneacct.1*
+%{_mandir}/man1/oneacl.1*
+%{_mandir}/man1/onecluster.1*
+%{_mandir}/man1/onedatastore.1*
+%{_mandir}/man1/oneflow.1*
+%{_mandir}/man1/oneflow-template.1*
+%{_mandir}/man1/onegroup.1*
+%{_mandir}/man1/onehost.1*
+%{_mandir}/man1/oneimage.1*
+%{_mandir}/man1/onemarket.1*
+%{_mandir}/man1/onemarketapp.1*
+%{_mandir}/man1/onesecgroup.1*
+%{_mandir}/man1/oneshowback.1*
+%{_mandir}/man1/onetemplate.1*
+%{_mandir}/man1/oneuser.1*
+%{_mandir}/man1/onevcenter.1*
+%{_mandir}/man1/onevdc.1*
+%{_mandir}/man1/onevm.1*
+%{_mandir}/man1/onevmgroup.1*
+%{_mandir}/man1/onevnet.1*
+%{_mandir}/man1/onevrouter.1*
+%{_mandir}/man1/onezone.1*
 
 /usr/lib/one/ruby/cli/one_helper/oneacct_helper.rb
 /usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb
