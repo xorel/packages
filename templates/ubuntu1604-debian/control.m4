@@ -273,7 +273,7 @@ Depends: opennebula (>= 5.5.80), opennebula(<< 5.7.0),
 ')
 
 ifdef(`_WITH_ENTERPRISE_ADDONS_',`
-Package: opennebula-enterprise_addons
+Package: opennebula-enterprise-addons
 Architecture: any
 Description: OpenNebula host provisioning tool
 Depends: opennebula (>= 5.5.80), opennebula(<< 5.7.0),
