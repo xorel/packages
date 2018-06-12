@@ -1,0 +1,2 @@
+dist/etc/sudoers.d/serversync.addon                     /etc/sudoers.d
+dist/usr/lib/one/ruby/cli/addons/onezone/serversync.rb  /usr/lib/one/ruby/cli/addons/onezone/
