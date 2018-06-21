@@ -21,6 +21,10 @@
 %define with_docker_machine 0%{?_with_docker_machine:1}
 %define with_provision      0%{?_with_provision:1}
 
+#FIX: Problematic architecture dependent file in Sunstone noarch package:
+# src/sunstone/public/node_modules/node-sass/vendor/linux-x64-48/binding.node
+%define _binaries_in_noarch_packages_terminate_build   0
+
 Name: opennebula
 Version: %VERSION%
 Summary: Cloud computing solution for Data Center Virtualization
