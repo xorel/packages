@@ -343,8 +343,7 @@ cd src/oca/java
 
 %install
 export DESTDIR=%{buildroot}
-./install.sh -p
-./install.sh -p -s
+./install.sh
 %if %{with_docker_machine}
     ./install.sh -e
 %endif
