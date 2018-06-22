@@ -45,9 +45,17 @@ Depends: apg,
          ${misc:Depends},
          ${shlibs:Depends}
 Replaces: ruby-opennebula (<< 5.5.80),
+          opennebula-sunstone (<< 5.0.2),
+          opennebula-flow (<< 5.0.2),
+          opennebula-gate (<< 5.0.2),
+          opennebula-tools (<< 5.5.90),
           opennebula-common (<< 5.5.80)
-Breaks: ruby-opennebula (<< 5.5.80),
-        opennebula-common (<< 5.5.80)
+Breaks:  ruby-opennebula (<< 5.5.80),
+         opennebula-sunstone (<< 5.0.2),
+         opennebula-flow (<< 5.0.2),
+         opennebula-gate (<< 5.0.2),
+         opennebula-tools (<< 5.5.90),
+         opennebula-common (<< 5.5.80)
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
@@ -73,6 +81,7 @@ Depends: opennebula-common (= ${source:Version}),
          python,
          python-numpy,
          ${misc:Depends}
+Conflicts: opennebula (<< ${source:Version})
 Description: web interface to which executes the OpenNebula cluster services
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
@@ -116,6 +125,7 @@ Depends: opennebula-common (= ${source:Version}),
          thin,
          curl,
          ${misc:Depends}
+Conflicts: opennebula (<< ${source:Version})
 Description: Manage services.
  .
  ONE (OpenNebula) extends the benefits of virtualization platforms from a

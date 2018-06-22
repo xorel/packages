@@ -50,11 +50,13 @@ Replaces: ruby-opennebula (<< 5.5.80),
           opennebula-sunstone (<< 5.0.2),
           opennebula-flow (<< 5.0.2),
           opennebula-gate (<< 5.0.2),
+          opennebula-tools (<< 5.5.90),
           opennebula-common (<< 5.5.80)
 Breaks:  ruby-opennebula (<< 5.5.80),
          opennebula-sunstone (<< 5.0.2),
          opennebula-flow (<< 5.0.2),
          opennebula-gate (<< 5.0.2),
+         opennebula-tools (<< 5.5.90),
          opennebula-common (<< 5.5.80)
 Suggests: mysql-server
 Description: controller which executes the OpenNebula cluster services
