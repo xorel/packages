@@ -210,6 +210,8 @@ Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ${misc:Depends},
          ${ruby:Depends}
+Replaces: opennebula (<< 5.5.90)
+Breaks: opennebula (<< 5.5.90)
 Description: Command-line tools for OpenNebula Cloud
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
