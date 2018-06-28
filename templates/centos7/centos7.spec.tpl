@@ -787,9 +787,11 @@ EOF
 %{_bindir}/oneprovision
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
 /usr/lib/one/ruby/packet_driver.rb
+/usr/lib/one/ruby/ec2_driver_new.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
 %{_sharedstatedir}/one/remotes/pm/packet/*
+%{_sharedstatedir}/one/remotes/pm/ec2/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
 %{_mandir}/man1/oneprovision.1*
