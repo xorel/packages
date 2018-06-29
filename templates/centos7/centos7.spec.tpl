@@ -267,7 +267,7 @@ OpenNebula host provisioning tool
 Summary: OpenNebula enterprise CLI extensions
 BuildArch: noarch
 Requires: %{name} = %{version}
-Requires: %{name}-server = %{version} #TODO
+Requires: %{name}-server = %{version}
 
 %description enterprise_addons
 Enterprise CLI extensions for OpenNebula
