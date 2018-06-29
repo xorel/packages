@@ -31,8 +31,8 @@ endif
 ifneq (,$(filter %NAME%-provision, $(shell dh_listpackages)))
 	tar xzvf provision.tar.gz
 endif
-ifneq (,$(filter %NAME%-enterprise-addons, $(shell dh_listpackages)))
-	tar xzvf enterprise_addons.tar.gz
+ifneq (,$(filter %NAME%-cli-extensions, $(shell dh_listpackages)))
+	tar xzvf cli-extensions-*.tar.gz
 endif
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
 	./build_opennebula.sh systemd=yes
@@ -52,8 +52,8 @@ ifneq (,$(filter %NAME%-provision, $(shell dh_listpackages)))
 	(cd provision && \
 	DESTDIR=../dist ./install.sh)
 endif
-ifneq (,$(filter %NAME%-enterprise-addons, $(shell dh_listpackages)))
-	(cd enterprise_addons && \
+ifneq (,$(filter %NAME%-cli-extensions, $(shell dh_listpackages)))
+	(cd cli-extensions && \
 	DESTDIR=../dist ./install.sh)
 endif
 	dh_auto_install

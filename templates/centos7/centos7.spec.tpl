@@ -20,7 +20,7 @@
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
 %define with_provision      0%{?_with_provision:1}
-%define with_enterprise_addons      0%{?_with_enterprise_addons:1}
+%define with_cli_extensions 0%{?_with_cli_extensions:1}
 
 Name: opennebula
 Version: %VERSION%
@@ -41,8 +41,8 @@ Source5: opennebula-docker-machine-%{version}.tar.gz
 %if %{with_provision}
 Source6: provision.tar.gz
 %endif
-%if %{with_enterprise_addons}
-Source7: enterprise_addons.tar.gz
+%if %{with_cli_extensions}
+Source7: cli-extensions-%{version}.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -138,6 +138,7 @@ Group: System
 BuildArch: noarch
 Requires: shadow-utils
 Requires: coreutils
+Requires: sudo
 Requires: glibc-common
 
 %description common
@@ -254,24 +255,18 @@ OpenNebula host provisioning tool
 %endif
 
 ################################################################################
-# Package enterprise cli addons
+# Package CLI extensions
 ################################################################################
 
-%if %{with_enterprise_addons}
-%package enterprise_addons
-Summary: Enterprise CLI addons for OpenNebula
+%if %{with_cli_extensions}
+%package cli-extensions
+Summary: OpenNebula enterprise CLI extensions
 BuildArch: noarch
-#Requires: %{name} = %{version}
-#Requires: %{name}-common = %{version}
-#Requires: %{name}-server = %{version}
-#Requires: %{name}-ruby = %{version}
-#Requires: %{name}        >= 5.5.80, %{name}        < 5.7.0
-#Requires: %{name}-common >= 5.5.80, %{name}-common < 5.7.0
-#Requires: %{name}-server >= 5.5.80, %{name}-server < 5.7.0
-#Requires: %{name}-ruby   >= 5.5.80, %{name}-ruby   < 5.7.0
+Requires: %{name} = %{version}
+Requires: %{name}-server = %{version} #TODO
 
 %description enterprise_addons
-Enterprise CLI addons for OpenNebula
+Enterprise CLI extensions for OpenNebula
 %endif
 
 ################################################################################
@@ -382,12 +377,9 @@ export DESTDIR=%{buildroot}
         ./install.sh
     )
 %endif
-
-# Install enterprise cli addon
-
-%if %{with_enterprise_addons}
+%if %{with_cli_extensions}
     (
-        cd enterprise_addons
+        cd cli-extensions
         ./install.sh
     )
 %endif
@@ -805,11 +797,11 @@ EOF
 %endif
 
 ################################################################################
-# Enterprise CLI addons - files
+# CLI extensions - files
 ################################################################################
 
-%if %{with_enterprise_addons}
-%files enterprise_addons
+%if %{with_cli_extensions}
+%files cli-extensions
 /usr/lib/one/ruby/cli/addons/onezone/serversync.rb
 /etc/sudoers.d/serversync.addon
 %endif

@@ -262,13 +262,11 @@ Depends: opennebula (>= 5.5.80), opennebula(<< 5.7.0),
          ${misc:Depends}
 ')
 
-ifdef(`_WITH_ENTERPRISE_ADDONS_',`
-Package: opennebula-enterprise-addons
+ifdef(`_WITH_CLI_EXTENSIONS_',`
+Package: opennebula-cli-extensions
 Architecture: any
-Description: OpenNebula CLI enterprise addons
-Depends: opennebula (>= 5.5.80), opennebula(<< 5.7.0),
-         opennebula-common (>= 5.5.80), opennebula-common (<< 5.7.0),
-         opennebula-tools (>= 5.5.80), opennebula-tools (<< 5.7.0),
-         ruby-opennebula (>= 5.5.80), ruby-opennebula (<< 5.7.0),
+Description: OpenNebula enterprise CLI extensions
+Depends: opennebula-common (= ${source:Version}),
+         opennebula-tools (= ${source:Version}),
          ${misc:Depends}
 ')
