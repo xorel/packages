@@ -269,7 +269,7 @@ BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
 
-%description enterprise_addons
+%description cli-extensions
 Enterprise CLI extensions for OpenNebula
 %endif
 
