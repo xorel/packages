@@ -348,7 +348,7 @@ Configures an OpenNebula node providing kvm.
 %if %{with_provision}
 %setup -T -D -a 6
 %endif
-%if %{with_enterprise_addons}
+%if %{with_cli_extensions}
 %setup -T -D -a 7
 %endif
 
