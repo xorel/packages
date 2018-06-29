@@ -20,6 +20,7 @@
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
 %define with_provision      0%{?_with_provision:1}
+%define with_cli_extensions 0%{?_with_cli_extensions:1}
 
 #FIX: Problematic architecture dependent file in Sunstone noarch package:
 # src/sunstone/public/node_modules/node-sass/vendor/linux-x64-48/binding.node
@@ -42,7 +43,10 @@ Source4: xml_parse_huge.patch
 Source5: opennebula-docker-machine-%{version}.tar.gz
 %endif
 %if %{with_provision}
-Source6: provision-%{version}.tar.gz
+Source6: opennebula-provision-%{version}.tar.gz
+%endif
+%if %{with_cli_extensions}
+Source7: opennebula-cli-extensions-%{version}.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -138,6 +142,7 @@ Group: System
 BuildArch: noarch
 Requires: shadow-utils
 Requires: coreutils
+Requires: sudo
 Requires: glibc-common
 
 %description common
@@ -254,6 +259,21 @@ OpenNebula host provisioning tool
 %endif
 
 ################################################################################
+# Package CLI extensions
+################################################################################
+
+%if %{with_cli_extensions}
+%package cli-extensions
+Summary: OpenNebula enterprise CLI extensions
+BuildArch: noarch
+Requires: %{name} = %{version}
+Requires: %{name}-server = %{version}
+
+%description cli-extensions
+Enterprise CLI extensions for OpenNebula
+%endif
+
+################################################################################
 # Package java
 ################################################################################
 
@@ -328,6 +348,9 @@ Configures an OpenNebula node providing kvm.
 %if %{with_provision}
 %setup -T -D -a 6
 %endif
+%if %{with_cli_extensions}
+%setup -T -D -a 7
+%endif
 
 %patch0 -p1
 
@@ -357,7 +380,12 @@ export DESTDIR=%{buildroot}
         ./install.sh
     )
 %endif
-
+%if %{with_cli_extensions}
+    (
+        cd cli-extensions
+        ./install.sh
+    )
+%endif
 
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
@@ -795,6 +823,16 @@ EOF
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
 %{_mandir}/man1/oneprovision.1*
+%endif
+
+################################################################################
+# CLI extensions - files
+################################################################################
+
+%if %{with_cli_extensions}
+%files cli-extensions
+/usr/lib/one/ruby/cli/addons/onezone/serversync.rb
+/etc/sudoers.d/serversync.addon
 %endif
 
 ################################################################################
