@@ -42,7 +42,7 @@ Source4: xml_parse_huge.patch
 Source5: opennebula-docker-machine-%{version}.tar.gz
 %endif
 %if %{with_provision}
-Source6: provision.tar.gz
+Source6: provision-%{version}.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
