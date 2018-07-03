@@ -818,6 +818,7 @@ EOF
 /usr/lib/one/ruby/ec2_driver_new.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
+%{_sharedstatedir}/one/remotes/pm/dummy/*
 %{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/pm/ec2/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
