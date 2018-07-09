@@ -57,7 +57,9 @@ rm build_opennebula.sh
 rm xml_parse_huge.patch
 
 # download other sources
-shift 2
+shift || :
+shift || :
+
 for S in $@; do
     case $S in
         http*)

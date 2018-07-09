@@ -55,7 +55,9 @@ cp -f $DISTRO.spec.tpl $SPEC
 
 rm -f $SOURCE
 
-shift 2
+shift || :
+shift || :
+
 for S in $URL $@; do
     case $S in
         http*)
