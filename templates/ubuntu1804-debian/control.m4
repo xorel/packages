@@ -266,7 +266,7 @@ Description: OpenNebula driver for Docker Machine
 
 ifdef(`_WITH_PROVISION_',`
 Package: opennebula-provision
-Architecture: any
+Architecture: all
 Description: OpenNebula host provisioning tool
 Depends: opennebula (>= 5.6.1), opennebula(<< 5.7.0),
          opennebula-common (>= 5.6.1), opennebula-common (<< 5.7.0),
@@ -277,7 +277,7 @@ Depends: opennebula (>= 5.6.1), opennebula(<< 5.7.0),
 
 ifdef(`_WITH_CLI_EXTENSIONS_',`
 Package: opennebula-cli-extensions
-Architecture: any
+Architecture: all
 Description: OpenNebula enterprise CLI extensions
 Depends: opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
