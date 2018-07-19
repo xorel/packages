@@ -832,7 +832,7 @@ EOF
 %if %{with_cli_extensions}
 %files cli-extensions
 /usr/lib/one/ruby/cli/addons/onezone/serversync.rb
-/etc/sudoers.d/serversync.addon
+/etc/sudoers.d/one-extension-serversync
 %endif
 
 ################################################################################
