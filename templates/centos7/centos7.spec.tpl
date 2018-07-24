@@ -530,7 +530,7 @@ EOF
 )
 
 if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
-    systemctl try-restart libvirtd
+    systemctl try-restart libvirtd 2>/dev/null || true
 fi
 
 if [ $1 = 2 ]; then

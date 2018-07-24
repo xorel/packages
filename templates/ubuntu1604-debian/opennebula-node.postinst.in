@@ -35,7 +35,7 @@ EOF
 )
 
     if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
-        systemctl try-restart libvirt-bin
+        systemctl try-restart libvirt-bin 2>/dev/null || true
     fi
 fi
 
