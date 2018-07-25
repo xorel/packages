@@ -11,6 +11,6 @@ dist/usr/share/one/oneprovision/*            /usr/share/one/oneprovision/
 
 dist/var/lib/one/remotes/pm/dummy/           /var/lib/one/remotes/pm/
 dist/var/lib/one/remotes/pm/packet/          /var/lib/one/remotes/pm/
-dist/var/lib/one/remotes/pm/ec2/             /var/lib/one/remotes/ec2/
+dist/var/lib/one/remotes/pm/ec2/             /var/lib/one/remotes/pm/
 dist/var/lib/one/remotes/im/packet.d/        /var/lib/one/remotes/im/
 dist/var/lib/one/remotes/vmm/packet/         /var/lib/one/remotes/vmm
