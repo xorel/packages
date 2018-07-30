@@ -178,6 +178,13 @@ Description: empty package to prepare a machine as OpenNebula Node
  This package prepares the machine for being a node in an OpenNebula
  cloud.
 
+Package: pyoca
+Section: python
+Architecture: all
+Depends: python,
+         ${misc:Depends},
+         ${python:Depends}
+Description: Python bindings for OpenNebula Cloud API (OCA)
 Package: ruby-opennebula
 Section: ruby
 Architecture: all
