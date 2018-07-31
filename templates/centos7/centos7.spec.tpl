@@ -60,7 +60,7 @@ BuildRequires: xmlrpc-c-devel
 BuildRequires: openssl-devel
 BuildRequires: mysql-devel
 BuildRequires: sqlite-devel
-BuildRequires: openssh
+BuildRequires: opensshruby
 BuildRequires: pkgconfig
 BuildRequires: ruby
 BuildRequires: scons
@@ -177,6 +177,20 @@ Requires: rubygem-nokogiri
 
 %description ruby
 Ruby interface for OpenNebula.
+
+################################################################################
+# Package python
+################################################################################
+
+%package python
+Summary: Provides the OpenNebula Python libraries
+Group: System
+BuildArch: noarch
+Requires: python
+Requires: python-pip
+
+%description python
+Python interface for OpenNebula.
 
 ################################################################################
 # Package sunstone
@@ -539,7 +553,7 @@ if [ $1 = 1 ]; then
     fi
 fi
 
-################################################################################
+################################################################################https://fedoraproject.org/wiki/Packaging:Scriptlets
 # node-xen - scripts
 ################################################################################
 
@@ -582,6 +596,20 @@ required gems.
 EOF
 
 ################################################################################
+# python - scripts
+################################################################################
+
+%post python
+set -e
+
+wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
+pip install -r /tmp/requirements.txt
+
+%postun
+wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
+pip uninstall -r /tmp/requirements.txt
+
+################################################################################
 # common - files
 ################################################################################
 
@@ -615,6 +643,14 @@ EOF
 %files java
 %defattr(-,root,root)
 %{_javadir}/org.opennebula.client.jar
+
+################################################################################
+# python - files
+################################################################################
+%files python
+%defattr(-, root, root, 0755)
+/usr/lib/one/python/pyone/*
+
 
 ################################################################################
 # ruby - files
