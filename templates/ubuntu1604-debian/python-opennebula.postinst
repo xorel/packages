@@ -2,20 +2,18 @@
 
 set -e
 
-# TODO get file from source code
-#wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
-
+wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
 req=/tmp/requirements.txt
 
-cat << EOF > $req
-generateDS ~= 2.29.11
-lxml ~= 4.2.0
-dicttoxml ~= 1.7.4
-xmltodict ~= 0.11.0
-six ~= 1.10.0
-future; python_version < '3.0'
-aenum
-tblib
-EOF
+# cat << EOF > $req
+# generateDS ~= 2.29.11
+# lxml ~= 4.2.0
+# dicttoxml ~= 1.7.4
+# xmltodict ~= 0.11.0
+# six ~= 1.10.0
+# future; python_version < '3.0'
+# aenum
+# tblib
+# EOF
 
-pip install --user -r $req
+pip install -r $req
