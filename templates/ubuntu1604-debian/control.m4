@@ -182,6 +182,7 @@ Package: pyoca
 Section: python
 Architecture: all
 Depends: python,
+         python-pip,
          ${misc:Depends},
          ${python:Depends}
 Description: Python bindings for OpenNebula Cloud API (OCA)
