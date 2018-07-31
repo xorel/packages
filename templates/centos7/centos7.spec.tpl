@@ -192,6 +192,7 @@ Group: System
 BuildArch: noarch
 Requires: python
 Requires: python-pip
+Requires: wget
 
 %description python
 Python interface for OpenNebula.
