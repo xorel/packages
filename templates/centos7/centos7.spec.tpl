@@ -64,7 +64,7 @@ BuildRequires: xmlrpc-c-devel
 BuildRequires: openssl-devel
 BuildRequires: mysql-devel
 BuildRequires: sqlite-devel
-BuildRequires: opensshruby
+BuildRequires: openssh
 BuildRequires: pkgconfig
 BuildRequires: ruby
 BuildRequires: scons
