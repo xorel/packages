@@ -28,4 +28,4 @@ export PATH=$PWD/install/bin:$PATH
 # Compile OpenNebula
 cd $BUILD_DIR
 
-scons -j8 mysql=yes xmlrpc=$BUILD_DIR/../xmlrpc-c/install new_xmlrpc=yes $@ # syslog=yes
+scons -j2 mysql=yes xmlrpc=$BUILD_DIR/../xmlrpc-c/install new_xmlrpc=yes $@ # syslog=yes
