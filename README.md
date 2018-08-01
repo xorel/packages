@@ -80,8 +80,8 @@ rm -rf node_modules/
 cd ../../../../
 
 # python oca
-pip install -r requirements.txt
 cd src/oca/python
+pip install -r requirements.txt
 make
 
 tar -czf opennebula-X.Y.Z.tar.gz opennebula-X.Y.Z/
@@ -115,7 +115,7 @@ cd packages/
 
 OpenNebula web page: http://opennebula.org
 
-Development and issue tracking: https://github.com/OpenNebula/one
+Development and issue tracking: https://github.com/OpenNebula/one-
 
 Support: http://opennebula.org/support:support
 
