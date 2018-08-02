@@ -21,7 +21,7 @@ You need to enable EPEL repo in order to install python-pip
 yum install -y epel-release
 yum install -y rpm-build gcc-c++ libcurl-devel libxml2-devel xmlrpc-c-devel \
     openssl-devel mysql-devel sqlite-devel openssh pkgconfig ruby scons \
-    sqlite-devel xmlrpc-c java-1.7.0-openjdk-devel python-pip
+    sqlite-devel xmlrpc-c java-1.7.0-openjdk-devel npm python-pip which
 ```
 
 
@@ -30,7 +30,7 @@ yum install -y rpm-build gcc-c++ libcurl-devel libxml2-devel xmlrpc-c-devel \
 ```
 apt-get install -y pbuilder debhelper ubuntu-dev-tools bash-completion \
     bison default-jdk flex javahelper libxmlrpc3-client-java \
-    libxmlrpc3-common-java libxml2-dev ruby scons python-pip
+    libxmlrpc3-common-java libxml2-dev ruby ruby-ronn scons npm python-pip rename
 ```
 
 ## Source archive
@@ -81,7 +81,7 @@ cd ../../../../
 
 # python oca
 cd src/oca/python
-pip install -r requirements.txt
+pip install generateds
 make
 
 tar -czf opennebula-X.Y.Z.tar.gz opennebula-X.Y.Z/
@@ -115,7 +115,7 @@ cd packages/
 
 OpenNebula web page: http://opennebula.org
 
-Development and issue tracking: https://github.com/OpenNebula/one-
+Development and issue tracking: https://github.com/OpenNebula/one/issues
 
 Support: http://opennebula.org/support:support
 
