@@ -1,7 +1,1 @@
-#!/bin/sh
-
-set -e
-
-wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
-req=/tmp/requirements.txt
-pip uninstall --yes $req
+ubuntu1804-debian/python-opennebula.postrm
