@@ -2,6 +2,9 @@
 
 set -e
 
-wget -P /tmp https://github.com/OpenNebula/one/blob/master/src/oca/python/requirements.txt
-req=/tmp/requirements.txt
-pip uninstall --yes $req
+req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
+uninstall="pip uninstall -r requirements.txt"
+
+cd /tmp
+wget -P $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
+cd -
