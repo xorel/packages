@@ -24,13 +24,18 @@ yum install -y rpm-build gcc-c++ libcurl-devel libxml2-devel xmlrpc-c-devel \
     sqlite-devel xmlrpc-c java-1.7.0-openjdk-devel npm python-pip which
 ```
 
-
 ### Debian/Ubuntu
 
 ```
 apt-get install -y pbuilder debhelper ubuntu-dev-tools bash-completion \
     bison default-jdk flex javahelper libxmlrpc3-client-java \
     libxmlrpc3-common-java libxml2-dev ruby ruby-ronn scons npm python-pip rename
+```
+
+Install also nodejs-legacy if you build on Ubuntu1604
+
+```
+apt-get install -y nodejs-legacy
 ```
 
 ## Source archive
