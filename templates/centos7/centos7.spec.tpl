@@ -810,13 +810,19 @@ EOF
 
 %if %{with_provision}
 %files provision
-%config %{_sysconfdir}/one/cli/oneprovision.yaml
+%defattr(0640, root, oneadmin, 0750)
 %config %{_sysconfdir}/one/packet_driver.default
+
+%defattr(-, root, root, 0755)
+%config %{_sysconfdir}/one/cli/oneprovision.yaml
 %{_bindir}/oneprovision
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
+%{_mandir}/man1/oneprovision.1*
+
+%defattr(-, oneadmin, oneadmin, 0750)
 %dir %{_sharedstatedir}/one/remotes/pm
 %dir %{_sharedstatedir}/one/remotes/pm/dummy
 %dir %{_sharedstatedir}/one/remotes/pm/packet
@@ -828,7 +834,6 @@ EOF
 %{_sharedstatedir}/one/remotes/pm/ec2/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
-%{_mandir}/man1/oneprovision.1*
 %endif
 
 ################################################################################
