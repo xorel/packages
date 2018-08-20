@@ -817,6 +817,12 @@ EOF
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
+%dir %{_sharedstatedir}/one/remotes/pm
+%dir %{_sharedstatedir}/one/remotes/pm/dummy
+%dir %{_sharedstatedir}/one/remotes/pm/packet
+%dir %{_sharedstatedir}/one/remotes/pm/ec2
+%dir %{_sharedstatedir}/one/remotes/im/packet.d
+%dir %{_sharedstatedir}/one/remotes/vmm/packet
 %{_sharedstatedir}/one/remotes/pm/dummy/*
 %{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/pm/ec2/*
@@ -903,6 +909,7 @@ EOF
 %dir %{_sharedstatedir}/one/remotes/datastore
 %dir %{_sharedstatedir}/one/remotes/etc
 %dir %{_sharedstatedir}/one/remotes/hooks
+%dir %{_sharedstatedir}/one/remotes/im
 %dir %{_sharedstatedir}/one/remotes/im/az.d
 %dir %{_sharedstatedir}/one/remotes/im/ec2.d
 %dir %{_sharedstatedir}/one/remotes/im/kvm.d
@@ -912,6 +919,7 @@ EOF
 %dir %{_sharedstatedir}/one/remotes/ipam
 %dir %{_sharedstatedir}/one/remotes/market
 %dir %{_sharedstatedir}/one/remotes/tm
+%dir %{_sharedstatedir}/one/remotes/vmm
 %dir %{_sharedstatedir}/one/remotes/vmm/az
 %dir %{_sharedstatedir}/one/remotes/vmm/ec2
 %dir %{_sharedstatedir}/one/remotes/vmm/kvm
