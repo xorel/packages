@@ -898,7 +898,27 @@ EOF
 
 %dir %{_sharedstatedir}/one
 %dir %{_sharedstatedir}/one/datastores
+%dir %{_sharedstatedir}/one/etc
 %dir %{_sharedstatedir}/one/remotes
+%dir %{_sharedstatedir}/one/remotes/auth
+%dir %{_sharedstatedir}/one/remotes/hooks
+%dir %{_sharedstatedir}/one/remotes/im/az.d
+%dir %{_sharedstatedir}/one/remotes/im/ec2.d
+%dir %{_sharedstatedir}/one/remotes/im/kvm.d
+%dir %{_sharedstatedir}/one/remotes/im/kvm-probes.d
+%dir %{_sharedstatedir}/one/remotes/im/one.d
+%dir %{_sharedstatedir}/one/remotes/im/vcenter.d
+%dir %{_sharedstatedir}/one/remotes/ipam
+%dir %{_sharedstatedir}/one/remotes/market
+%dir %{_sharedstatedir}/one/remotes/tm
+%dir %{_sharedstatedir}/one/remotes/vmm/az
+%dir %{_sharedstatedir}/one/remotes/vmm/ec2
+%dir %{_sharedstatedir}/one/remotes/vmm/kvm
+%dir %{_sharedstatedir}/one/remotes/vmm/lib
+%dir %{_sharedstatedir}/one/remotes/vmm/one
+%dir %{_sharedstatedir}/one/remotes/vmm/vcenter
+%dir %{_sharedstatedir}/one/remotes/vnm
+%dir %{_sharedstatedir}/one/vms
 
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
@@ -929,7 +949,6 @@ EOF
 %{_sharedstatedir}/one/remotes/scripts_common.rb
 %{_sharedstatedir}/one/remotes/scripts_common.sh
 %{_sharedstatedir}/one/remotes/VERSION
-%{_sharedstatedir}/one/vms
 
 %config %{_sharedstatedir}/one/remotes/etc/*
 
