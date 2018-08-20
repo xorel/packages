@@ -88,6 +88,7 @@ cd ../../../../
 cd src/oca/python
 pip install generateds
 make
+cd ../../..
 
 tar -czf opennebula-X.Y.Z.tar.gz opennebula-X.Y.Z/
 ```
