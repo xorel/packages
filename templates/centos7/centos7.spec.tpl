@@ -898,9 +898,10 @@ EOF
 
 %dir %{_sharedstatedir}/one
 %dir %{_sharedstatedir}/one/datastores
-%dir %{_sharedstatedir}/one/etc
 %dir %{_sharedstatedir}/one/remotes
 %dir %{_sharedstatedir}/one/remotes/auth
+%dir %{_sharedstatedir}/one/remotes/datastore
+%dir %{_sharedstatedir}/one/remotes/etc
 %dir %{_sharedstatedir}/one/remotes/hooks
 %dir %{_sharedstatedir}/one/remotes/im/az.d
 %dir %{_sharedstatedir}/one/remotes/im/ec2.d
