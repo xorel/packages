@@ -1,1 +1,10 @@
-../ubuntu1804-debian/python-opennebula.postinst
+#!/bin/sh
+
+set -e
+
+req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
+install="pip install -r requirements.txt"
+
+cd /tmp
+wget -P $req && $install || echo -e "Error installing required python dependencies\\nManually install dependencies listed in $req by running \\n$install after downloading the file"
+cd -
