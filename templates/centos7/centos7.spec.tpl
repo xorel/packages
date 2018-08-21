@@ -616,19 +616,15 @@ EOF
 
 %post python
 req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
-install="pip install -r requirements.txt"
+install="pip install -r /tmp/requirements.txt"
+wget $req && $install || echo -e "Error installing required python dependencies\\nManually install dependencies listed in $req by running \\n$install after downloading the file"
 
-cd /tmp
-wget -P $req && $install || echo -e "Error installing required python dependencies\\nManually install dependencies listed in $req by running \\n$install after downloading the file"
-cd -
 
-%postun
+%postun python
 req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
-uninstall="pip uninstall -r requirements.txt"
+uninstall="pip uninstall -r /tmp/requirements.txt"
+wget $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
 
-cd /tmp
-wget -P $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
-cd -
 
 ################################################################################
 # common - files
