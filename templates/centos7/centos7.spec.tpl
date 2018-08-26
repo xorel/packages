@@ -601,16 +601,18 @@ EOF
 ################################################################################
 
 %post python
-req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
-install="pip install -r /tmp/requirements.txt"
-wget $req && $install || echo -e "Error installing required python dependencies\\nManually install dependencies listed in $req by running \\n$install after downloading the file"
+#req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
+#install="pip install -r /tmp/requirements.txt"
+#wget $req && $install || echo -e "Error installing required python dependencies\\nManually install dependencies listed in $req by running \\n$install after #downloading the file"
 
+pip install six aenum lxml dicttoxml future tblib xmltodict
 
 %postun python
-req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
-uninstall="pip uninstall -r /tmp/requirements.txt"
-wget $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
+#req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
+#uninstall="pip uninstall -r /tmp/requirements.txt"
+#wget $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall #after downloading the file"
 
+pip uninstall six aenum lxml dicttoxml future tblib xmltodict
 
 ################################################################################
 # common - files
