@@ -2,6 +2,8 @@
 
 set -e
 
-req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
-uninstall="pip uninstall -r /tmp/requirements.txt"
-wget $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
+# req="https://github.com/OpenNebula/one/raw/master/src/oca/python/requirements.txt"
+# uninstall="pip uninstall -r /tmp/requirements.txt"
+# wget $req && $uninstall || echo -e "Error uninstalling required python dependencies\\nManually uninstall dependencies listed in $req by running \\n$uninstall after downloading the file"
+
+pip uninstall six aenum lxml dicttoxml future tblib xmltodict
