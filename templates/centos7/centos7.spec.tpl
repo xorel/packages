@@ -843,6 +843,7 @@ EOF
 %if %{with_cli_extensions}
 %files cli-extensions
 /usr/lib/one/ruby/cli/addons/onezone/serversync.rb
+/usr/lib/one/ruby/cli/addons/onevcenter/cleartags.rb
 /etc/sudoers.d/one-extension-serversync
 %endif
 
