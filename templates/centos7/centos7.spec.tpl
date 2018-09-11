@@ -43,7 +43,7 @@ Source4: xml_parse_huge.patch
 Source5: opennebula-docker-machine-%{version}.tar.gz
 %endif
 %if %{with_provision}
-Source6: opennebula-provision-%{version}.tar.gz
+Source6: opennebula-provision-%PROVISION_VERSION%.tar.gz
 %endif
 %if %{with_cli_extensions}
 Source7: opennebula-cli-extensions-%{version}.tar.gz
@@ -243,6 +243,7 @@ OpenNebula driver for the Docker Macihne
 
 %if %{with_provision}
 %package provision
+Version: %PROVISION_VERSION%
 Summary: OpenNebula host provisioning tool
 BuildArch: noarch
 #Requires: %{name} = %{version}
