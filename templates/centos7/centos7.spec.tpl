@@ -265,13 +265,20 @@ OpenNebula host provisioning tool
 
 %if %{with_cli_extensions}
 %package cli-extensions
+License: OpenNebula Systems Commercial Open-Source Software License
 Summary: OpenNebula enterprise CLI extensions
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
 
 %description cli-extensions
-Enterprise CLI extensions for OpenNebula
+The CLI extension package install new subcomands that extend
+the functionality of the standard OpenNebula CLI, to enable and/or
+simplify common workflows for production deployments.
+
+This package is distributed under the
+OpenNebula Systems Commercial Open-Source Software License
+https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 %endif
 
 ################################################################################
@@ -905,7 +912,7 @@ EOF
 /usr/lib/one/sh/*
 
 %{_mandir}/man1/onedb.1*
-%doc LICENSE NOTICE
+%doc LICENSE LICENSE.addons NOTICE
 
 %defattr(-, oneadmin, oneadmin, 0750)
 

@@ -271,6 +271,7 @@ Depends: opennebula (>= 5.6.1), opennebula(<< 5.7.0),
          opennebula-tools (>= 5.6.1), opennebula-tools (<< 5.7.0),
          ruby-opennebula (>= 5.6.1), ruby-opennebula (<< 5.7.0),
          ${misc:Depends}
+Description: OpenNebula host provisioning tool
 ')
 
 ifdef(`_WITH_CLI_EXTENSIONS_',`
@@ -280,4 +281,11 @@ Description: OpenNebula enterprise CLI extensions
 Depends: opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ${misc:Depends}
+Description: The CLI extension package install new subcomands that extend
+ the functionality of the standard OpenNebula CLI, to enable and/or
+ simplify common workflows for production deployments.
+ .
+ This package is distributed under the
+ OpenNebula Systems Commercial Open-Source Software License
+ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 ')
