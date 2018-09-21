@@ -238,28 +238,6 @@ OpenNebula driver for the Docker Macihne
 %endif
 
 ################################################################################
-# Package provisioning tool
-################################################################################
-
-%if %{with_provision}
-%package provision
-Version: %PROVISION_VERSION%
-Summary: OpenNebula host provisioning tool
-BuildArch: noarch
-#Requires: %{name} = %{version}
-#Requires: %{name}-common = %{version}
-#Requires: %{name}-server = %{version}
-#Requires: %{name}-ruby = %{version}
-Requires: %{name}        >= 5.6.1, %{name}        < 5.7.0
-Requires: %{name}-common >= 5.6.1, %{name}-common < 5.7.0
-Requires: %{name}-server >= 5.6.1, %{name}-server < 5.7.0
-Requires: %{name}-ruby   >= 5.6.1, %{name}-ruby   < 5.7.0
-
-%description provision
-OpenNebula host provisioning tool
-%endif
-
-################################################################################
 # Package CLI extensions
 ################################################################################
 
@@ -343,6 +321,28 @@ Configures an OpenNebula node providing kvm.
 #
 # %description node-xen
 # Configures an OpenNebula node providing xen.
+
+################################################################################
+# Package provisioning tool
+################################################################################
+
+%if %{with_provision}
+%package provision
+Version: %PROVISION_VERSION%
+Summary: OpenNebula host provisioning tool
+BuildArch: noarch
+#Requires: %{name} = %{version}
+#Requires: %{name}-common = %{version}
+#Requires: %{name}-server = %{version}
+#Requires: %{name}-ruby = %{version}
+Requires: %{name}        >= 5.6.1, %{name}        < 5.7.0
+Requires: %{name}-common >= 5.6.1, %{name}-common < 5.7.0
+Requires: %{name}-server >= 5.6.1, %{name}-server < 5.7.0
+Requires: %{name}-ruby   >= 5.6.1, %{name}-ruby   < 5.7.0
+
+%description provision
+OpenNebula host provisioning tool
+%endif
 
 ################################################################################
 # Build and install
