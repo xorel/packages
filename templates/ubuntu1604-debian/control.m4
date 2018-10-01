@@ -266,10 +266,10 @@ Description: OpenNebula driver for Docker Machine
 ifdef(`_WITH_PROVISION_',`
 Package: opennebula-provision
 Architecture: all
-Depends: opennebula (>= 5.6.1), opennebula(<< 5.7.0),
-         opennebula-common (>= 5.6.1), opennebula-common (<< 5.7.0),
-         opennebula-tools (>= 5.6.1), opennebula-tools (<< 5.7.0),
-         ruby-opennebula (>= 5.6.1), ruby-opennebula (<< 5.7.0),
+Depends: opennebula (>= 5.6.1), opennebula(<< 5.8.0),
+         opennebula-common (>= 5.6.1), opennebula-common (<< 5.8.0),
+         opennebula-tools (>= 5.6.1), opennebula-tools (<< 5.8.0),
+         ruby-opennebula (>= 5.6.1), ruby-opennebula (<< 5.8.0),
          ${misc:Depends}
 Description: OpenNebula host provisioning tool
 ')
