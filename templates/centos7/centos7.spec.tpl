@@ -822,9 +822,9 @@ EOF
 %config %{_sysconfdir}/one/packet_driver.default
 
 %defattr(-, root, root, 0755)
-%config %{_sysconfdir}/one/cli/oneprovision.yaml
+%config %{_sysconfdir}/one/cli/oneprovision*.yaml
 %{_bindir}/oneprovision
-/usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneprovision_helper*
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/vendors/packethost/*
 %{_datadir}/one/oneprovision/*
