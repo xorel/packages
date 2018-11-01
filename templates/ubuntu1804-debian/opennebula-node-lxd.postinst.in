@@ -7,7 +7,7 @@ ONE_GROUP=oneadmin
 ONE_USER=oneadmin
 
 if [ "$1" = "configure" ]; then
-    adduser $ONE_USER kvm lxd
+    adduser $ONE_USER lxd
 
     # Configure LXD required sudo commands
     echo "Cmnd_Alias ONE_MAPPER = /sbin/losetup, /sbin/kpartx, /usr/bin/qemu-nbd, /bin/mount, /bin/umount, /bin/df, /bin/cp, /bin/mkdir" > /etc/sudoers.d/opennebula-lxd
