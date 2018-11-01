@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -e
+
+ONEHOME=/var/lib/one
+ONE_GROUP=oneadmin
+ONE_USER=oneadmin
+
+if [ "$1" = "configure" ]; then
+    adduser $ONE_USER kvm lxd
+
+    # Configure LXD required sudo commands
+    echo "Cmnd_Alias ONE_MAPPER = /sbin/losetup, /sbin/kpartx, /usr/bin/qemu-nbd, /bin/mount, /bin/umount, /bin/df, /bin/cp, /bin/mkdir" > /etc/sudoers.d/opennebula-lxd
+    echo "oneadmin ALL=(ALL) NOPASSWD: ONE_MAPPER" >> /etc/sudoers.d/opennebula-lxd
+
+    # Configure LXD daemon
+    cat <<EOF | lxd init --preseed
+config: {}
+cluster: null
+networks: []
+storage_pools:
+- config: {}
+  description: ""
+  name: default
+  driver: dir
+profiles:
+  - name: default
+    description: Default LXD profile  for OpenNebula
+    config:
+       limits.cpu: "1"
+       limits.cpu.allowance: 50%
+       limits.memory: 512MB
+    devices:
+      root:
+        path: /
+        pool: default
+        type: disk
+EOF
+
+    # LXD required modules for storage
+    loops='max_loop=128'
+    echo "options loop ${loops}" >> /etc/modprobe.d/local-loop.conf 
+    echo "loop" >> /etc/modules-load.d/modules.conf 
+    echo "nbd" >> /etc/modules-load.d/modules.conf
+    modprobe loop "${loops}"
+    modprobe nbd
+
+    # Additional setup
+    echo -e 'It is required some gems to run the LXD drivers\nIssue\n\ngem install opennebula xmlrpc fstab\n\nin order tocomplete the setup'
+
+    echo 'If you plan to use ceph, issue'
+    echo "echo \"rbd default features = 3\" >> /etc/ceph/ceph.conf"
+
+fi
+
+
+
+#DEBHELPER#
