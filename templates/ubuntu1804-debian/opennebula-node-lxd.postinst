@@ -47,4 +47,4 @@ modprobe loop "${loops}"
 modprobe nbd
 
 # Additional setup
-printf "If you plan to use ceph, issue\\necho \"rbd default features = 3\" >> /etc/ceph/ceph.conf\n"
+printf "Install the \"fstab\" gem if you require to create containers from multiple partition images\nIf you plan to use ceph, issue\\necho \"rbd default features = 3\" >> /etc/ceph/ceph.conf\n"
