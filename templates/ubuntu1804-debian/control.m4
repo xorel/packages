@@ -185,8 +185,7 @@ Depends: opennebula-node,
          kpartx,
          lxd
 Recommends: openssh-server | ssh-server
-Description: sets up an OS as an OpenNebula virtualization node
-using lxd as hypervisor
+Description: sets up an OpenNebula LXD virtualization node
 
 Package: ruby-opennebula
 Section: ruby
