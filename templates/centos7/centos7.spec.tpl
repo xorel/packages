@@ -1048,6 +1048,7 @@ EOF
 %{_mandir}/man1/onevm.1*
 %{_mandir}/man1/onevmgroup.1*
 %{_mandir}/man1/onevnet.1*
+%{_mandir}/man1/onevntemplate.1*
 %{_mandir}/man1/onevrouter.1*
 %{_mandir}/man1/onezone.1*
 
