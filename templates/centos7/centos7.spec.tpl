@@ -1000,6 +1000,7 @@ EOF
 %config %{_sysconfdir}/one/cli/onevmgroup.yaml
 %config %{_sysconfdir}/one/cli/onevm.yaml
 %config %{_sysconfdir}/one/cli/onevnet.yaml
+%config %{_sysconfdir}/one/cli/onevntemplate.yaml
 %config %{_sysconfdir}/one/cli/onevrouter.yaml
 %config %{_sysconfdir}/one/cli/onezone.yaml
 
