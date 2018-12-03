@@ -21,6 +21,7 @@ Build-Depends: bash-completion,
                libxslt1-dev,
                libcurl4-openssl-dev,
                libsystemd-dev,
+               python-setuptools,
                ruby,
                scons
 Standards-Version: 3.9.3

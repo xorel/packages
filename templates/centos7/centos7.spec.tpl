@@ -187,8 +187,7 @@ Summary: Provides the OpenNebula Python libraries
 Group: System
 BuildArch: noarch
 Requires: python
-Requires: python-pip
-Requires: wget
+BuildRequires: python-setuptools
 
 %description python
 Python interface for OpenNebula.
@@ -438,6 +437,11 @@ install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}
 # Gemfile
 install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
 
+# Python
+cd src/oca/python
+make install ROOT=%{buildroot}
+cd -
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -655,7 +659,8 @@ echo ""
 ################################################################################
 %files python
 %defattr(-, root, root, 0755)
-/usr/lib/one/python/pyone/*
+%{python_sitelib}/pyone/*
+%{python_sitelib}/opennebula*.egg-info/*
 
 
 ################################################################################
