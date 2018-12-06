@@ -20,6 +20,7 @@ Build-Depends: bash-completion,
                libxmlrpc3-common-java,
                libxslt1-dev,
                libcurl4-openssl-dev,
+               libvncserver-dev,
                ruby,
                scons
 Standards-Version: 3.9.3
