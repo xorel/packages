@@ -388,6 +388,10 @@ export DESTDIR=%{buildroot}
         ./install.sh
     )
 %endif
+# Hack until lxd builds are fixed
+rm -rf %{buildroot}/var/lib/one/remotes/im/lxd-probes.d/
+rm -rf %{buildroot}/var/lib/one/remotes/im/lxd.d/
+rm -rf %{buildroot}/var/lib/one/remotes/vmm/lxd/
 
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
