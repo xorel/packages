@@ -22,6 +22,8 @@ Build-Depends: bash-completion,
                libcurl4-openssl-dev,
                libsystemd-dev,
                libvncserver-dev,
+               python-setuptools,
+               python-wheel,
                ruby,
                scons
 Standards-Version: 3.9.3
@@ -187,6 +189,15 @@ Depends: opennebula-node,
          lxd (>= 3.0.0)
 Recommends: openssh-server | ssh-server
 Description: sets up an OpenNebula LXD virtualization node
+
+Package: python-opennebula
+Section: python
+Architecture: all
+Depends: python,
+         python-pip,
+         ${misc:Depends},
+         ${python:Depends}
+Description: Python bindings for OpenNebula Cloud API (OCA)
 
 Package: ruby-opennebula
 Section: ruby
