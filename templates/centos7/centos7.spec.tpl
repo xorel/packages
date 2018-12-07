@@ -179,6 +179,20 @@ Requires: rubygem-nokogiri
 Ruby interface for OpenNebula.
 
 ################################################################################
+# Package python
+################################################################################
+
+%package python
+Summary: Provides the OpenNebula Python libraries
+Group: System
+BuildArch: noarch
+Requires: python
+BuildRequires: python-setuptools
+
+%description python
+Python interface for OpenNebula.
+
+################################################################################
 # Package sunstone
 ################################################################################
 
@@ -419,6 +433,11 @@ install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}
 # Gemfile
 install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
 
+# Python
+cd src/oca/python
+make install ROOT=%{buildroot}
+cd -
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -582,6 +601,21 @@ required gems.
 EOF
 
 ################################################################################
+# python - scripts
+################################################################################
+
+%post python
+echo ""
+echo "WARNING: Unmanaged dependencies, please install following:"
+echo "pip install six aenum lxml dicttoxml future tblib xmltodict"
+echo ""
+%postun python
+echo ""
+echo "WARNING: Unmanaged dependencies, please consider uninstalling following:"
+echo "pip uninstall six aenum lxml dicttoxml future tblib xmltodict"
+echo ""
+
+################################################################################
 # common - files
 ################################################################################
 
@@ -615,6 +649,15 @@ EOF
 %files java
 %defattr(-,root,root)
 %{_javadir}/org.opennebula.client.jar
+
+################################################################################
+# python - files
+################################################################################
+%files python
+%defattr(-, root, root, 0755)
+%{python_sitelib}/pyone/*
+%{python_sitelib}/opennebula*.egg-info/*
+
 
 ################################################################################
 # ruby - files
