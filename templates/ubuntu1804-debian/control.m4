@@ -185,6 +185,7 @@ Architecture: any
 Depends: opennebula-node,
          kpartx,
          libvncserver1,
+         rbd-nbd,
          lxd (>= 3.0.0)
 Recommends: openssh-server | ssh-server
 Description: sets up an OpenNebula LXD virtualization node
