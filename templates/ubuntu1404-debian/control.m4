@@ -21,6 +21,8 @@ Build-Depends: bash-completion,
                libxslt1-dev,
                libcurl4-openssl-dev,
                libvncserver-dev,
+               python-setuptools,
+               python-wheel,
                ruby,
                scons
 Standards-Version: 3.9.3
@@ -176,6 +178,15 @@ Description: empty package to prepare a machine as OpenNebula Node
  .
  This package prepares the machine for being a node in an OpenNebula
  cloud.
+
+Package: python-opennebula
+Section: python
+Architecture: all
+Depends: python,
+         python-pip,
+         ${misc:Depends},
+         ${python:Depends}
+Description: Python bindings for OpenNebula Cloud API (OCA)
 
 Package: ruby-opennebula
 Section: ruby
