@@ -23,6 +23,9 @@ profiles:
        limits.cpu: "1"
        limits.cpu.allowance: 50%
        limits.memory: 512MB
+       security.idmap.base: "100000"
+       security.idmap.isolated: "true"
+       security.idmap.size: "65536"
     devices:
       root:
         path: /
