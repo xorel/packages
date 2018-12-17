@@ -29,6 +29,7 @@ dist/var/lib/one/remotes/vmm/one/*            /var/lib/one/remotes/vmm/one/
 dist/var/lib/one/remotes/vmm/packet/*         /var/lib/one/remotes/vmm/packet/
 dist/var/lib/one/remotes/vmm/vcenter/*        /var/lib/one/remotes/vmm/vcenter/
 dist/var/lib/one/remotes/vnm/*                /var/lib/one/remotes/vnm/
+dist/var/lib/one/remotes/create_container_image.sh  /var/lib/one/remotes/
 dist/var/lib/one/remotes/scripts_common.rb    /var/lib/one/remotes/
 dist/var/lib/one/remotes/scripts_common.sh    /var/lib/one/remotes/
 dist/var/lib/one/remotes/VERSION              /var/lib/one/remotes/

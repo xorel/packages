@@ -991,6 +991,7 @@ echo ""
 %{_sharedstatedir}/one/remotes/vmm/packet/*
 %{_sharedstatedir}/one/remotes/vmm/vcenter/*
 %{_sharedstatedir}/one/remotes/vnm/*
+%{_sharedstatedir}/one/remotes/create_container_image.sh
 %{_sharedstatedir}/one/remotes/scripts_common.rb
 %{_sharedstatedir}/one/remotes/scripts_common.sh
 %{_sharedstatedir}/one/remotes/VERSION
