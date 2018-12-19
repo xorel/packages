@@ -23,6 +23,7 @@ if [ "$1" = "configure" ]; then
             chmod 600 $ONEAUTH
         fi
     fi
+    systemctl daemon-reload 2>/dev/null || true
 fi
 
 systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf

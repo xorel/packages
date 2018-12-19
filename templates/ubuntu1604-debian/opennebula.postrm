@@ -9,6 +9,7 @@ ONE_USER=oneadmin
 if [ "$1" = "remove" ]; then
     # Remove logs
     rm -rf /var/log/one/*
+    systemctl daemon-reload 2>/dev/null || true
 fi
 
 #DEBHELPER#
