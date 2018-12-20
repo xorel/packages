@@ -1,4 +1,4 @@
 #!/bin/sh
 if [ "$1" = "configure" ]; then
-    systemctl daemon-reload 2>/dev/null || true
+    systemctl daemon-reload >/dev/null || true
 fi

@@ -1,5 +1,5 @@
 if [ "$1" = "remove" ]; then
-    systemctl daemon-reload 2>/dev/null || true
+    systemctl daemon-reload >/dev/null || true
 fi
 
 dpkg-maintscript-helper mv_conffile /etc/one/sunstone-views/vcenter.yaml /etc/one/sunstone-views/admin_vcenter.yaml 4.10.2-1 -- "$@"
