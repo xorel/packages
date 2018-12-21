@@ -5,6 +5,7 @@ set -e
 if [ "$1" = "configure" ]; then
   
   adduser oneadmin lxd
+  echo "oneadmin ALL=(ALL:ALL) NOPASSWD: /usr/bin/lxc" >> /etc/sudoers.d/opennebula-lxd
   
   # Configure LXD daemon
   cat <<EOF | lxd init --preseed
