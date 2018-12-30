@@ -64,8 +64,6 @@ ifneq (,$(filter %NAME%, $(shell dh_listpackages)))
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula-scheduler.service \
 		/lib/systemd/system/
 	dh_install -p %NAME% share/pkgs/${DISTRO}-systemd/opennebula.conf /usr/lib/tmpfiles.d/
-	dh_systemd_start --no-start
-	dh_systemd_enable --no-enable
 endif
 ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 	dh_install -p %NAME%-sunstone share/pkgs/logrotate/opennebula-econe /etc/logrotate.d/
@@ -83,8 +81,6 @@ ifneq (,$(filter %NAME%-sunstone, $(shell dh_listpackages)))
 		share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf
 	dh_install -p %NAME%-sunstone share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf \
 		/usr/lib/tmpfiles.d/
-	dh_systemd_start --no-start
-	dh_systemd_enable --no-enable
 endif
 ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
 	dh_install -p %NAME%-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
@@ -96,8 +92,6 @@ ifneq (,$(filter %NAME%-gate, $(shell dh_listpackages)))
 		share/pkgs/${DISTRO}-systemd/opennebula-gate.conf
 	dh_install -p %NAME%-gate share/pkgs/${DISTRO}-systemd/opennebula-gate.conf \
 		/usr/lib/tmpfiles.d/
-	dh_systemd_start --no-start
-	dh_systemd_enable --no-enable
 endif
 ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
 	dh_install -p %NAME%-flow share/pkgs/logrotate/opennebula-flow /etc/logrotate.d/
@@ -109,8 +103,6 @@ ifneq (,$(filter %NAME%-flow, $(shell dh_listpackages)))
 		share/pkgs/${DISTRO}-systemd/opennebula-flow.conf
 	dh_install -p %NAME%-flow share/pkgs/${DISTRO}-systemd/opennebula-flow.conf \
 		/usr/lib/tmpfiles.d/
-	dh_systemd_start --no-start
-	dh_systemd_enable --no-enable
 endif
 ifneq (,$(filter %NAME%-node, $(shell dh_listpackages)))
 	dh_install -p %NAME%-node share/etc/sysctl.d/bridge-nf-call.conf /etc/sysctl.d/
@@ -154,6 +146,12 @@ override_dh_fixperms:
 ifneq (,$(filter %NAME%-common, $(shell dh_listpackages)))
 	chmod 0440 debian/%NAME%-common/etc/sudoers.d/%NAME%
 endif
+
+override_dh_systemd_start:
+	dh_systemd_start --no-start
+
+override_dh_systemd_enable:
+	dh_systemd_enable --no-enable
 
 override_dh_auto_clean:
 	dh_auto_clean
