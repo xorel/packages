@@ -231,6 +231,7 @@ Package: opennebula-tools
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
+         less,
          ${misc:Depends},
          ${ruby:Depends}
 Replaces: opennebula (<< 5.5.90)

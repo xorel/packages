@@ -80,6 +80,7 @@ Requires: openssl
 Requires: openssh
 Requires: sqlite
 Requires: openssh-clients
+Requires: less
 
 Requires: %{name}-common = %{version}
 Requires: %{name}-ruby = %{version}
