@@ -80,7 +80,7 @@ $NAME ($VERSION-$PKG_VERSION) unstable; urgency=low
 
   * Imported from http://packages.qa.debian.org/o/opennebula.html
 
- -- $CONTACT $DATE_R
+ -- $CONTACT  $DATE_R
 
 EOF
 mv newchangelog changelog
