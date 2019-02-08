@@ -883,8 +883,9 @@ echo ""
 %files provision
 %defattr(-, root, root, 0755)
 %{_bindir}/oneprovision
-%config %{_sysconfdir}/one/cli/oneprovision*.yaml
-/usr/lib/one/ruby/cli/one_helper/oneprovision_helper*
+%config %{_sysconfdir}/one/cli/oneprovision.yaml
+/usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
+/usr/lib/one/oneprovision/*
 %{_datadir}/one/oneprovision/*
 %{_mandir}/man1/oneprovision.1*
 
