@@ -196,7 +196,7 @@ Suggests: rbd-nbd
 Recommends: openssh-server | ssh-server
 Description: sets up an OpenNebula LXD virtualization node
 
-Package: python-opennebula
+Package: python-pyone
 Section: python
 Architecture: all
 Depends: python,

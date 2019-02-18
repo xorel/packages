@@ -183,7 +183,7 @@ Description: empty package to prepare a machine as OpenNebula Node
  This package prepares the machine for being a node in an OpenNebula
  cloud.
 
-Package: python-opennebula
+Package: python-pyone
 Section: python
 Architecture: all
 Depends: python,
