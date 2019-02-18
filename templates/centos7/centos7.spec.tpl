@@ -183,7 +183,7 @@ Ruby interface for OpenNebula.
 # Package python
 ################################################################################
 
-%package -n python-opennebula
+%package -n python-pyone
 Summary: Provides the OpenNebula Python libraries
 Group: System
 BuildArch: noarch
@@ -191,7 +191,7 @@ Requires: python
 BuildRequires: python-setuptools
 BuildRequires: python-wheel
 
-%description -n python-opennebula
+%description -n python-pyone
 Python interface for OpenNebula.
 
 ################################################################################
@@ -646,12 +646,12 @@ EOF
 # python - scripts
 ################################################################################
 
-%post -n python-opennebula
+%post -n python-pyone
 echo ""
 echo "WARNING: Unmanaged dependencies, please install following:"
 echo "pip install six aenum lxml dicttoxml future tblib xmltodict"
 echo ""
-%postun -n python-opennebula
+%postun -n python-pyone
 echo ""
 echo "WARNING: Unmanaged dependencies, please consider uninstalling following:"
 echo "pip uninstall six aenum lxml dicttoxml future tblib xmltodict"
@@ -695,7 +695,7 @@ echo ""
 ################################################################################
 # python - files
 ################################################################################
-%files -n python-opennebula
+%files -n python-pyone
 %defattr(-, root, root, 0755)
 %{python_sitelib}/pyone/*
 %{python_sitelib}/pyone*.egg-info/*
