@@ -19,8 +19,8 @@
 %define oneadmin_gid 9869
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
-%define with_cli_extensions 0%{?_with_cli_extensions:1}
-%define with_market_addon 0%{?_with_market_addon:1}
+%define with_addon_tools 0%{?_with_addon_tools:1}
+%define with_addon_markets 0%{?_with_addon_markets:1}
 
 #FIX: Problematic architecture dependent file in Sunstone noarch package:
 # src/sunstone/public/node_modules/node-sass/vendor/linux-x64-48/binding.node
@@ -42,10 +42,10 @@ Source4: xml_parse_huge.patch
 %if %{with_docker_machine}
 Source5: opennebula-docker-machine-%{version}.tar.gz
 %endif
-%if %{with_cli_extensions}
+%if %{with_addon_tools}
 Source7: opennebula-addon-tools-%{version}.tar.gz
 %endif
-%if %{with_market_addon}
+%if %{with_addon_markets}
 Source8: opennebula-addon-markets-%{version}.tar.gz
 %endif
 
@@ -254,16 +254,17 @@ OpenNebula driver for the Docker Macihne
 %endif
 
 ################################################################################
-# Package CLI extensions
+# Package Addon Tools
 ################################################################################
 
-%if %{with_cli_extensions}
+%if %{with_addon_tools}
 %package addon-tools
 License: OpenNebula Systems Commercial Open-Source Software License
-Summary: OpenNebula enterprise CLI extensions
+Summary: OpenNebula Enterprise Tools Add-on
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
+Obsoletes: %{name}-cli-extensions
 
 %description addon-tools
 The CLI extension package install new subcomands that extend
@@ -279,10 +280,10 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 # Package market addon
 ################################################################################
 
-%if %{with_market_addon}
+%if %{with_addon_markets}
 %package addon-markets
 License: OpenNebula Systems Commercial Open-Source Software License
-Summary: OpenNebula enterprise markets addon
+Summary: OpenNebula Enterprise Markets Add-on
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
@@ -384,10 +385,10 @@ OpenNebula provisioning tool
 %if %{with_docker_machine}
 %setup -T -D -a 5
 %endif
-%if %{with_cli_extensions}
+%if %{with_addon_tools}
 %setup -T -D -a 7
 %endif
-%if %{with_market_addon}
+%if %{with_addon_markets}
 %setup -T -D -a 8
 %endif
 
@@ -413,9 +414,15 @@ export DESTDIR=%{buildroot}
 %if %{with_docker_machine}
     ./install.sh -e
 %endif
-%if %{with_cli_extensions}
+%if %{with_addon_tools}
     (
-        cd cli-extensions
+        cd addon-tools
+        ./install.sh
+    )
+%endif
+%if %{with_addon_markets}
+    (
+        cd addon-markets
         ./install.sh
     )
 %endif
@@ -919,14 +926,23 @@ echo ""
 %{_mandir}/man1/oneprovision.1*
 
 ################################################################################
-# CLI extensions - files
+# addon tools - files
 ################################################################################
 
-%if %{with_cli_extensions}
-%files cli-extensions
+%if %{with_addon_tools}
+%files addon-tools
 /usr/lib/one/ruby/cli/addons/onezone/serversync.rb
 /usr/lib/one/ruby/cli/addons/onevcenter/cleartags.rb
 /etc/sudoers.d/one-extension-serversync
+%endif
+
+################################################################################
+# addon markets - files
+################################################################################
+
+%if %{with_addon_markets}
+%files addon-markets
+%{_sharedstatedir}/one/remotes/market/turnkeylinux/*
 %endif
 
 ################################################################################
@@ -1047,7 +1063,10 @@ echo ""
 %{_sharedstatedir}/one/remotes/im/run_probes
 %{_sharedstatedir}/one/remotes/im/stop_probes
 %{_sharedstatedir}/one/remotes/ipam/*
-%{_sharedstatedir}/one/remotes/market/*
+%{_sharedstatedir}/one/remotes/market/http/*
+%{_sharedstatedir}/one/remotes/market/linuxcontainers/*
+%{_sharedstatedir}/one/remotes/market/one/*
+%{_sharedstatedir}/one/remotes/market/s3/*
 %{_sharedstatedir}/one/remotes/pm/dummy/*
 %{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/pm/ec2/*
