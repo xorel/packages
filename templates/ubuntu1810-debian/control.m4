@@ -301,12 +301,13 @@ Architecture: any
 Description: OpenNebula driver for Docker Machine
 ')
 
-ifdef(`_WITH_CLI_EXTENSIONS_',`
+ifdef(`_WITH_ADDON_TOOLS_',`
 Package: opennebula-addon-tools
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
-         opennebula(= ${source:Version}),
+         opennebula (= ${source:Version}),
          ${misc:Depends}
+Conflicts: opennebula-cli-extensions
 Description: The CLI extension package install new subcomands that extend
  the functionality of the standard OpenNebula CLI, to enable and/or
  simplify common workflows for production deployments.
@@ -316,13 +317,13 @@ Description: The CLI extension package install new subcomands that extend
  https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 ')
 
-ifdef(`_WITH_MARKET_ADDON_',`
+ifdef(`_WITH_ADDON_MARKETS_',`
 Package: opennebula-addon-markets
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
          opennebula (= ${source:Version}),
          ${misc:Depends}
-Description: OpenNebula Enterprise Market Addons will link turnkeylinux.org
+Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org
  as a marketplace allowing users to easily interact and download
  existing appliances from Turnkey.
  .
