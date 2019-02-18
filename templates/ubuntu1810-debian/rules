@@ -113,7 +113,7 @@ endif
 ifneq (,$(filter %NAME%-tools, $(shell dh_listpackages)))
 	cp share/install_gems/Ubuntu1810/Gemfile.lock dist/usr/share/one/
 endif
-ifneq (,$(filter python-%NAME%, $(shell dh_listpackages)))
+ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
 	(cd src/oca/python/; make install ROOT=../../../dist)
 endif
 
