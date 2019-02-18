@@ -20,6 +20,7 @@
 
 %define with_docker_machine 0%{?_with_docker_machine:1}
 %define with_cli_extensions 0%{?_with_cli_extensions:1}
+%define with_market_addon 0%{?_with_market_addon:1}
 
 #FIX: Problematic architecture dependent file in Sunstone noarch package:
 # src/sunstone/public/node_modules/node-sass/vendor/linux-x64-48/binding.node
@@ -42,7 +43,10 @@ Source4: xml_parse_huge.patch
 Source5: opennebula-docker-machine-%{version}.tar.gz
 %endif
 %if %{with_cli_extensions}
-Source7: opennebula-cli-extensions-%{version}.tar.gz
+Source7: opennebula-addon-tools-%{version}.tar.gz
+%endif
+%if %{with_market_addon}
+Source8: opennebula-addon-markets-%{version}.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -254,17 +258,39 @@ OpenNebula driver for the Docker Macihne
 ################################################################################
 
 %if %{with_cli_extensions}
-%package cli-extensions
+%package addon-tools
 License: OpenNebula Systems Commercial Open-Source Software License
 Summary: OpenNebula enterprise CLI extensions
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
 
-%description cli-extensions
+%description addon-tools
 The CLI extension package install new subcomands that extend
 the functionality of the standard OpenNebula CLI, to enable and/or
 simplify common workflows for production deployments.
+
+This package is distributed under the
+OpenNebula Systems Commercial Open-Source Software License
+https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+%endif
+
+################################################################################
+# Package market addon
+################################################################################
+
+%if %{with_market_addon}
+%package addon-markets
+License: OpenNebula Systems Commercial Open-Source Software License
+Summary: OpenNebula enterprise markets addon
+BuildArch: noarch
+Requires: %{name} = %{version}
+Requires: %{name}-server = %{version}
+
+%description addon-markets
+OpenNebula's Enterprise Market Addons will link turnkeylinux.org
+as a marketplace allowing users to easily interact and download
+existing appliances from Turnkey.
 
 This package is distributed under the
 OpenNebula Systems Commercial Open-Source Software License
@@ -360,6 +386,9 @@ OpenNebula provisioning tool
 %endif
 %if %{with_cli_extensions}
 %setup -T -D -a 7
+%endif
+%if %{with_market_addon}
+%setup -T -D -a 8
 %endif
 
 %patch0 -p1
