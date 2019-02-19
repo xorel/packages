@@ -530,8 +530,8 @@ if [ $1 = 1 ]; then
         cp -p %{oneadmin_home}/.ssh/id_rsa.pub %{oneadmin_home}/.ssh/authorized_keys
         /bin/chmod 600 %{oneadmin_home}/.ssh/authorized_keys
     fi
-    systemctl daemon-reload 2>/dev/null || :
 fi
+systemctl daemon-reload 2>/dev/null || :
 
 %preun server
 if [ $1 = 0 ]; then
@@ -540,7 +540,7 @@ if [ $1 = 0 ]; then
 fi
 
 %postun server
-if [ $1 = 2 ]; then
+if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 fi
 
@@ -624,8 +624,8 @@ fi
 %post sunstone
 if [ $1 = 1 ]; then
     /sbin/chkconfig --add opennebula-sunstone >/dev/null || :
-    systemctl daemon-reload 2>/dev/null || :
 fi
+systemctl daemon-reload 2>/dev/null || :
 
 %preun sunstone
 if [ $1 = 0 ]; then
@@ -636,7 +636,7 @@ if [ $1 = 0 ]; then
 fi
 
 %postun sunstone
-if [ $1 = 2 ]; then
+if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 fi
 
@@ -645,12 +645,10 @@ fi
 ################################################################################
 
 %post gate
-if [ $1 = 1 ]; then
-    systemctl daemon-reload 2>/dev/null || :
-fi
+systemctl daemon-reload 2>/dev/null || :
 
 %postun gate
-if [ $1 = 2 ]; then
+if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 fi
 
@@ -659,12 +657,10 @@ fi
 ################################################################################
 
 %post flow
-if [ $1 = 1 ]; then
-    systemctl daemon-reload 2>/dev/null || :
-fi
+systemctl daemon-reload 2>/dev/null || :
 
 %postun flow
-if [ $1 = 2 ]; then
+if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 fi
 
