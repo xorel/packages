@@ -509,6 +509,7 @@ fi
 # Upgrade - Stop the service
 if [ $1 = 2 ]; then
     /sbin/service opennebula stop >/dev/null || :
+    /sbin/service opennebula-scheduler stop >/dev/null || :
 fi
 
 if [ -d /var/lib/one/remotes/ ]; then
@@ -517,7 +518,6 @@ fi
 
 %post server
 if [ $1 = 1 ]; then
-    /sbin/chkconfig --add opennebula >/dev/null
     if [ ! -e %{oneadmin_home}/.one/one_auth ]; then
         PASSWORD=$(echo $RANDOM$(date '+%s')|md5sum|cut -d' ' -f1)
         mkdir -p %{oneadmin_home}/.one
@@ -536,7 +536,7 @@ systemctl daemon-reload 2>/dev/null || :
 %preun server
 if [ $1 = 0 ]; then
     /sbin/service opennebula stop >/dev/null || :
-    /sbin/chkconfig --del opennebula >/dev/null || :
+    /sbin/service opennebula-scheduler stop >/dev/null || :
 fi
 
 %postun server
@@ -616,23 +616,19 @@ fi
 ################################################################################
 
 %pre sunstone
+# Upgrade - Stop the service
 if [ $1 = 2 ]; then
     /sbin/service opennebula-sunstone stop >/dev/null || :
     /sbin/service opennebula-novnc stop >/dev/null || :
 fi
 
 %post sunstone
-if [ $1 = 1 ]; then
-    /sbin/chkconfig --add opennebula-sunstone >/dev/null || :
-fi
 systemctl daemon-reload 2>/dev/null || :
 
 %preun sunstone
 if [ $1 = 0 ]; then
     /sbin/service opennebula-sunstone stop >/dev/null  || :
-    /sbin/chkconfig --del opennebula-sunstone >/dev/null || :
     /sbin/service opennebula-novnc stop >/dev/null  || :
-    /sbin/chkconfig --del opennebula-novnc >/dev/null || :
 fi
 
 %postun sunstone
