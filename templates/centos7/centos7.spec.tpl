@@ -935,6 +935,7 @@ echo ""
 %if %{with_addon_markets}
 %files addon-markets
 %defattr(-, oneadmin, oneadmin, 0750)
+%dir %{_sharedstatedir}/one/remotes/market/turnkeylinux
 %{_sharedstatedir}/one/remotes/market/turnkeylinux/*
 %endif
 
@@ -1019,6 +1020,10 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/im/vcenter.d
 %dir %{_sharedstatedir}/one/remotes/ipam
 %dir %{_sharedstatedir}/one/remotes/market
+%dir %{_sharedstatedir}/one/remotes/market/http
+%dir %{_sharedstatedir}/one/remotes/market/linuxcontainers
+%dir %{_sharedstatedir}/one/remotes/market/one
+%dir %{_sharedstatedir}/one/remotes/market/s3
 %dir %{_sharedstatedir}/one/remotes/pm
 %dir %{_sharedstatedir}/one/remotes/pm/dummy
 %dir %{_sharedstatedir}/one/remotes/pm/packet
