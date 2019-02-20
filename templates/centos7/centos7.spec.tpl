@@ -934,6 +934,7 @@ echo ""
 
 %if %{with_addon_markets}
 %files addon-markets
+%defattr(-, oneadmin, oneadmin, 0750)
 %{_sharedstatedir}/one/remotes/market/turnkeylinux/*
 %endif
 
