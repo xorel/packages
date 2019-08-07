@@ -1007,6 +1007,7 @@ echo ""
 /usr/lib/one/ruby/CommandManager.rb
 /usr/lib/one/ruby/DriverExecHelper.rb
 /usr/lib/one/ruby/ec2_driver.rb
+/usr/lib/one/ruby/nsx_driver.rb
 /usr/lib/one/ruby/onedb/*
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/opennebula_driver.rb
