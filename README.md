@@ -1,4 +1,4 @@
-# OpenNebula package builders
+# OpenNebula Packaging
 
 This repository contains scripts for building the
 [OpenNebula](https://github.com/OpenNebula/one). The build process
@@ -8,34 +8,38 @@ is divided into following steps:
 2. get or generate source code archive
 3. build packages
 
-## Build requirements
+**IMPORTANT**: Always use the correct branch with the scripts corresponding
+to the OpenNebula you are going to build! For example, to build development
+OpenNebula, use the `master` branch. To build the latest yet unreleased
+OpenNebula 5.8.x, use the `one-5.8` branch. Or, to build OpenNebula 5.8.2
+release, use the repository state referenced by the tag `release-5.8.2`.
 
-You need to have these packages installed on your system.
+## Build Requirements
 
-### CentOS 7
+You need to have following dependencies installed on your system to be able to
+build `rpm` and `deb` packages. `rpm` packages can be built on RHEL or CentOS,
+`deb` packages can be built on Debian on Ubuntu.
+
+Install deps. to build `rpm` packages on CentOS 7:
 
 ```
-yum install -y rpm-build gcc-c++ libcurl-devel libxml2-devel xmlrpc-c-devel \
-    openssl-devel mysql-devel sqlite-devel openssh pkgconfig ruby scons \
-    sqlite-devel xmlrpc-c java-1.7.0-openjdk-devel
+yum install -y wget m4 mock
 ```
 
-### Debian/Ubuntu
+Install deps. to build `deb` packages on Debian or Ubuntu:
 
 ```
-apt-get install -y pbuilder debhelper ubuntu-dev-tools bash-completion \
-    bison default-jdk flex javahelper libxmlrpc3-client-java \
-    libxmlrpc3-common-java libxml2-dev ruby scons dh-systemd
+apt-get install -y wget m4 rename pbuilder ubuntu-dev-tools
 ```
 
-## Source archive
+## Source Archive
 
 Build scripts require the source archive containing the OpenNebula source
 codes, generated manual pages, and all JavaScript dependencies. The archive is available for each public
 release or can be created from the source code taken from the
 [VCS](https://github.com/OpenNebula/one).
 
-### Public release archive
+### Public Release Archive
 
 Inside the release download directory, you can find the source archive.
 The URL template based on the desired OpenNebula version is
@@ -45,7 +49,7 @@ For example, the release 5.4.0 has source archive here:
 
 * https://downloads.opennebula.org/packages/opennebula-5.4.0/opennebula-5.4.0.tar.gz
 
-### Create archive
+### Create Archive
 
 If you take the source code from the [VCS](https://github.com/OpenNebula/one),
 you have to install all the dependencies on your own. You need to have `npm` and Ruby gem
@@ -82,21 +86,33 @@ main directory inside must be `${NAME}-${RELEASE}`.
 
 There are various build scripts available, one for each supported platform.
 Scripts require URL or filesystem path with the OpenNebula source archive
-from the previous section.
+from the previous section and optional paths of source archives
+for the optional components.
 
-For CentOS 7, the build must be done on the CentOS 7.
+CentOS, Debian, and Ubuntu builds leverage tools (`mock` and `pbuilder`)
+to build binary packages in the chroot in an environment similar to the
+target platform. It's not necessary to build on the very same system until you
+have the required tools available and working. E.g., on Ubuntu 18.04 you
+can build packages for all supported Ubuntu and Debian.
 
-For Debian and Ubuntu, we use the single Ubuntu system to build whole package
-family. Any Debian-like distribution can be used until the `pbuilder`
-can bootstrap the target platform.
+The Build of the additional components needs to be enabled by the `BUILD_COMPONENTS`
+environment variable. Optional builds are specified as a whitespace separeted
+list of names. Most of the optional components are private only, there
+are only a few which makes sense for public builds.
+
+| Build Component     | Description                            |
+|---------------------|----------------------------------------|
+| rubygems            | Package all Ruby gems                  |
+| docker\_machine     | Create Docker Machine package          |
 
 Examples:
 
 ```
 cd packages/
-./centos7.sh ../opennebula-5.4.0.tar.gz
-./debian9.sh ../opennebula-5.4.0.tar.gz
-./ubuntu1610.sh https://downloads.opennebula.org/packages/opennebula-5.4.0/opennebula-5.4.0.tar.gz
+./centos7.sh ../opennebula-5.10.0.tar.gz
+./debian9.sh ../opennebula-5.10.0.tar.gz
+./ubuntu1610.sh https://downloads.opennebula.org/packages/opennebula-5.10.0/opennebula-5.10.0.tar.gz
+BUILD_COMPONENTS='rubygems docker_machine' ./centos7.sh http://downloads.opennebula.org/packages/opennebula-5.10.0/opennebula-5.10.0.tar.gz http://downloads.opennebula.org/packages/opennebula-5.10.0/opennebula-docker-machine-5.10.0.tar.gz
 ```
 
 ## Contact
@@ -109,7 +125,7 @@ Support: http://opennebula.org/support:support
 
 ## License
 
-Copyright 2002-2017, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
+Copyright 2002-2019, OpenNebula Project, OpenNebula Systems (formerly C12G Labs)
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may
 not use this file except in compliance with the License. You may obtain
