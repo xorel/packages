@@ -1,4 +1,5 @@
-dist/var/lib/one/datastores/*    /var/lib/one/datastores
+### See https://github.com/OpenNebula/packages/issues/68
+#dist/var/lib/one/datastores/*                /var/lib/one/datastores
 dist/var/lib/one/remotes/etc/*                /var/lib/one/remotes/etc/
 dist/var/lib/one/remotes/auth/*               /var/lib/one/remotes/auth/
 dist/var/lib/one/remotes/datastore/*          /var/lib/one/remotes/datastore/

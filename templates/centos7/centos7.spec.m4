@@ -511,8 +511,8 @@ else
     chown -R %{oneadmin_uid}:%{oneadmin_gid} %{oneadmin_home}
     chcon -t user_home_dir_t %{oneadmin_home}
     /usr/sbin/useradd -r -m -d %{oneadmin_home} \
-    -u %{oneadmin_uid} -g %{oneadmin_gid} \
-    -s /bin/bash oneadmin 2> /dev/null
+        -u %{oneadmin_uid} -g %{oneadmin_gid} \
+        -s /bin/bash oneadmin 2> /dev/null
 fi
 
 if ! getent group disk | grep '\boneadmin\b' &>/dev/null; then
@@ -560,6 +560,31 @@ fi
 %postun server
 if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
+
+    # Remove logs
+    #NOTE: We don't remove all the daemon logs, as this is not common
+    # behaviour of the RPM packages. We drop only logs from VMs, as
+    # they could be reused if new installation is done again on same
+    # host with fresh new database.
+    rm -rf /var/log/one/[[:digit:]]*.log
+
+    # Remove vms directory
+    rm -rf /var/lib/one/vms
+
+    # Remove empty datastore directories
+    for DIR in /var/lib/one/datastores/*   \
+               /var/lib/one/datastores/.*  \
+               /var/lib/one/datastores; do
+        # ignore . and ..
+        BASE_DIR=$(basename "${DIR}")
+        if [ "${BASE_DIR}" = '.' ] || [ "${BASE_DIR}" = '..' ]; then
+            continue
+        fi
+
+        if [ -d "${DIR}" ]; then
+            rmdir --ignore-fail-on-non-empty "${DIR}" 2>/dev/null || :
+        fi
+    done
 fi
 
 ################################################################################
@@ -1118,7 +1143,7 @@ echo ""
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
 
-%{_sharedstatedir}/one/datastores/*
+%exclude %{_sharedstatedir}/one/datastores/*
 %{_sharedstatedir}/one/remotes/auth/*
 %{_sharedstatedir}/one/remotes/datastore/*
 %{_sharedstatedir}/one/remotes/hooks/*

@@ -2,13 +2,29 @@
 
 set -e
 
-ONEHOME=/var/lib/one
-ONE_GROUP=oneadmin
-ONE_USER=oneadmin
-
-if [ "$1" = "remove" ]; then
+if [ "$1" = 'purge' ]; then
     # Remove logs
-    rm -rf /var/log/one/*
+    rm -rf /var/log/one/oned.log* \
+        /var/log/one/sched.log* \
+        /var/log/one/[[:digit:]]*.log
+
+    # Remove vms directory
+    rm -rf /var/lib/one/vms
+
+    # Remove empty datastore directories
+    for DIR in /var/lib/one/datastores/*   \
+               /var/lib/one/datastores/.*  \
+               /var/lib/one/datastores; do
+        # ignore . and ..
+        BASE_DIR=$(basename "${DIR}")
+        if [ "${BASE_DIR}" = '.' ] || [ "${BASE_DIR}" = '..' ]; then
+            continue
+        fi
+
+        if [ -d "${DIR}" ]; then
+            rmdir --ignore-fail-on-non-empty "${DIR}" 2>/dev/null || :
+        fi
+    done
 fi
 
 #DEBHELPER#
