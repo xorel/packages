@@ -23,10 +23,6 @@
 %define with_addon_tools 0%{?_with_addon_tools:1}
 %define with_addon_markets 0%{?_with_addon_markets:1}
 
-#FIX: Problematic architecture dependent file in Sunstone noarch package:
-# src/sunstone/public/node_modules/node-sass/vendor/linux-x64-48/binding.node
-%define _binaries_in_noarch_packages_terminate_build   0
-
 Name: opennebula
 Version: _VERSION_
 Summary: Cloud computing solution for Data Center Virtualization
@@ -430,6 +426,7 @@ cd src/oca/java
 ./build.sh -d
 
 %install
+rm -rf src/sunstone/public/node_modules/ || :
 export DESTDIR=%{buildroot}
 ./install.sh
 %if %{with_docker_machine}

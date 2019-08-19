@@ -43,6 +43,7 @@ endif
 	./build.sh -d)
 
 override_dh_auto_install:
+	rm -rf src/sunstone/public/node_modules/ || :
 	DESTDIR=dist ./install.sh
 ifneq (,$(filter docker-machine-opennebula, $(shell dh_listpackages)))
 	DESTDIR=dist ./install.sh -e
