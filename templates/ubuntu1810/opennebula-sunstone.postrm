@@ -2,7 +2,12 @@
 
 set -e
 
-if [ "$1" = 'purge' ]; then
+if [ "$1" = 'remove' ]; then
+    if [ -f /var/lib/one/sunstone/main.js ]; then
+        rm -f /var/lib/one/sunstone/main.js 2>/dev/null || :
+    fi
+
+elif [ "$1" = 'purge' ]; then
     # Remove logs
     rm -rf /var/log/one/sunstone.log* \
         /var/log/one/sunstone.error* \

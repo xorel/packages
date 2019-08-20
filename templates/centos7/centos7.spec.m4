@@ -710,11 +710,20 @@ fi
 %post sunstone
 systemctl daemon-reload 2>/dev/null || :
 
+if [ ! -e /var/lib/one/sunstone/main.js ]; then
+    touch /var/lib/one/sunstone/main.js
+    chown oneadmin:oneadmin /var/lib/one/sunstone/main.js
+fi
+
 %preun sunstone
 if [ $1 = 0 ]; then
     /sbin/service opennebula-sunstone stop >/dev/null  || :
     /sbin/service opennebula-novnc stop >/dev/null  || :
     /sbin/service opennebula-econe stop >/dev/null || :
+
+    if [ -f /var/lib/one/sunstone/main.js ]; then
+        rm -f /var/lib/one/sunstone/main.js 2>/dev/null || :
+    fi
 fi
 
 %postun sunstone
@@ -982,7 +991,7 @@ echo ""
 
 %dir %{_sharedstatedir}/one/sunstone
 
-%{_sharedstatedir}/one/sunstone/main.js
+%exclude %{_sharedstatedir}/one/sunstone/main.js
 
 ################################################################################
 # gate - files

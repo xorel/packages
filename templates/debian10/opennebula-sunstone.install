@@ -27,7 +27,8 @@ dist/usr/bin/sunstone-server    /usr/bin/
 
 dist/usr/share/one/websockify/* /usr/share/one/websockify/
 
-dist/var/lib/one/sunstone/main.js /var/lib/one/sunstone/
+### See https://github.com/OpenNebula/packages/issues/54
+#dist/var/lib/one/sunstone/main.js /var/lib/one/sunstone/
 
 # ECONE
 

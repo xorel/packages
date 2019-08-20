@@ -8,6 +8,10 @@ ONE_GROUP=oneadmin
 ONE_USER=oneadmin
 
 if [ "$1" = "configure" ]; then
+    if [ ! -f /var/lib/one/sunstone/main.js ]; then
+        touch /var/lib/one/sunstone/main.js
+    fi
+
     chown -R $ONE_USER:$ONE_GROUP /var/lib/one/sunstone
 fi
 
