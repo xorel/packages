@@ -594,11 +594,11 @@ fi
 %post node-kvm
 # Install
 if [ -e /etc/libvirt/qemu.conf ]; then
-    cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
+    cp -f /etc/libvirt/qemu.conf "/etc/libvirt/qemu.conf.$(date +'%Y-%m-%d_%H:%M:%%S')"
 fi
 
 if [ -e /etc/libvirt/libvirtd.conf ]; then
-    cp -f /etc/libvirt/libvirtd.conf /etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d')
+    cp -f /etc/libvirt/libvirtd.conf "/etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d_%H:%M:%%S')"
 fi
 
 AUGTOOL=$(augtool -A 2>/dev/null <<EOF
@@ -623,7 +623,7 @@ save
 EOF
 )
 
-if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
+if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
     systemctl try-restart libvirtd 2>/dev/null || true
 fi
 
@@ -632,6 +632,47 @@ if [ $1 = 2 ]; then
     PID=$(cat /tmp/one-collectd-client.pid 2> /dev/null)
     [ -n "$PID" ] && kill $PID 2> /dev/null || :
 fi
+
+%postun node-kvm
+if [ $1 = 0 ]; then
+    # Uninstall
+    if [ -e /etc/libvirt/qemu.conf ]; then
+        cp -f /etc/libvirt/qemu.conf "/etc/libvirt/qemu.conf.$(date +'%Y-%m-%d_%H:%M:%%S')"
+    fi
+
+    if [ -e /etc/libvirt/libvirtd.conf ]; then
+        cp -f /etc/libvirt/libvirtd.conf "/etc/libvirt/libvirtd.conf.$(date +'%Y-%m-%d_%H:%M:%%S')"
+    fi
+
+    AUGTOOL=$(augtool -A 2>/dev/null <<EOF || /bin/true
+set /augeas/load/Libvirtd_qemu/lens Libvirtd_qemu.lns
+set /augeas/load/Libvirtd_qemu/incl /etc/libvirt/qemu.conf
+set /augeas/load/Libvirtd/lens Libvirtd.lns
+set /augeas/load/Libvirtd/incl /etc/libvirt/libvirtd.conf
+load
+
+rm /files/etc/libvirt/qemu.conf/user[. = 'oneadmin']
+rm /files/etc/libvirt/qemu.conf/group[. = 'oneadmin']
+rm /files/etc/libvirt/qemu.conf/dynamic_ownership[. = '0']
+
+# Disable PolicyKit https://github.com/OpenNebula/one/issues/1768
+rm /files/etc/libvirt/libvirtd.conf/auth_unix_ro[. = 'none']
+rm /files/etc/libvirt/libvirtd.conf/auth_unix_rw[. = 'none']
+rm /files/etc/libvirt/libvirtd.conf/unix_sock_group[. = 'oneadmin']
+rm /files/etc/libvirt/libvirtd.conf/unix_sock_ro_perms[. = '0770']
+rm /files/etc/libvirt/libvirtd.conf/unix_sock_rw_perms[. = '0770']
+
+save
+EOF
+)
+
+    if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
+        systemctl try-restart libvirtd 2>/dev/null || :
+    fi
+fi
+
+
+
 
 ################################################################################
 # provision - scripts

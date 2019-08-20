@@ -17,8 +17,9 @@ if [ "$1" = "configure" ]; then
         adduser $ONE_USER kvm
     fi
 
+    # Backup libvirt/QEMU configuration, reconfigure for OpenNebula
     if [ -e /etc/libvirt/qemu.conf ]; then
-        cp -f /etc/libvirt/qemu.conf /etc/libvirt/qemu.conf.$(date +'%Y-%m-%d')
+        cp -f /etc/libvirt/qemu.conf "/etc/libvirt/qemu.conf.$(date +'%Y-%m-%d_%H:%M:%S')"
     fi
 
     AUGTOOL=$(augtool -A 2>/dev/null <<EOF
@@ -34,7 +35,7 @@ save
 EOF
 )
 
-    if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##Saved *}" ]; then
+    if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
         systemctl try-restart libvirtd 2>/dev/null || true
     fi
 fi
