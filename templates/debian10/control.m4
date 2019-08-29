@@ -226,6 +226,9 @@ Package: opennebula-rubygems
 Architecture: all
 Depends: ruby,
          _RUBYGEMS_REQ_
+         libffi6,
+         libsqlite3-0,
+         libmariadb3,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
 Description: Metapackage to install all Ruby gem dependencies
