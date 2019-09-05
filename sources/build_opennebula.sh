@@ -10,10 +10,15 @@ if [ -f "${XMLRPC_DIR}xmlrpc-c.tar.gz" ]; then
 )
 fi
 
+set
+
+if /bin/false; then
+    export CXXFLAGS="-fPIC"
+    export CFLAGS="-Wno-error=format-security"
+fi
+
 # Compile xmlrpc-c
 cd ../xmlrpc-c
-export CXXFLAGS="-fPIC"
-export CFLAGS="-Wno-error=format-security"
 patch -p1 < $BUILD_DIR/../xml_parse_huge.patch
 ./configure --prefix=$PWD/install --enable-libxml2-backend
 make
