@@ -23,6 +23,10 @@
 %define with_addon_tools 0%{?_with_addon_tools:1}
 %define with_addon_markets 0%{?_with_addon_markets:1}
 
+# RHEL 7 doesn't have hardened builds enabled by default
+# https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
+%global _hardened_build 1
+
 Name: opennebula
 Version: _VERSION_
 Summary: Cloud computing solution for Data Center Virtualization
@@ -414,6 +418,7 @@ OpenNebula provisioning tool
 %patch0 -p1
 
 %build
+%set_build_flags
 # Uncompress xmlrpc-c and copy build_opennebula.sh
 (
     cd ..
