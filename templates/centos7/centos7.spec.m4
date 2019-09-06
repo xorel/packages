@@ -344,7 +344,6 @@ Requires: libvirt
 Requires: qemu-kvm
 Requires: qemu-img
 Requires: nfs-utils
-Requires: bridge-utils
 Requires: ipset
 Requires: pciutils
 Requires: cronie

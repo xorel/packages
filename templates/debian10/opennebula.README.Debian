@@ -71,7 +71,7 @@ Add a new host (node) in OpenNebula pool
 4. Add this host into OpenNebula pool
 
   oneadmin@controller> onehost create node01 --im im_kvm --vm vmm_kvm --net dummy
-  
+
 5. Check node registration on controller
 
   oneadmin@controller> onehost list
