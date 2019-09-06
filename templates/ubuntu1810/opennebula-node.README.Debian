@@ -17,7 +17,7 @@ correctly working on current machine.
 
 1. Check for hardware support
  * vmx is Intel's VT technology
- * svm is AMD's V technology 
+ * svm is AMD's V technology
 
   root@node01> egrep '(vmx|svm)' /proc/cpuinfo
 
@@ -29,8 +29,8 @@ correctly working on current machine.
 
   root@node01> virsh -c qemu:///system net-start default
   root@node01> virsh -c qemu:///system net-autostart default
-  root@node01> brctl show virbr0
-  
+  root@node01> ip link show virbr0
+
 4. Change default user/group running libvirt
 
  You also need to modify /etc/libvirt/qemu.conf to set oneadmin
@@ -66,7 +66,7 @@ Add current host into OpenNebula pool
 
   root@controller> su - oneadmin
   oneadmin@controller> ssh oneadmin@node01
-    The authenticity of host 'node01 (192.168.0.2)' can't be established. 
+    The authenticity of host 'node01 (192.168.0.2)' can't be established.
     RSA key fingerprint is [xx].
     Are you sure you want to continue connecting (yes/no)? [yes]
     Warning: Permanently added 'node01,192.168.0.2' (RSA) to the list of known hosts.

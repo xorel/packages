@@ -48,9 +48,9 @@ to set up the network model. You will need to have your main interface, ethX,
 connected to a bridge. The name of the bridge should be the same accross all
 nodes.
 
-    $ brctl show
-    bridge name bridge id       STP enabled interfaces
-    br0     8000.000000000000   no          eth0
+    $ ip link show type bridge
+	21: br0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT group default qlen 1000
+    link/ether fe:00:c0:a8:64:64 brd ff:ff:ff:ff:ff:ff
 
 Additionally, in this guide we will assume we are going to use the shared
 storage architecture as opposed to ssh. Therefore you need to export
