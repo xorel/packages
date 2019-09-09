@@ -71,6 +71,8 @@ ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula-scheduler.service \
 		/lib/systemd/system/
+	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula-hem.service \
+		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula.conf /usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))

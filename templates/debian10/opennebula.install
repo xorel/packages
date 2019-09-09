@@ -42,6 +42,7 @@ dist/var/lib/one/vms             /var/lib/one/
 dist/etc/one/defaultrc           /etc/one/
 dist/etc/one/tmrc                /etc/one/
 dist/etc/one/oned.conf           /etc/one/
+dist/etc/one/onehem-server.conf  /etc/one/
 dist/etc/one/sched.conf          /etc/one/
 dist/etc/one/ec2_driver.conf     /etc/one/
 dist/etc/one/ec2_driver.default  /etc/one/
@@ -57,6 +58,7 @@ dist/etc/one/auth/*                /etc/one/auth/
 
 dist/usr/lib/one/sh/*           /usr/lib/one/sh/
 dist/usr/lib/one/mads/*         /usr/lib/one/mads/
+dist/usr/lib/one/onehem/*       /usr/lib/one/onehem/
 
 dist/usr/lib/one/ruby/CommandManager.rb    /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/OpenNebulaDriver.rb  /usr/lib/one/ruby/
@@ -87,3 +89,4 @@ dist/usr/bin/oned          /usr/bin/
 dist/usr/bin/mm_sched      /usr/bin/
 dist/usr/bin/onedb         /usr/bin/
 dist/usr/bin/one           /usr/bin/
+dist/usr/bin/onehem-server /usr/bin/

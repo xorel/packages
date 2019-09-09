@@ -3,6 +3,7 @@ dist/etc/one/cli/oneacl.yaml        /etc/one/cli/
 dist/etc/one/cli/onecluster.yaml    /etc/one/cli/
 dist/etc/one/cli/onedatastore.yaml  /etc/one/cli/
 dist/etc/one/cli/onegroup.yaml      /etc/one/cli/
+dist/etc/one/cli/onehook.yaml       /etc/one/cli/
 dist/etc/one/cli/onehost.yaml       /etc/one/cli/
 dist/etc/one/cli/oneimage.yaml      /etc/one/cli/
 dist/etc/one/cli/onemarketapp.yaml  /etc/one/cli/
@@ -28,6 +29,7 @@ dist/usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb        /usr/lib/one/ruby/c
 dist/usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb    /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb  /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb      /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/onehook_helper.rb       /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onehost_helper.rb       /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/oneimage_helper.rb      /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onemarketapp_helper.rb  /usr/lib/one/ruby/cli/one_helper/
@@ -57,6 +59,7 @@ dist/usr/bin/oneacl        /usr/bin/
 dist/usr/bin/onecluster    /usr/bin/
 dist/usr/bin/onedatastore  /usr/bin/
 dist/usr/bin/onegroup      /usr/bin/
+dist/usr/bin/onehook       /usr/bin/
 dist/usr/bin/onehost       /usr/bin/
 dist/usr/bin/oneimage      /usr/bin/
 dist/usr/bin/onemarket     /usr/bin/

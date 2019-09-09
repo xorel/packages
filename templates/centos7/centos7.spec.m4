@@ -447,6 +447,7 @@ export DESTDIR=%{buildroot}
 # Init scripts
 install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
 install -p -D -m 644 share/pkgs/CentOS7/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
+install -p -D -m 644 share/pkgs/CentOS7/opennebula-hem.service %{buildroot}/lib/systemd/system/opennebula-hem.service
 install -p -D -m 644 share/pkgs/CentOS7/opennebula-sunstone.service %{buildroot}/lib/systemd/system/opennebula-sunstone.service
 install -p -D -m 644 share/pkgs/CentOS7/opennebula-gate.service  %{buildroot}/lib/systemd/system/opennebula-gate.service
 install -p -D -m 644 share/pkgs/CentOS7/opennebula-econe.service %{buildroot}/lib/systemd/system/opennebula-econe.service
@@ -1097,6 +1098,7 @@ echo ""
 %config %{_sysconfdir}/one/tmrc
 %config %{_sysconfdir}/one/hm/*
 %config %{_sysconfdir}/one/oned.conf
+%config %{_sysconfdir}/one/onehem-server.conf
 %config %{_sysconfdir}/one/sched.conf
 %config %{_sysconfdir}/one/vmm_exec/*
 %config %{_sysconfdir}/one/az_driver.conf
@@ -1112,6 +1114,7 @@ echo ""
 %defattr(-, root, root, 0755)
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
+/lib/systemd/system/opennebula-hem.service
 /lib/tmpfiles.d/opennebula.conf
 
 %{_bindir}/mm_sched
@@ -1119,12 +1122,14 @@ echo ""
 %{_bindir}/one
 %{_bindir}/oned
 %{_bindir}/onedb
+%{_bindir}/onehem-server
 
 %{_datadir}/one/examples/*
 %{_datadir}/one/esx-fw-vnc/*
 %{_datadir}/one/follower_cleanup
 
 /usr/lib/one/mads/*
+/usr/lib/one/onehem/*
 /usr/lib/one/ruby/ActionManager.rb
 /usr/lib/one/ruby/az_driver.rb
 /usr/lib/one/ruby/CommandManager.rb
@@ -1246,6 +1251,7 @@ echo ""
 %config %{_sysconfdir}/one/cli/onecluster.yaml
 %config %{_sysconfdir}/one/cli/onedatastore.yaml
 %config %{_sysconfdir}/one/cli/onegroup.yaml
+%config %{_sysconfdir}/one/cli/onehook.yaml
 %config %{_sysconfdir}/one/cli/onehost.yaml
 %config %{_sysconfdir}/one/cli/oneimage.yaml
 %config %{_sysconfdir}/one/cli/onemarket.yaml
@@ -1267,6 +1273,7 @@ echo ""
 %{_bindir}/onecluster
 %{_bindir}/onedatastore
 %{_bindir}/onegroup
+%{_bindir}/onehook
 %{_bindir}/onehost
 %{_bindir}/oneimage
 %{_bindir}/onemarket
@@ -1316,6 +1323,7 @@ echo ""
 /usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb
+/usr/lib/one/ruby/cli/one_helper/onehook_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onehost_helper.rb
 /usr/lib/one/ruby/cli/one_helper/oneimage_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onemarketapp_helper.rb
