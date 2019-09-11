@@ -45,6 +45,9 @@ Depends: apg,
          rsync,
          qemu-utils,
          iputils-arping,
+         libzmq5,
+# Devel package brings libzmq.so symlink required by ffi-rzmq-core gem
+         libzmq3-dev,
          ${misc:Depends},
          ${shlibs:Depends}
 Replaces: ruby-opennebula (<< 5.5.80),
