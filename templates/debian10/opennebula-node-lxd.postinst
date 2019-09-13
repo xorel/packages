@@ -16,10 +16,6 @@ if [ "$1" = "configure" ]; then
         if ! [ -f /usr/bin/lxc ]; then
             ln -s /snap/bin/lxc /usr/bin/lxc
         fi
-
-        if ! grep -qF '/snap/bin/lxc' /etc/sudoers.d/opennebula-lxd; then
-            echo 'oneadmin ALL=(ALL:ALL) NOPASSWD: /snap/bin/lxc' >> /etc/sudoers.d/opennebula-lxd
-        fi
     fi
 
     ###
@@ -63,7 +59,27 @@ EOF
     PARAMS_LOOP='max_loop=256'
     PARAMS_NBD='nbds_max=256'
 
-    MODULES_CONF='opennebula-lxd.conf'
+    OLD_MODULES_CONF='opennebula-lxd.conf'
+    MODULES_CONF='opennebula-node-lxd.conf'
+
+    # migrate pre-5.10 configuration
+    if [ -f "/etc/modprobe.d/${OLD_MODULES_CONF}" ]; then
+        if [ -f "/etc/modprobe.d/${MODULES_CONF}" ]; then
+            rm "/etc/modprobe.d/${OLD_MODULES_CONF}"
+        else
+            mv "/etc/modprobe.d/${OLD_MODULES_CONF}" "/etc/modprobe.d/${MODULES_CONF}"
+        fi
+    fi
+
+    if [ -f "/etc/modules-load.d/${OLD_MODULES_CONF}" ]; then
+        if [ -f "/etc/modules-load.d/${MODULES_CONF}" ]; then
+            rm "/etc/modules-load.d/${OLD_MODULES_CONF}"
+        else
+            mv "/etc/modules-load.d/${OLD_MODULES_CONF}" "/etc/modules-load.d/${MODULES_CONF}"
+        fi
+    fi
+
+    # generate new configuration if missing
     if ! [ -f "/etc/modprobe.d/${MODULES_CONF}" ]; then
         cat - <<EOF >"/etc/modprobe.d/${MODULES_CONF}"
 options loop ${PARAMS_LOOP}
@@ -80,4 +96,9 @@ EOF
 
     modprobe loop "${PARAMS_LOOP}"
     modprobe nbd  "${PARAMS_NBD}"
+
+    # cleanup pre-5.10 LXD sudoers on upgrade
+    if [ -n "$2" ] && [ -f /etc/sudoers.d/opennebula-lxd ]; then
+        rm -f /etc/sudoers.d/opennebula-lxd
+    fi
 fi

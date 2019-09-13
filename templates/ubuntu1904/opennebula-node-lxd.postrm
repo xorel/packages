@@ -14,9 +14,8 @@ if [ "$1" = 'remove' ]; then
 fi
 
 if [ "$1" = 'purge' ]; then
-    for F in '/etc/sudoers.d/opennebula-lxd' \
-        '/etc/modprobe.d/opennebula-lxd.conf' \
-        '/etc/modules-load.d/opennebula-lxd.conf';
+    for F in '/etc/modprobe.d/opennebula-node-lxd.conf' \
+        '/etc/modules-load.d/opennebula-node-lxd.conf';
     do
         if test -f "${F}"; then
             rm "${F}"

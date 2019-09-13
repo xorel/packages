@@ -5,11 +5,15 @@ export DH_VERBOSE=1
 # Handle group assignment: libvirt (Debian) and libvirtd (Ubuntu)
 ifeq ($(shell dpkg-vendor --derives-from Ubuntu && echo yes),yes)
 	LIB_VIRT_GROUP = libvirt
-	DISTRO = Ubuntu
 else
 	LIB_VIRT_GROUP = libvirt
-	DISTRO = Debian8
 endif
+
+# distribution specific content
+DIR_SUDOERS  = 'debian'
+DIR_SERVICES = 'systemd'
+DIR_TMPFILES = ''
+GEMFILE_LOCK = 'Ubuntu1904'
 
 # https://wiki.debian.org/HardeningWalkthrough#Selecting_security_hardening_options
 export DEB_BUILD_MAINT_OPTIONS=hardening=+all
@@ -61,72 +65,72 @@ ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 endif
 	dh_auto_install
 ifneq (,$(filter opennebula-common, $(shell dh_listpackages)))
-	dh_install -p opennebula-common share/pkgs/${DISTRO}/opennebula.sudoers \
+	dh_install -p opennebula-common share/pkgs/sudoers/${DIR_SUDOERS}/opennebula \
 		/etc/sudoers.d
-	mv debian/opennebula-common/etc/sudoers.d/opennebula.sudoers \
-		debian/opennebula-common/etc/sudoers.d/opennebula
 endif
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 	dh_install -p opennebula share/pkgs/logrotate/opennebula /etc/logrotate.d/
 	dh_install -p opennebula share/pkgs/logrotate/opennebula-scheduler /etc/logrotate.d/
 	dh_install -p opennebula share/pkgs/logrotate/opennebula-hem /etc/logrotate.d/
 
-	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula.service \
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula.service \
 		/lib/systemd/system/
-	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula-scheduler.service \
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-scheduler.service \
 		/lib/systemd/system/
-	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula-hem.service \
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-hem.service \
 		/lib/systemd/system/
-	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula.conf /usr/lib/tmpfiles.d/
+	dh_install -p opennebula share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf /usr/lib/tmpfiles.d/
 	dh_install -p opennebula share/augeas/oned.aug /usr/share/augeas/lenses/
+	dh_install -p opennebula share/pkgs/sudoers/opennebula-server /etc/sudoers.d/
 endif
 ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_install -p opennebula-sunstone share/pkgs/logrotate/opennebula-econe /etc/logrotate.d/
 	dh_install -p opennebula-sunstone share/pkgs/logrotate/opennebula-novnc /etc/logrotate.d/
 	dh_install -p opennebula-sunstone share/pkgs/logrotate/opennebula-sunstone /etc/logrotate.d/
 
-	dh_install -p opennebula-sunstone share/pkgs/${DISTRO}-systemd/opennebula-sunstone.service \
+	dh_install -p opennebula-sunstone share/pkgs/services/${DIR_SERVICES}/opennebula-sunstone.service \
 		/lib/systemd/system/
-	dh_install -p opennebula-sunstone share/pkgs/${DISTRO}-systemd/opennebula-econe.service \
+	dh_install -p opennebula-sunstone share/pkgs/services/${DIR_SERVICES}/opennebula-econe.service \
 		/lib/systemd/system/
-	dh_install -p opennebula-sunstone share/pkgs/${DISTRO}-systemd/opennebula-novnc.service \
+	dh_install -p opennebula-sunstone share/pkgs/services/${DIR_SERVICES}/opennebula-novnc.service \
 		/lib/systemd/system/
 
-	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
-		share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf
-	dh_install -p opennebula-sunstone share/pkgs/${DISTRO}-systemd/opennebula-sunstone.conf \
+	cp share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf \
+		share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-sunstone.conf
+	dh_install -p opennebula-sunstone share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-sunstone.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter opennebula-gate, $(shell dh_listpackages)))
 	dh_install -p opennebula-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
 
-	dh_install -p opennebula-gate share/pkgs/${DISTRO}-systemd/opennebula-gate.service \
+	dh_install -p opennebula-gate share/pkgs/services/${DIR_SERVICES}/opennebula-gate.service \
 		/lib/systemd/system/
 
-	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
-		share/pkgs/${DISTRO}-systemd/opennebula-gate.conf
-	dh_install -p opennebula-gate share/pkgs/${DISTRO}-systemd/opennebula-gate.conf \
+	cp share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf \
+		share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-gate.conf
+	dh_install -p opennebula-gate share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-gate.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter opennebula-flow, $(shell dh_listpackages)))
 	dh_install -p opennebula-flow share/pkgs/logrotate/opennebula-flow /etc/logrotate.d/
 
-	dh_install -p opennebula-flow share/pkgs/${DISTRO}-systemd/opennebula-flow.service \
+	dh_install -p opennebula-flow share/pkgs/services/${DIR_SERVICES}/opennebula-flow.service \
 		/lib/systemd/system/
 
-	cp share/pkgs/${DISTRO}-systemd/opennebula.conf \
-		share/pkgs/${DISTRO}-systemd/opennebula-flow.conf
-	dh_install -p opennebula-flow share/pkgs/${DISTRO}-systemd/opennebula-flow.conf \
+	cp share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf \
+		share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-flow.conf
+	dh_install -p opennebula-flow share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-flow.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter opennebula-node, $(shell dh_listpackages)))
+	dh_install -p opennebula-node share/pkgs/sudoers/opennebula-node /etc/sudoers.d/
 	dh_install -p opennebula-node share/etc/sysctl.d/bridge-nf-call.conf /etc/sysctl.d/
 	dh_install -p opennebula-node share/etc/cron.d/opennebula-node /etc/cron.d/
-	dh_install -p opennebula-node share/pkgs/${DISTRO}-systemd/opennebula-node.conf \
+	dh_install -p opennebula-node share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-node.conf \
 		/usr/lib/tmpfiles.d/
 endif
 ifneq (,$(filter opennebula-tools, $(shell dh_listpackages)))
-	cp share/install_gems/Ubuntu1904/Gemfile.lock dist/usr/share/one/
+	cp share/install_gems/${GEMFILE_LOCK}/Gemfile.lock dist/usr/share/one/
 endif
 ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
 	(cd src/oca/python/; make install ROOT=../../../dist)
@@ -162,8 +166,17 @@ endif
 
 override_dh_fixperms:
 	dh_fixperms
+ifneq (,$(filter opennebula, $(shell dh_listpackages)))
+	chmod 0440 debian/opennebula/etc/sudoers.d/opennebula-server
+endif
 ifneq (,$(filter opennebula-common, $(shell dh_listpackages)))
 	chmod 0440 debian/opennebula-common/etc/sudoers.d/opennebula
+endif
+ifneq (,$(filter opennebula-node, $(shell dh_listpackages)))
+	chmod 0440 debian/opennebula-node/etc/sudoers.d/opennebula-node
+endif
+ifneq (,$(filter opennebula-node-lxd, $(shell dh_listpackages)))
+	chmod 0440 debian/opennebula-node-lxd/etc/sudoers.d/opennebula-node-lxd
 endif
 
 override_dh_systemd_start:
