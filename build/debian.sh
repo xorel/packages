@@ -187,11 +187,13 @@ m4 -D_VERSION_="${VERSION}" \
 cat <<EOF >debian/changelog
 ${NAME} (${VERSION}-${PKG_VERSION}) unstable; urgency=low
 
-  * Build for ${VERSION}-${PKG_VERSION}
+  * Build for ${VERSION}-${PKG_VERSION}, Git version $GIT_VERSION
 
  -- ${CONTACT}  ${DATE}
 
 EOF
+
+echo $GIT_VERSION > debian/gitversion
 
 ################################################################################
 # Build the package

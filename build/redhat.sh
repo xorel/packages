@@ -179,6 +179,7 @@ mock -r "${MOCK_CFG}" -v \
     --rebuild "${BUILD_DIR}/src/${SRPM}" \
     --resultdir="${MOCK_DIR_PKG}" \
     --define "packager ${CONTACT}" \
+    --define "gitversion ${GIT_VERSION}" \
     ${_WITH_COMPONENTS}
 
 rm -rf "${MOCK_DIR_PKG}"/*.src.rpm
