@@ -483,6 +483,7 @@ install -p -D -m 644 share/pkgs/logrotate/opennebula-flow      %{buildroot}%{_sy
 install -p -D -m 644 share/pkgs/logrotate/opennebula-gate      %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-gate
 install -p -D -m 644 share/pkgs/logrotate/opennebula-novnc     %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-novnc
 install -p -D -m 644 share/pkgs/logrotate/opennebula-scheduler %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-scheduler
+install -p -D -m 644 share/pkgs/logrotate/opennebula-hem       %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-hem
 install -p -D -m 644 share/pkgs/logrotate/opennebula-sunstone  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-sunstone
 
 # Java
@@ -1118,6 +1119,7 @@ echo ""
 %config %{_sysconfdir}/one/auth/x509_auth.conf
 %config %{_sysconfdir}/logrotate.d/opennebula
 %config %{_sysconfdir}/logrotate.d/opennebula-scheduler
+%config %{_sysconfdir}/logrotate.d/opennebula-hem
 
 %defattr(-, root, root, 0755)
 /lib/systemd/system/opennebula.service

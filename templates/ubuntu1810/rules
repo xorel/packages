@@ -69,6 +69,7 @@ endif
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 	dh_install -p opennebula share/pkgs/logrotate/opennebula /etc/logrotate.d/
 	dh_install -p opennebula share/pkgs/logrotate/opennebula-scheduler /etc/logrotate.d/
+	dh_install -p opennebula share/pkgs/logrotate/opennebula-hem /etc/logrotate.d/
 
 	dh_install -p opennebula share/pkgs/${DISTRO}-systemd/opennebula.service \
 		/lib/systemd/system/
@@ -134,6 +135,7 @@ override_dh_installinit:
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 	dh_installinit -p opennebula --name=opennebula --onlyscripts --no-start
 	dh_installinit -p opennebula --name=opennebula-scheduler --onlyscripts --no-start
+	dh_installinit -p opennebula --name=opennebula-hem --onlyscripts --no-start
 endif
 ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_installinit -p opennebula-sunstone --name=opennebula-sunstone --onlyscripts --no-start
