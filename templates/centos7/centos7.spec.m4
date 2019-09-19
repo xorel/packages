@@ -428,7 +428,7 @@ OpenNebula provisioning tool
 
 # Compile OpenNebula
 # scons -j2 mysql=yes new_xmlrpc=yes
-../build_opennebula.sh systemd=yes svncterm=no
+../build_opennebula.sh systemd=yes svncterm=no gitversion=%{gitversion}
 cd src/oca/java
 ./build.sh -d
 
@@ -1364,4 +1364,4 @@ echo ""
 
 %changelog
 * _DATE_ _CONTACT_ - _VERSION_-_PKG_VERSION_
-- Build for _VERSION_-_PKG_VERSION_
+- Build for _VERSION_-_PKG_VERSION_ Git version %{gitversion}
