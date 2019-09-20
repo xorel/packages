@@ -50,6 +50,7 @@ VERSION=$(echo "${PACKAGE}" |cut -d'-' -f2) # 1.9.90
 CONTACT=${CONTACT:-Unsupported Community Build}
 BASE_NAME="${NAME}-${VERSION}-${PKG_VERSION}"
 GEMS_RELEASE="${VERSION}-${PKG_VERSION}"
+GIT_VERSION=${GIT_VERSION:-not known}
 DATE=$(date -R)
 
 # check for pbuilder-dist
@@ -187,13 +188,13 @@ m4 -D_VERSION_="${VERSION}" \
 cat <<EOF >debian/changelog
 ${NAME} (${VERSION}-${PKG_VERSION}) unstable; urgency=low
 
-  * Build for ${VERSION}-${PKG_VERSION}, Git version $GIT_VERSION
+  * Build for ${VERSION}-${PKG_VERSION} (Git revision ${GIT_VERSION})
 
  -- ${CONTACT}  ${DATE}
 
 EOF
 
-echo $GIT_VERSION > debian/gitversion
+echo "${GIT_VERSION}" > debian/gitversion
 
 ################################################################################
 # Build the package

@@ -1364,4 +1364,4 @@ echo ""
 
 %changelog
 * _DATE_ _CONTACT_ - _VERSION_-_PKG_VERSION_
-- Build for _VERSION_-_PKG_VERSION_ Git version %{gitversion}
+- Build for _VERSION_-_PKG_VERSION_ (Git revision %{gitversion})
