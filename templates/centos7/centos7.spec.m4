@@ -498,6 +498,10 @@ install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}
 # Gemfile
 install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
 
+# oned.aug
+%{__mkdir} -p %{buildroot}/usr/share/augeas/lenses
+install -p -D -m 644 share/augeas/oned.aug %{buildroot}/usr/share/augeas/lenses/oned.aug
+
 # Python
 cd src/oca/python
 make install ROOT=%{buildroot}
@@ -1126,6 +1130,7 @@ echo ""
 /lib/systemd/system/opennebula-scheduler.service
 /lib/systemd/system/opennebula-hem.service
 /lib/tmpfiles.d/opennebula.conf
+/usr/share/augeas/lenses/oned.aug
 
 %{_bindir}/mm_sched
 
