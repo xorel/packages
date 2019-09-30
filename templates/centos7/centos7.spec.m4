@@ -210,6 +210,17 @@ BuildRequires: python-wheel
 %description -n python-pyone
 Python interface for OpenNebula.
 
+%package -n python3-pyone
+Summary: Provides the OpenNebula Python libraries
+Group: System
+BuildArch: noarch
+Requires: python3
+BuildRequires: python3-setuptools
+BuildRequires: python3-wheel
+BuildRequires: python3-devel
+
+%description -n python3-pyone
+Python3 interface for OpenNebula.
 ################################################################################
 # Package sunstone
 ################################################################################
@@ -505,6 +516,7 @@ install -p -D -m 644 share/augeas/oned.aug %{buildroot}/usr/share/augeas/lenses/
 # Python
 cd src/oca/python
 make install ROOT=%{buildroot}
+make install3 ROOT=%{buildroot}
 cd -
 
 %clean
@@ -838,6 +850,17 @@ echo "WARNING: Unmanaged dependencies, please consider uninstalling following:"
 echo "pip uninstall six aenum lxml dicttoxml future tblib xmltodict"
 echo ""
 
+%post -n python3-pyone
+echo ""
+echo "WARNING: Unmanaged dependencies, please install following:"
+echo "pip3 install six aenum lxml dicttoxml tblib xmltodict"
+echo ""
+
+%postun -n python3-pyone
+echo ""
+echo "WARNING: Unmanaged dependencies, please consider uninstalling following:"
+echo "pip3 uninstall six aenum lxml dicttoxml tblib xmltodict"
+echo ""
 ################################################################################
 # common - files
 ################################################################################
@@ -881,6 +904,10 @@ echo ""
 %{python_sitelib}/pyone/*
 %{python_sitelib}/pyone*.egg-info/*
 
+%files -n python3-pyone
+%defattr(-, root, root, 0755)
+%{python3_sitelib}/pyone/*
+%{python3_sitelib}/pyone*.egg-info/*
 
 ################################################################################
 # ruby - files

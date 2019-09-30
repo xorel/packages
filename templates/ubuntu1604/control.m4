@@ -25,6 +25,7 @@ Build-Depends: bash-completion,
                libvncserver-dev,
                python-setuptools,
                python-wheel,
+               python3-setuptools,
                ruby,
                scons
 Standards-Version: 3.9.3
@@ -213,6 +214,15 @@ Depends: python,
          ${misc:Depends},
          ${python:Depends}
 Description: Python bindings for OpenNebula Cloud API (OCA)
+
+Package: python3-pyone
+Section: python
+Architecture: all
+Depends: python3,
+         python3-pip,
+         ${misc:Depends},
+         ${python:Depends}
+Description: Python3 bindings for OpenNebula Cloud API (OCA)
 
 Package: ruby-opennebula
 Section: ruby
