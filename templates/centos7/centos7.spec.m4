@@ -23,6 +23,12 @@
 %define with_addon_tools 0%{?_with_addon_tools:1}
 %define with_addon_markets 0%{?_with_addon_markets:1}
 
+# distribution specific content
+%define dir_sudoers centos
+%define dir_services systemd
+%define dir_tmpfiles %{nil}
+%define gemfile_lock CentOS7
+
 # RHEL 7 doesn't have hardened builds enabled by default
 # https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
 %global _hardened_build 1
@@ -464,27 +470,29 @@ export DESTDIR=%{buildroot}
 %endif
 
 # Init scripts
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.service %{buildroot}/lib/systemd/system/opennebula.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-hem.service %{buildroot}/lib/systemd/system/opennebula-hem.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-sunstone.service %{buildroot}/lib/systemd/system/opennebula-sunstone.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-gate.service  %{buildroot}/lib/systemd/system/opennebula-gate.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-econe.service %{buildroot}/lib/systemd/system/opennebula-econe.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-flow.service  %{buildroot}/lib/systemd/system/opennebula-flow.service
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-novnc.service %{buildroot}/lib/systemd/system/opennebula-novnc.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service           %{buildroot}/lib/systemd/system/opennebula.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service       %{buildroot}/lib/systemd/system/opennebula-hem.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service  %{buildroot}/lib/systemd/system/opennebula-sunstone.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-gate.service      %{buildroot}/lib/systemd/system/opennebula-gate.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.service     %{buildroot}/lib/systemd/system/opennebula-econe.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service      %{buildroot}/lib/systemd/system/opennebula-flow.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service     %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula.conf
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
-install -p -D -m 644 share/pkgs/CentOS7/opennebula.conf %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
-install -p -D -m 644 share/pkgs/CentOS7/opennebula-node.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 
 # sudoers
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sudoers.d
-install -p -D -m 440 share/pkgs/CentOS/opennebula.sudoers %{buildroot}%{_sysconfdir}/sudoers.d/opennebula
+install -p -D -m 440 share/pkgs/sudoers/%{dir_sudoers}/opennebula %{buildroot}%{_sysconfdir}/sudoers.d/opennebula
+install -p -D -m 440 share/pkgs/sudoers/opennebula-server %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-server
+install -p -D -m 440 share/pkgs/sudoers/opennebula-node   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -507,7 +515,7 @@ install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysco
 install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}/cron.d/opennebula-node
 
 # Gemfile
-install -p -D -m 644 share/install_gems/CentOS7/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
+install -p -D -m 644 share/install_gems/%{gemfile_lock}/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
 
 # oned.aug
 %{__mkdir} -p %{buildroot}/usr/share/augeas/lenses
@@ -879,6 +887,7 @@ echo ""
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 %config %{_sysconfdir}/cron.d/opennebula-node
+%config %{_sysconfdir}/sudoers.d/opennebula-node
 
 /lib/tmpfiles.d/opennebula-node.conf
 
@@ -1132,6 +1141,8 @@ echo ""
 ################################################################################
 
 %files server
+%config %{_sysconfdir}/sudoers.d/opennebula-server
+
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/defaultrc
