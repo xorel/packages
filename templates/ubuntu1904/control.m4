@@ -26,7 +26,7 @@ Build-Depends: bash-completion,
                libvncserver-dev,
                python-setuptools,
                python-wheel,
-               python3-setuptools
+               python3-setuptools,
                ruby,
                scons
 Standards-Version: 3.9.3
