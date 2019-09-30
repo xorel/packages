@@ -135,7 +135,7 @@ endif
 ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
 	(cd src/oca/python/; make install ROOT=../../../dist)
 endif
-ifneq (,$(filter python-pyone3, $(shell dh_listpackages)))
+ifneq (,$(filter python3-pyone, $(shell dh_listpackages)))
 	(cd src/oca/python/; make install3 ROOT=../../../dist)
 endif
 
