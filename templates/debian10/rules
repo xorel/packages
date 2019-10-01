@@ -42,7 +42,7 @@ ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 	tar xzvf opennebula-addon-markets-*.tar.gz
 endif
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
-	./build_opennebula.sh systemd=yes gitversion=$(shell cat debian/gitversion)
+	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)"
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
 	ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
