@@ -1354,6 +1354,7 @@ echo ""
 %{_mandir}/man1/oneflow.1*
 %{_mandir}/man1/oneflow-template.1*
 %{_mandir}/man1/onegroup.1*
+%{_mandir}/man1/onehook.1*
 %{_mandir}/man1/onehost.1*
 %{_mandir}/man1/oneimage.1*
 %{_mandir}/man1/onemarket.1*
