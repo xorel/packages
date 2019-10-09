@@ -527,6 +527,9 @@ make install ROOT=%{buildroot}
 make install3 ROOT=%{buildroot}
 cd -
 
+# fix permissions
+%{__chmod} -R o-rwx %{buildroot}/var/lib/one/remotes
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -572,8 +575,10 @@ if [ $1 = 1 ]; then
     if [ ! -e %{oneadmin_home}/.one/one_auth ]; then
         PASSWORD=$(echo $RANDOM$(date '+%s')|md5sum|cut -d' ' -f1)
         mkdir -p %{oneadmin_home}/.one
+        /bin/chmod 700 %{oneadmin_home}/.one
         echo oneadmin:$PASSWORD > %{oneadmin_home}/.one/one_auth
         /bin/chown -R oneadmin:oneadmin %{oneadmin_home}/.one
+        /bin/chmod 600 %{oneadmin_home}/.one/one_auth
     fi
 
     if [ ! -d "%{oneadmin_home}/.ssh" ]; then
@@ -743,10 +748,11 @@ fi
 %post sunstone
 systemctl daemon-reload 2>/dev/null || :
 
-if [ ! -e /var/lib/one/sunstone/main.js ]; then
+if [ ! -f /var/lib/one/sunstone/main.js ]; then
     touch /var/lib/one/sunstone/main.js
-    chown oneadmin:oneadmin /var/lib/one/sunstone/main.js
 fi
+
+chown oneadmin:oneadmin /var/lib/one/sunstone/main.js
 
 %preun sunstone
 if [ $1 = 0 ]; then
@@ -874,10 +880,9 @@ echo ""
 ################################################################################
 
 %files common
-%config %{_sysconfdir}/sudoers.d/opennebula
-
+%attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula
+%attr(0750, oneadmin, oneadmin) %dir %{_sharedstatedir}/one
 /usr/share/docs/one/*
-
 
 ################################################################################
 # node-kvm - files
@@ -887,8 +892,7 @@ echo ""
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 %config %{_sysconfdir}/cron.d/opennebula-node
-%config %{_sysconfdir}/sudoers.d/opennebula-node
-
+%attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node
 /lib/tmpfiles.d/opennebula-node.conf
 
 ################################################################################
@@ -953,31 +957,19 @@ echo ""
 ################################################################################
 
 %files sunstone
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%config %{_sysconfdir}/one/sunstone-server.conf
-%config %{_sysconfdir}/one/sunstone-logos.yaml
-%config %{_sysconfdir}/one/ec2query_templates/*
-%config %{_sysconfdir}/one/econe.conf
-%config %{_sysconfdir}/one/sunstone-views.yaml
-%config %{_sysconfdir}/one/sunstone-views/*
-%config %{_sysconfdir}/one/ec2_driver.conf
-%config %{_sysconfdir}/one/ec2_driver.default
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula-econe
 %config %{_sysconfdir}/logrotate.d/opennebula-sunstone
 %config %{_sysconfdir}/logrotate.d/opennebula-novnc
-
-%defattr(-, root, root, 0755)
 /usr/lib/one/sunstone/*
 /usr/lib/one/ruby/OpenNebulaVNC.rb
 /usr/lib/one/ruby/OpenNebulaAddons.rb
 /usr/lib/one/ruby/cloud/econe/*
+%{_datadir}/one/websockify/*
 
 %{_bindir}/sunstone-server
 %{_bindir}/novnc-server
-
 %{_bindir}/econe-server
-
 %{_bindir}/econe-allocate-address
 %{_bindir}/econe-associate-address
 %{_bindir}/econe-attach-volume
@@ -1027,19 +1019,23 @@ echo ""
 /lib/systemd/system/opennebula-sunstone.service
 /lib/systemd/system/opennebula-econe.service
 /lib/systemd/system/opennebula-novnc.service
-
 /lib/tmpfiles.d/opennebula-sunstone.conf
 
-%{_datadir}/one/websockify/*
+%defattr(0640, root, oneadmin, 0750)
+%dir %{_sysconfdir}/one/ec2query_templates
+%dir %{_sysconfdir}/one/sunstone-views
+%config %{_sysconfdir}/one/sunstone-server.conf
+%config %{_sysconfdir}/one/sunstone-logos.yaml
+%config %{_sysconfdir}/one/ec2query_templates/*
+%config %{_sysconfdir}/one/econe.conf
+%config %{_sysconfdir}/one/sunstone-views.yaml
+%config %{_sysconfdir}/one/sunstone-views/*
 
 %defattr(0640, oneadmin, oneadmin, 0750)
-
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
-
 %dir %{_sharedstatedir}/one/sunstone
-
 %exclude %{_sharedstatedir}/one/sunstone/main.js
 
 ################################################################################
@@ -1047,22 +1043,17 @@ echo ""
 ################################################################################
 
 %files gate
-
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%config %{_sysconfdir}/one/onegate-server.conf
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula-gate
-
-%defattr(-, root, root, 0755)
 /usr/lib/one/onegate/*
-
 %{_bindir}/onegate-server
-
 /lib/systemd/system/opennebula-gate.service
 /lib/tmpfiles.d/opennebula-gate.conf
 
-%defattr(-, oneadmin, oneadmin, 0750)
+%defattr(0640, root, oneadmin, 0750)
+%config %{_sysconfdir}/one/onegate-server.conf
 
+%defattr(0640, oneadmin, oneadmin, 0750)
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
@@ -1072,22 +1063,17 @@ echo ""
 ################################################################################
 
 %files flow
-
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%config %{_sysconfdir}/one/oneflow-server.conf
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula-flow
-
-%defattr(-, root, root, 0755)
 /usr/lib/one/oneflow/*
-
 %{_bindir}/oneflow-server
-
 /lib/systemd/system/opennebula-flow.service
 /lib/tmpfiles.d/opennebula-flow.conf
 
-%defattr(-, oneadmin, oneadmin, 0750)
+%defattr(0640, root, oneadmin, 0750)
+%config %{_sysconfdir}/one/oneflow-server.conf
 
+%defattr(-, oneadmin, oneadmin, 0750)
 %dir %{_localstatedir}/lock/one
 %dir %{_localstatedir}/log/one
 %dir %{_localstatedir}/run/one
@@ -1106,7 +1092,6 @@ echo ""
 ################################################################################
 
 %files provision
-%defattr(-, root, root, 0755)
 %{_bindir}/oneprovision
 %config %{_sysconfdir}/one/cli/oneprovision.yaml
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
@@ -1122,7 +1107,7 @@ echo ""
 %files addon-tools
 /usr/lib/one/ruby/cli/addons/onezone/serversync.rb
 /usr/lib/one/ruby/cli/addons/onevcenter/cleartags.rb
-/etc/sudoers.d/one-extension-serversync
+%attr(0440, root, root) /etc/sudoers.d/one-extension-serversync
 %endif
 
 ################################################################################
@@ -1141,29 +1126,11 @@ echo ""
 ################################################################################
 
 %files server
-%config %{_sysconfdir}/sudoers.d/opennebula-server
-
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%config %{_sysconfdir}/one/defaultrc
-%config %{_sysconfdir}/one/tmrc
-%config %{_sysconfdir}/one/hm/*
-%config %{_sysconfdir}/one/oned.conf
-%config %{_sysconfdir}/one/onehem-server.conf
-%config %{_sysconfdir}/one/sched.conf
-%config %{_sysconfdir}/one/vmm_exec/*
-%config %{_sysconfdir}/one/az_driver.conf
-%config %{_sysconfdir}/one/az_driver.default
-%config %{_sysconfdir}/one/vcenter_driver.default
-%config %{_sysconfdir}/one/packet_driver.default
-%config %{_sysconfdir}/one/auth/server_x509_auth.conf
-%config %{_sysconfdir}/one/auth/ldap_auth.conf
-%config %{_sysconfdir}/one/auth/x509_auth.conf
+%attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-server
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula
 %config %{_sysconfdir}/logrotate.d/opennebula-scheduler
 %config %{_sysconfdir}/logrotate.d/opennebula-hem
-
-%defattr(-, root, root, 0755)
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
 /lib/systemd/system/opennebula-hem.service
@@ -1171,7 +1138,6 @@ echo ""
 /usr/share/augeas/lenses/oned.aug
 
 %{_bindir}/mm_sched
-
 %{_bindir}/one
 %{_bindir}/oned
 %{_bindir}/onedb
@@ -1205,8 +1171,29 @@ echo ""
 %{_mandir}/man1/onedb.1*
 %doc LICENSE LICENSE.addons NOTICE
 
-%defattr(-, oneadmin, oneadmin, 0750)
+%defattr(0640, root, oneadmin, 0750)
+%dir %{_sysconfdir}/one/auth
+%dir %{_sysconfdir}/one/auth/certificates
+%dir %{_sysconfdir}/one/hm
+%dir %{_sysconfdir}/one/vmm_exec
+%config %{_sysconfdir}/one/defaultrc
+%config %{_sysconfdir}/one/tmrc
+%config %{_sysconfdir}/one/hm/*
+%config %{_sysconfdir}/one/oned.conf
+%config %{_sysconfdir}/one/onehem-server.conf
+%config %{_sysconfdir}/one/sched.conf
+%config %{_sysconfdir}/one/vmm_exec/*
+%config %{_sysconfdir}/one/az_driver.conf
+%config %{_sysconfdir}/one/az_driver.default
+%config %{_sysconfdir}/one/ec2_driver.conf
+%config %{_sysconfdir}/one/ec2_driver.default
+%config %{_sysconfdir}/one/vcenter_driver.default
+%config %{_sysconfdir}/one/packet_driver.default
+%config %{_sysconfdir}/one/auth/server_x509_auth.conf
+%config %{_sysconfdir}/one/auth/ldap_auth.conf
+%config %{_sysconfdir}/one/auth/x509_auth.conf
 
+%defattr(-, oneadmin, oneadmin, 0750)
 %dir %{_sharedstatedir}/one
 %dir %{_sharedstatedir}/one/datastores
 %dir %{_sharedstatedir}/one/remotes
@@ -1296,9 +1283,7 @@ echo ""
 ################################################################################
 
 %files
-%defattr(0640, root, oneadmin, 0750)
-%dir %{_sysconfdir}/one
-%defattr(-, root, root, 0755)
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/one/cli/oneacct.yaml
 %config %{_sysconfdir}/one/cli/oneacl.yaml
 %config %{_sysconfdir}/one/cli/onecluster.yaml

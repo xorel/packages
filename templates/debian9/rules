@@ -175,6 +175,9 @@ endif
 ifneq (,$(filter opennebula-node, $(shell dh_listpackages)))
 	chmod 0440 debian/opennebula-node/etc/sudoers.d/opennebula-node
 endif
+ifneq (,$(filter opennebula-addon-tools, $(shell dh_listpackages)))
+	chmod 0440 debian/opennebula-addon-tools/etc/sudoers.d/one-extension-serversync
+endif
 
 override_dh_systemd_start:
 	dh_systemd_start --no-start

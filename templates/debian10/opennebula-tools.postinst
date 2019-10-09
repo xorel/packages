@@ -2,7 +2,12 @@
 
 set -e
 
+ONE_GROUP=oneadmin
+
 if [ "$1" = "configure" ]; then
+    chgrp "${ONE_GROUP}" /etc/one
+    chmod 0751 /etc/one
+
     cat <<EOF
 ==========================[ WARNING ]==================================
 Packaged Ruby gems not symlinked to /usr/share/one/gems/. Don't forget
