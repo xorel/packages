@@ -542,10 +542,10 @@ getent group oneadmin >/dev/null || groupadd -r -g %{oneadmin_gid} oneadmin
 if getent passwd oneadmin >/dev/null; then
     /usr/sbin/usermod -a -G oneadmin oneadmin > /dev/null
 else
-    mkdir %{oneadmin_home}
+    mkdir %{oneadmin_home} || :
+    chcon -t user_home_dir_t %{oneadmin_home} 2>/dev/null || :
     cp /etc/skel/.bash* %{oneadmin_home}
     chown -R %{oneadmin_uid}:%{oneadmin_gid} %{oneadmin_home}
-    chcon -t user_home_dir_t %{oneadmin_home}
     /usr/sbin/useradd -r -m -d %{oneadmin_home} \
         -u %{oneadmin_uid} -g %{oneadmin_gid} \
         -s /bin/bash oneadmin 2> /dev/null
@@ -553,6 +553,13 @@ fi
 
 if ! getent group disk | grep '\boneadmin\b' &>/dev/null; then
     usermod -a -G disk oneadmin
+fi
+
+%post common
+if [ $1 = 1 ]; then
+    # only on install once again fix directory SELinux type
+    # TODO: https://github.com/OpenNebula/one/issues/739
+    chcon -t user_home_dir_t %{oneadmin_home} 2>/dev/null || :
 fi
 
 ################################################################################
@@ -1194,7 +1201,6 @@ echo ""
 %config %{_sysconfdir}/one/auth/x509_auth.conf
 
 %defattr(-, oneadmin, oneadmin, 0750)
-%dir %{_sharedstatedir}/one
 %dir %{_sharedstatedir}/one/datastores
 %dir %{_sharedstatedir}/one/remotes
 %dir %{_sharedstatedir}/one/remotes/auth
