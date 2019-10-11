@@ -44,6 +44,8 @@ def setup_fpm(build_dir)
                   'install',
                   '--no-ri',
                   '--no-rdoc',
+                  '--install-dir', "#{build_dir}/fpm",
+                  '--bindir', "#{build_dir}/fpm/bin",
                   'fpm'
     run_command(fpm_install)
   end

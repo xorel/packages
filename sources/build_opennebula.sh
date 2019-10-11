@@ -53,7 +53,8 @@ export PATH=$PWD/install/bin:$PATH
 echo '***** Build OpenNebula' >&2
 
 cd "${BUILD_DIR}"
-scons -j2 \
+
+"${SCONS:-scons}" -j2 \
     mysql=yes \
     xmlrpc="${BUILD_DIR}/../xmlrpc-c/install" \
     new_xmlrpc=yes \
