@@ -18,13 +18,14 @@
 %define oneadmin_uid 9869
 %define oneadmin_gid 9869
 
-%define with_rubygems       0%{?_with_rubygems:1}
-%define with_docker_machine 0%{?_with_docker_machine:1}
-%define with_addon_tools    0%{?_with_addon_tools:1}
-%define with_addon_markets  0%{?_with_addon_markets:1}
-%define with_oca_java       0%{!?_without_oca_java:1}
-%define with_oca_python2    0%{!?_without_oca_python2:1}
-%define with_oca_python3    0%{!?_without_oca_python3:1}
+%define with_rubygems           0%{?_with_rubygems:1}
+%define with_docker_machine     0%{?_with_docker_machine:1}
+%define with_addon_tools        0%{?_with_addon_tools:1}
+%define with_addon_markets      0%{?_with_addon_markets:1}
+%define with_oca_java           0%{!?_without_oca_java:1}
+%define with_oca_java_prebuilt  0%{?_with_oca_java_prebuilt:1}
+%define with_oca_python2        0%{!?_without_oca_python2:1}
+%define with_oca_python3        0%{!?_without_oca_python3:1}
 
 # distribution specific content
 %define dir_sudoers  centos
@@ -32,7 +33,7 @@
 %define dir_tmpfiles %{nil}
 
 %if 0%{?rhel} == 8
-    %define with_oca_java    0
+    %define with_oca_java_prebuilt 1
     %define scons            scons-3
     %define gemfile_lock     CentOS8
 
@@ -73,6 +74,9 @@ Source7: opennebula-addon-tools-%{version}.tar.gz
 %endif
 %if %{with_addon_markets}
 Source8: opennebula-addon-markets-%{version}.tar.gz
+%endif
+%if %{with_oca_java_prebuilt}
+Source9: java-oca-%{version}.tar.gz
 %endif
 
 Patch0: proper_path_emulator.diff
@@ -390,13 +394,14 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 Summary: Java interface to OpenNebula Cloud API
 Group:   System
 BuildArch: noarch
+%if 0%{?rhel} == 8
+# no build dependencies available
+#BuildRequires: java-11-openjdk-devel
+%endif
+%if 0%{?rhel} == 7
 Requires: ws-commons-util
 Requires: xmlrpc-common
 Requires: xmlrpc-client
-%if 0%{?rhel} == 8
-BuildRequires: java-11-openjdk-devel
-%endif
-%if 0%{?rhel} == 7
 BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: ws-commons-util
 BuildRequires: xmlrpc-c
@@ -488,6 +493,10 @@ OpenNebula provisioning tool
 %if %{with_addon_markets}
 %setup -T -D -a 8
 %endif
+%if %{with_oca_java} && %{with_oca_java_prebuilt}
+%setup -T -D -a 9
+mv java-oca-%{version}/jar/ src/oca/java/
+%endif
 
 %patch0 -p1
 
@@ -505,7 +514,7 @@ OpenNebula provisioning tool
 export SCONS=%{scons}
 ../build_opennebula.sh systemd=yes svncterm=no gitversion='%{gitversion}'
 
-%if %{with_oca_java}
+%if %{with_oca_java} && ! %{with_oca_java_prebuilt}
 cd src/oca/java
 ./build.sh -d
 %endif
