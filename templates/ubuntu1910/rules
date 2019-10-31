@@ -13,7 +13,7 @@ endif
 DIR_SUDOERS  = 'debian'
 DIR_SERVICES = 'systemd'
 DIR_TMPFILES = ''
-GEMFILE_LOCK = 'Ubuntu1904'
+GEMFILE_LOCK = 'Ubuntu1910'
 
 # https://wiki.debian.org/HardeningWalkthrough#Selecting_security_hardening_options
 export DEB_BUILD_MAINT_OPTIONS=hardening=+all
