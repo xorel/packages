@@ -1,7 +1,5 @@
 dist/usr/lib/one/ruby/opennebula.rb /usr/lib/one/ruby/
 
-dist/usr/lib/one/ruby/OpenNebula.rb          /usr/lib/one/ruby/
-
 dist/usr/lib/one/ruby/cloud/CloudServer.rb   /usr/lib/one/ruby/cloud/
 dist/usr/lib/one/ruby/cloud/CloudAuth.rb     /usr/lib/one/ruby/cloud/
 dist/usr/lib/one/ruby/cloud/CloudAuth/*      /usr/lib/one/ruby/cloud/CloudAuth/

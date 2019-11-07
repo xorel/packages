@@ -1037,8 +1037,6 @@ echo ""
 /usr/lib/one/ruby/vendors/rbvmomi/*
 /usr/lib/one/ruby/vendors/packethost
 
-/usr/lib/one/ruby/OpenNebula.rb
-
 /usr/lib/one/ruby/cloud/CloudClient.rb
 /usr/lib/one/ruby/cloud/CloudAuth.rb
 /usr/lib/one/ruby/cloud/CloudServer.rb
