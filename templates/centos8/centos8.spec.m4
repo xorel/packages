@@ -1292,7 +1292,6 @@ echo ""
 %config %{_sysconfdir}/one/ec2_driver.conf
 %config %{_sysconfdir}/one/ec2_driver.default
 %config %{_sysconfdir}/one/vcenter_driver.default
-%config %{_sysconfdir}/one/packet_driver.default
 %config %{_sysconfdir}/one/auth/server_x509_auth.conf
 %config %{_sysconfdir}/one/auth/ldap_auth.conf
 %config %{_sysconfdir}/one/auth/x509_auth.conf

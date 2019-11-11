@@ -57,8 +57,7 @@ if [ "$1" = "configure" ]; then
         /etc/one/az_driver.default \
         /etc/one/ec2_driver.conf \
         /etc/one/ec2_driver.default \
-        /etc/one/vcenter_driver.default \
-        /etc/one/packet_driver.default;
+        /etc/one/vcenter_driver.default;
     do
         chgrp -R "${ONE_GROUP}" "${F}"
 
