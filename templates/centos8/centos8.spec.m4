@@ -159,18 +159,14 @@ Requires: wget
 Requires: curl
 Requires: rsync
 Requires: iputils
-# zeromqX-devel:
-# Devel package brings libzmq.so symlink required by ffi-rzmq-core gem
 %if 0%{?rhel} == 8
-# TODO: fix when zeromq is available on EPEL 8
-# Requires: zeromq
-# Requires: libzmq.so.3 OR libzmq.so.5
-Requires: pkgconfig(libzmq) >= 3.2
+Requires: zeromq >= 4, zeromq < 5
 %endif
 %if 0%{?rhel} == 7
-Requires: zeromq
-Requires: zeromq-devel
+Requires: zeromq >= 4, zeromq < 5
 %endif
+# Devel package brings libzmq.so symlink required by ffi-rzmq-core gem
+Requires: zeromq-devel
 Obsoletes: %{name}-ozones
 
 %description server

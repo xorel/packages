@@ -137,7 +137,7 @@ Requires: wget
 Requires: curl
 Requires: rsync
 Requires: iputils
-Requires: zeromq
+Requires: zeromq >= 4, zeromq < 5
 # Devel package brings libzmq.so symlink required by ffi-rzmq-core gem
 Requires: zeromq-devel
 Obsoletes: %{name}-ozones
