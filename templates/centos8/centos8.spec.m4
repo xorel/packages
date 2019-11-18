@@ -38,10 +38,10 @@
     %define gemfile_lock     CentOS8
 
     # don't mangle shebangs (e.g., fix /usr/bin/env ruby -> /usr/bin/ruby)
-    # % undefine %brp_mangle_shebangs
+    %global __brp_mangle_shebangs_exclude_from ^\/var\/lib\/one\/remotes\/
 
     # don't generate automatic requirements from bower components
-    %global __requires_exclude_from ^/usr/lib/one/sunstone/public/bower_components/.*$
+    %global __requires_exclude_from ^\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*$
 %endif
 
 %if 0%{?rhel} == 7
