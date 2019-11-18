@@ -41,6 +41,7 @@ case "${OPTION}" in
         apt-get -y install \
             ruby-dev make gcc libsqlite3-dev libcurl4-openssl-dev \
             rake libxml2-dev libxslt1-dev patch g++ build-essential \
+            libssl-dev \
             >/dev/null
 
         # default-libmysqlclient-dev OR libmysqlclient-dev
