@@ -180,7 +180,7 @@ BuildArch: noarch
 Requires: ruby
 Requires: rubygems
 Requires: rubygem-bigdecimal
-Requires: rubygem-json >= 1.7.7, rubygem-json < 1.8
+Requires: rubygem-json >= 1.7.7-30, rubygem-json < 1.8
 Requires: rubygem-io-console
 Requires: rubygem-psych
 %if %{with_rubygems}
