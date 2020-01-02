@@ -1020,7 +1020,6 @@ echo ""
 %defattr(-, root, root, 0755)
 /usr/lib/one/ruby/opennebula.rb
 /usr/lib/one/ruby/opennebula/*
-/usr/lib/one/ruby/vendors/rbvmomi/*
 /usr/lib/one/ruby/vendors/packethost
 
 /usr/lib/one/ruby/cloud/CloudClient.rb
