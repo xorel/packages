@@ -1395,6 +1395,7 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/market
 %dir %{_sharedstatedir}/one/remotes/market/http
 %dir %{_sharedstatedir}/one/remotes/market/linuxcontainers
+%dir %{_sharedstatedir}/one/remotes/market/turnkeylinux
 %dir %{_sharedstatedir}/one/remotes/market/one
 %dir %{_sharedstatedir}/one/remotes/market/s3
 %dir %{_sharedstatedir}/one/remotes/pm
@@ -1436,6 +1437,7 @@ echo ""
 %{_sharedstatedir}/one/remotes/ipam/*
 %{_sharedstatedir}/one/remotes/market/http/*
 %{_sharedstatedir}/one/remotes/market/linuxcontainers/*
+%{_sharedstatedir}/one/remotes/market/turnkeylinux/*
 %{_sharedstatedir}/one/remotes/market/one/*
 %{_sharedstatedir}/one/remotes/market/s3/*
 %{_sharedstatedir}/one/remotes/pm/dummy/*
