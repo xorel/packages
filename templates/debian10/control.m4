@@ -244,6 +244,7 @@ Depends: ruby,
          libffi6,
          libsqlite3-0,
          libmariadb3,
+         libcurl4,
          libaugeas0,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})

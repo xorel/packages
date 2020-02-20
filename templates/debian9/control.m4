@@ -227,6 +227,7 @@ Depends: ruby,
          libffi6,
          libsqlite3-0,
          libmariadbclient18,
+         libcurl3,
          libaugeas0,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})

@@ -252,6 +252,7 @@ Depends: ruby,
          libffi6,
          libsqlite3-0,
          libmysqlclient20,
+         libcurl3,
          libaugeas0,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
