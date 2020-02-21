@@ -28,6 +28,8 @@ dist/usr/lib/one/ruby/cli/one_helper/oneacct_helper.rb       /usr/lib/one/ruby/c
 dist/usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb        /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb    /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb  /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/oneflow_helper.rb       /usr/lib/one/ruby/cli/one_helper/
+dist/usr/lib/one/ruby/cli/one_helper/oneflowtemplate_helper.rb /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb      /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onehook_helper.rb       /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onehost_helper.rb       /usr/lib/one/ruby/cli/one_helper/

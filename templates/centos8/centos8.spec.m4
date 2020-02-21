@@ -1408,6 +1408,7 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/vmm
 %dir %{_sharedstatedir}/one/remotes/vmm/az
 %dir %{_sharedstatedir}/one/remotes/vmm/ec2
+%dir %{_sharedstatedir}/one/remotes/vmm/firecracker
 %dir %{_sharedstatedir}/one/remotes/vmm/kvm
 %dir %{_sharedstatedir}/one/remotes/vmm/lxd
 %dir %{_sharedstatedir}/one/remotes/vmm/lib
@@ -1448,6 +1449,7 @@ echo ""
 %{_sharedstatedir}/one/remotes/tm/*
 %{_sharedstatedir}/one/remotes/vmm/az/*
 %{_sharedstatedir}/one/remotes/vmm/ec2/*
+%{_sharedstatedir}/one/remotes/vmm/firecracker/*
 %{_sharedstatedir}/one/remotes/vmm/kvm/*
 %{_sharedstatedir}/one/remotes/vmm/lxd/*
 %{_sharedstatedir}/one/remotes/vmm/lib/*
@@ -1545,6 +1547,8 @@ echo ""
 /usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onedatastore_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneflow_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneflowtemplate_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onegroup_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onehook_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onehost_helper.rb

@@ -27,6 +27,7 @@ dist/var/lib/one/remotes/pm/packet/*          /var/lib/one/remotes/pm/packet/
 dist/var/lib/one/remotes/tm/*                 /var/lib/one/remotes/tm/
 dist/var/lib/one/remotes/vmm/az/*             /var/lib/one/remotes/vmm/az/
 dist/var/lib/one/remotes/vmm/ec2/*            /var/lib/one/remotes/vmm/ec2/
+dist/var/lib/one/remotes/vmm/firecracker/*    /var/lib/one/remotes/vmm/firecracker/
 dist/var/lib/one/remotes/vmm/kvm/*            /var/lib/one/remotes/vmm/kvm/
 dist/var/lib/one/remotes/vmm/lxd/*            /var/lib/one/remotes/vmm/lxd/
 dist/var/lib/one/remotes/vmm/lib/*            /var/lib/one/remotes/vmm/lib/

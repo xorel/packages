@@ -4,6 +4,7 @@
 /var/lib/one/remotes/etc/im/lxd-probes.d/pci.conf
 /var/lib/one/remotes/etc/market/http/http.conf
 /var/lib/one/remotes/etc/tm/fs_lvm/fs_lvm.conf
+/var/lib/one/remotes/etc/vmm/firecracker/firecrackerrc
 /var/lib/one/remotes/etc/vmm/kvm/kvmrc
 /var/lib/one/remotes/etc/vmm/lxd/lxdrc
 /var/lib/one/remotes/etc/vmm/vcenter/vcenterrc
