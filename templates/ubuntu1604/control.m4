@@ -170,6 +170,7 @@ Depends: adduser,
          rsync,
          cron,
          augeas-tools,
+         ruby-sqlite3,
          ${misc:Depends}
 Recommends: openssh-server | ssh-server
 Description: empty package to prepare a machine as OpenNebula Node

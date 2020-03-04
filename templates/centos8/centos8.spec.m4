@@ -438,6 +438,7 @@ Requires: ipset
 Requires: pciutils
 Requires: cronie
 Requires: augeas
+Requires: opennebula-rubygems
 # This package does not exist in CentOS 7
 Requires: %{name}-common = %{version}
 
@@ -1366,6 +1367,7 @@ echo ""
 %config %{_sysconfdir}/one/oned.conf
 %config %{_sysconfdir}/one/onehem-server.conf
 %config %{_sysconfdir}/one/sched.conf
+%config %{_sysconfdir}/one/monitord.conf
 %config %{_sysconfdir}/one/vmm_exec/*
 %config %{_sysconfdir}/one/az_driver.conf
 %config %{_sysconfdir}/one/az_driver.default
@@ -1384,6 +1386,7 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/etc
 %dir %{_sharedstatedir}/one/remotes/hooks
 %dir %{_sharedstatedir}/one/remotes/im
+%dir %{_sharedstatedir}/one/remotes/im/lib
 %dir %{_sharedstatedir}/one/remotes/im/az.d
 %dir %{_sharedstatedir}/one/remotes/im/ec2.d
 %dir %{_sharedstatedir}/one/remotes/im/kvm.d
@@ -1393,6 +1396,8 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/im/one.d
 %dir %{_sharedstatedir}/one/remotes/im/packet.d
 %dir %{_sharedstatedir}/one/remotes/im/vcenter.d
+%dir %{_sharedstatedir}/one/remotes/im/dummy.d
+%dir %{_sharedstatedir}/one/remotes/im/dummy-probes.d
 %dir %{_sharedstatedir}/one/remotes/ipam
 %dir %{_sharedstatedir}/one/remotes/market
 %dir %{_sharedstatedir}/one/remotes/market/http
@@ -1411,7 +1416,6 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/vmm/firecracker
 %dir %{_sharedstatedir}/one/remotes/vmm/kvm
 %dir %{_sharedstatedir}/one/remotes/vmm/lxd
-%dir %{_sharedstatedir}/one/remotes/vmm/lib
 %dir %{_sharedstatedir}/one/remotes/vmm/one
 %dir %{_sharedstatedir}/one/remotes/vmm/packet
 %dir %{_sharedstatedir}/one/remotes/vmm/vcenter
@@ -1432,9 +1436,12 @@ echo ""
 %{_sharedstatedir}/one/remotes/im/kvm-probes.d/*
 %{_sharedstatedir}/one/remotes/im/lxd.d/*
 %{_sharedstatedir}/one/remotes/im/lxd-probes.d/*
+%{_sharedstatedir}/one/remotes/im/dummy-probes.d/*
+%{_sharedstatedir}/one/remotes/im/dummy.d/*
 %{_sharedstatedir}/one/remotes/im/one.d/*
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/im/vcenter.d/*
+%{_sharedstatedir}/one/remotes/im/lib/*
 %{_sharedstatedir}/one/remotes/im/run_probes
 %{_sharedstatedir}/one/remotes/im/stop_probes
 %{_sharedstatedir}/one/remotes/ipam/*
@@ -1452,7 +1459,6 @@ echo ""
 %{_sharedstatedir}/one/remotes/vmm/firecracker/*
 %{_sharedstatedir}/one/remotes/vmm/kvm/*
 %{_sharedstatedir}/one/remotes/vmm/lxd/*
-%{_sharedstatedir}/one/remotes/vmm/lib/*
 %{_sharedstatedir}/one/remotes/vmm/one/*
 %{_sharedstatedir}/one/remotes/vmm/packet/*
 %{_sharedstatedir}/one/remotes/vmm/vcenter/*
