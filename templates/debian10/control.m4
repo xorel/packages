@@ -2,9 +2,6 @@ Source: opennebula
 Section: utils
 Priority: extra
 Maintainer: _CONTACT_
-Uploaders: Damien Raude-Morvan <drazzib@debian.org>,
-           Soren Hansen <soren@ubuntu.com>,
-           Jaime Melis <jmelis@opennebula.org>
 Build-Depends: bash-completion,
                bison,
                debhelper (>= 7.0.50~),
