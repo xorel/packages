@@ -760,7 +760,7 @@ fi
 
 if [ $1 = 2 ]; then
     # Upgrade
-    PID=$(cat /tmp/one-collectd-client.pid 2> /dev/null)
+    PID=$(cat /tmp/one-monitord-client.pid 2> /dev/null)
     [ -n "$PID" ] && kill $PID 2> /dev/null || :
 fi
 
@@ -1348,8 +1348,8 @@ echo ""
 %{_sharedstatedir}/one/remotes/im/packet.d/*
 %{_sharedstatedir}/one/remotes/im/vcenter.d/*
 %{_sharedstatedir}/one/remotes/im/lib/*
-%{_sharedstatedir}/one/remotes/im/run_probes
-%{_sharedstatedir}/one/remotes/im/stop_probes
+%{_sharedstatedir}/one/remotes/im/run_monitord_client
+%{_sharedstatedir}/one/remotes/im/stop_monitord_client
 %{_sharedstatedir}/one/remotes/ipam/*
 %{_sharedstatedir}/one/remotes/market/http/*
 %{_sharedstatedir}/one/remotes/market/linuxcontainers/*
