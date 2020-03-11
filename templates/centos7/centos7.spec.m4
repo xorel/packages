@@ -1316,6 +1316,7 @@ echo ""
 %dir %{_sharedstatedir}/one/remotes/pm/ec2
 %dir %{_sharedstatedir}/one/remotes/tm
 %dir %{_sharedstatedir}/one/remotes/vmm
+%dir %{_sharedstatedir}/one/remotes/vmm/lib
 %dir %{_sharedstatedir}/one/remotes/vmm/az
 %dir %{_sharedstatedir}/one/remotes/vmm/ec2
 %dir %{_sharedstatedir}/one/remotes/vmm/firecracker
@@ -1359,6 +1360,7 @@ echo ""
 %{_sharedstatedir}/one/remotes/pm/packet/*
 %{_sharedstatedir}/one/remotes/pm/ec2/*
 %{_sharedstatedir}/one/remotes/tm/*
+%{_sharedstatedir}/one/remotes/vmm/lib/*
 %{_sharedstatedir}/one/remotes/vmm/az/*
 %{_sharedstatedir}/one/remotes/vmm/ec2/*
 %{_sharedstatedir}/one/remotes/vmm/firecracker/*
