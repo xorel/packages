@@ -16,8 +16,8 @@ dist/var/lib/one/remotes/im/vcenter.d/*       /var/lib/one/remotes/im/vcenter.d/
 dist/var/lib/one/remotes/im/lib/*             /var/lib/one/remotes/im/lib/
 dist/var/lib/one/remotes/im/dummy.d/*         /var/lib/one/remotes/im/dummy.d/
 dist/var/lib/one/remotes/im/dummy-probes.d/*  /var/lib/one/remotes/im/dummy-probes.d/
-dist/var/lib/one/remotes/im/run_probes        /var/lib/one/remotes/im/
-dist/var/lib/one/remotes/im/stop_probes       /var/lib/one/remotes/im/
+dist/var/lib/one/remotes/im/run_monitord_client   /var/lib/one/remotes/im/
+dist/var/lib/one/remotes/im/stop_monitord_client  /var/lib/one/remotes/im/
 dist/var/lib/one/remotes/ipam/*               /var/lib/one/remotes/ipam/
 dist/var/lib/one/remotes/market/http/*        /var/lib/one/remotes/market/http/
 dist/var/lib/one/remotes/market/linuxcontainers/*  /var/lib/one/remotes/market/linuxcontainers/
