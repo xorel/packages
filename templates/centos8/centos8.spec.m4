@@ -438,7 +438,7 @@ Requires: ipset
 Requires: pciutils
 Requires: cronie
 Requires: augeas
-Requires: opennebula-rubygems
+Requires: rubygem-sqlite3
 # This package does not exist in CentOS 7
 Requires: %{name}-common = %{version}
 
