@@ -44,6 +44,7 @@ dist/usr/lib/one/ruby/one_vnm.rb                              /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/DriverExecHelper.rb                     /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/ActionManager.rb                        /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/VirtualMachineDriver.rb                 /usr/lib/one/ruby/
+dist/usr/lib/one/ruby/PublicCloudDriver.rb                    /usr/lib/one/ruby/
 
 dist/usr/share/one/examples/*       /usr/share/one/examples/
 dist/usr/share/one/esx-fw-vnc/*     /usr/share/one/esx-fw-vnc/

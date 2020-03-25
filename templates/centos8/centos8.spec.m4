@@ -1351,6 +1351,7 @@ echo ""
 /usr/lib/one/ruby/vcenter_driver/*
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb
+/usr/lib/one/ruby/PublicCloudDriver.rb
 /usr/lib/one/sh/*
 
 %{_mandir}/man1/onedb.1*
