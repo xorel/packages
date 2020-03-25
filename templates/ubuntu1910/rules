@@ -163,6 +163,10 @@ ifneq (,$(filter opennebula-node, $(shell dh_listpackages)))
 	sed "s/@LIBVIRTGRP@/${LIB_VIRT_GROUP}/g" debian/opennebula-node.postinst.in > debian/opennebula-node.postinst
 endif
 	dh_installdeb
+ifneq (,$(filter opennebula, $(shell dh_listpackages)))
+	# dynamically generate list of configuration files from remotes
+	find debian/opennebula/var/lib/one/remotes/etc -type f -printf '/var/lib/one/remotes/etc/%P\n' >>debian/opennebula/DEBIAN/conffiles
+endif
 
 override_dh_fixperms:
 	dh_fixperms

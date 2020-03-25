@@ -1381,46 +1381,6 @@ echo ""
 %defattr(-, oneadmin, oneadmin, 0750)
 %dir %{_sharedstatedir}/one/datastores
 %dir %{_sharedstatedir}/one/remotes
-%dir %{_sharedstatedir}/one/remotes/auth
-%dir %{_sharedstatedir}/one/remotes/datastore
-%dir %{_sharedstatedir}/one/remotes/etc
-%dir %{_sharedstatedir}/one/remotes/hooks
-%dir %{_sharedstatedir}/one/remotes/im
-%dir %{_sharedstatedir}/one/remotes/im/lib
-%dir %{_sharedstatedir}/one/remotes/im/az.d
-%dir %{_sharedstatedir}/one/remotes/im/ec2.d
-%dir %{_sharedstatedir}/one/remotes/im/kvm.d
-%dir %{_sharedstatedir}/one/remotes/im/kvm-probes.d
-%dir %{_sharedstatedir}/one/remotes/im/lxd.d
-%dir %{_sharedstatedir}/one/remotes/im/lxd-probes.d
-%dir %{_sharedstatedir}/one/remotes/im/one.d
-%dir %{_sharedstatedir}/one/remotes/im/packet.d
-%dir %{_sharedstatedir}/one/remotes/im/vcenter.d
-%dir %{_sharedstatedir}/one/remotes/im/dummy.d
-%dir %{_sharedstatedir}/one/remotes/im/dummy-probes.d
-%dir %{_sharedstatedir}/one/remotes/ipam
-%dir %{_sharedstatedir}/one/remotes/market
-%dir %{_sharedstatedir}/one/remotes/market/http
-%dir %{_sharedstatedir}/one/remotes/market/linuxcontainers
-%dir %{_sharedstatedir}/one/remotes/market/turnkeylinux
-%dir %{_sharedstatedir}/one/remotes/market/one
-%dir %{_sharedstatedir}/one/remotes/market/s3
-%dir %{_sharedstatedir}/one/remotes/pm
-%dir %{_sharedstatedir}/one/remotes/pm/dummy
-%dir %{_sharedstatedir}/one/remotes/pm/packet
-%dir %{_sharedstatedir}/one/remotes/pm/ec2
-%dir %{_sharedstatedir}/one/remotes/tm
-%dir %{_sharedstatedir}/one/remotes/vmm
-%dir %{_sharedstatedir}/one/remotes/vmm/lib
-%dir %{_sharedstatedir}/one/remotes/vmm/az
-%dir %{_sharedstatedir}/one/remotes/vmm/ec2
-%dir %{_sharedstatedir}/one/remotes/vmm/firecracker
-%dir %{_sharedstatedir}/one/remotes/vmm/kvm
-%dir %{_sharedstatedir}/one/remotes/vmm/lxd
-%dir %{_sharedstatedir}/one/remotes/vmm/one
-%dir %{_sharedstatedir}/one/remotes/vmm/packet
-%dir %{_sharedstatedir}/one/remotes/vmm/vcenter
-%dir %{_sharedstatedir}/one/remotes/vnm
 %dir %{_sharedstatedir}/one/vms
 
 %dir %{_localstatedir}/lock/one
@@ -1428,48 +1388,7 @@ echo ""
 %dir %{_localstatedir}/run/one
 
 %exclude %{_sharedstatedir}/one/datastores/*
-%{_sharedstatedir}/one/remotes/auth/*
-%{_sharedstatedir}/one/remotes/datastore/*
-%{_sharedstatedir}/one/remotes/hooks/*
-%{_sharedstatedir}/one/remotes/im/az.d/*
-%{_sharedstatedir}/one/remotes/im/ec2.d/*
-%{_sharedstatedir}/one/remotes/im/kvm.d/*
-%{_sharedstatedir}/one/remotes/im/kvm-probes.d/*
-%{_sharedstatedir}/one/remotes/im/lxd.d/*
-%{_sharedstatedir}/one/remotes/im/lxd-probes.d/*
-%{_sharedstatedir}/one/remotes/im/dummy-probes.d/*
-%{_sharedstatedir}/one/remotes/im/dummy.d/*
-%{_sharedstatedir}/one/remotes/im/one.d/*
-%{_sharedstatedir}/one/remotes/im/packet.d/*
-%{_sharedstatedir}/one/remotes/im/vcenter.d/*
-%{_sharedstatedir}/one/remotes/im/lib/*
-%{_sharedstatedir}/one/remotes/im/run_monitord_client
-%{_sharedstatedir}/one/remotes/im/stop_monitord_client
-%{_sharedstatedir}/one/remotes/ipam/*
-%{_sharedstatedir}/one/remotes/market/http/*
-%{_sharedstatedir}/one/remotes/market/linuxcontainers/*
-%{_sharedstatedir}/one/remotes/market/turnkeylinux/*
-%{_sharedstatedir}/one/remotes/market/one/*
-%{_sharedstatedir}/one/remotes/market/s3/*
-%{_sharedstatedir}/one/remotes/pm/dummy/*
-%{_sharedstatedir}/one/remotes/pm/packet/*
-%{_sharedstatedir}/one/remotes/pm/ec2/*
-%{_sharedstatedir}/one/remotes/tm/*
-%{_sharedstatedir}/one/remotes/vmm/lib/*
-%{_sharedstatedir}/one/remotes/vmm/az/*
-%{_sharedstatedir}/one/remotes/vmm/ec2/*
-%{_sharedstatedir}/one/remotes/vmm/firecracker/*
-%{_sharedstatedir}/one/remotes/vmm/kvm/*
-%{_sharedstatedir}/one/remotes/vmm/lxd/*
-%{_sharedstatedir}/one/remotes/vmm/one/*
-%{_sharedstatedir}/one/remotes/vmm/packet/*
-%{_sharedstatedir}/one/remotes/vmm/vcenter/*
-%{_sharedstatedir}/one/remotes/vnm/*
-%{_sharedstatedir}/one/remotes/create_container_image.sh
-%{_sharedstatedir}/one/remotes/scripts_common.rb
-%{_sharedstatedir}/one/remotes/scripts_common.sh
-%{_sharedstatedir}/one/remotes/VERSION
-
+%{_sharedstatedir}/one/remotes/*
 %config %{_sharedstatedir}/one/remotes/etc/*
 
 ################################################################################
