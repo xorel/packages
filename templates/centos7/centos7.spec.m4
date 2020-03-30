@@ -1236,6 +1236,7 @@ echo ""
 %{_datadir}/one/examples/*
 %{_datadir}/one/esx-fw-vnc/*
 %{_datadir}/one/follower_cleanup
+%{_datadir}/one/start-scripts/*
 
 /usr/lib/one/mads/*
 /usr/lib/one/onehem/*
