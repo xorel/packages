@@ -1221,6 +1221,7 @@ echo ""
 %config %{_sysconfdir}/logrotate.d/opennebula
 %config %{_sysconfdir}/logrotate.d/opennebula-scheduler
 %config %{_sysconfdir}/logrotate.d/opennebula-hem
+%exclude /usr/sbin/install-firecracker
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
 /lib/systemd/system/opennebula-hem.service
