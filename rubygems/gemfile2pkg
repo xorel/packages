@@ -180,6 +180,7 @@ def pack_gem(gem, build_dir, fpm_path)
                 '-s', 'gem',
                 '-t', gem[:type],
                 '-p', gem[:package_location],
+                '--no-auto-depends',    # https://github.com/jordansissel/fpm/pull/1699
                 '--deb-no-default-config-files',
                 '--deb-ignore-iteration-in-dependencies',
                 '--rpm-ignore-iteration-in-dependencies',
