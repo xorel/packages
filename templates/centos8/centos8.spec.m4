@@ -229,6 +229,8 @@ Group: System
 BuildArch: noarch
 Requires: ruby
 Requires: rubygems
+Obsoletes: %{name}-rubygem-aws-sdk
+Obsoletes: %{name}-rubygem-aws-sdk-resources
 _RUBYGEMS_REQ_
 
 %description rubygems
