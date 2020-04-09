@@ -158,7 +158,7 @@ Package: opennebula-node
 Architecture: all
 Depends: adduser,
          libvirt-bin,
-         qemu-kvm,
+         qemu-kvm | pve-qemu-kvm,
          opennebula-common (= ${source:Version}),
          ruby,
          vlan,
