@@ -781,6 +781,7 @@ fi
 if [ $1 = 2 ]; then
     /sbin/service opennebula stop >/dev/null || :
     /sbin/service opennebula-scheduler stop >/dev/null || :
+    /sbin/service opennebula-hem stop >/dev/null || :
 fi
 
 %post server
@@ -806,6 +807,7 @@ systemctl daemon-reload 2>/dev/null || :
 if [ $1 = 0 ]; then
     /sbin/service opennebula stop >/dev/null || :
     /sbin/service opennebula-scheduler stop >/dev/null || :
+    /sbin/service opennebula-hem stop >/dev/null || :
 fi
 
 %postun server
