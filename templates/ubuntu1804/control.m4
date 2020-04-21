@@ -196,7 +196,8 @@ Description: LXD installed as a snap
 
 Package: opennebula-node-lxd
 Architecture: any
-Depends: kpartx,
+Depends: opennebula-node (= ${source:Version}),
+         kpartx,
          libvncserver1,
          e2fsprogs,
          xfsprogs,
