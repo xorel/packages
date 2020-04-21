@@ -185,7 +185,8 @@ Description: empty package to prepare a machine as OpenNebula Node
 
 Package: opennebula-node-lxd
 Architecture: any
-Depends: kpartx,
+Depends: opennebula-node (= ${source:Version}),
+         kpartx,
          libvncserver1,
          e2fsprogs,
          xfsprogs
