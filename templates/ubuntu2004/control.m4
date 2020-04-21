@@ -15,16 +15,16 @@ Build-Depends: bash-completion,
                libssl-dev,
                libws-commons-util-java,
                libxml2-dev,
-               libxmlrpc3-client-java,
-               libxmlrpc3-common-java,
+               dnl libxmlrpc3-client-java,
+               dnl libxmlrpc3-common-java,
                libxslt1-dev,
                libcurl4-openssl-dev,
                libcurl4,
                libsystemd-dev,
                libvncserver-dev,
-               python-setuptools,
-               python-wheel,
-               python3-setuptools,
+               dnl python-setuptools,
+               dnl python-wheel,
+               dnl python3-setuptools,
                ruby,
                scons
 Standards-Version: 3.9.3
@@ -231,23 +231,23 @@ Depends: adduser,
          ${misc:Depends}
 Description: sets up an OpenNebula Firecracker virtualization node
 
-Package: python-pyone
-Section: python
-Architecture: all
-Depends: python,
-         python-pip,
-         ${misc:Depends},
-         ${python:Depends}
-Description: Python bindings for OpenNebula Cloud API (OCA)
+dnl Package: python-pyone
+dnl Section: python
+dnl Architecture: all
+dnl Depends: python,
+dnl          python-pip,
+dnl          ${misc:Depends},
+dnl          ${python:Depends}
+dnl Description: Python bindings for OpenNebula Cloud API (OCA)
 
-Package: python3-pyone
-Section: python
-Architecture: all
-Depends: python,
-         python-pip,
-         ${misc:Depends},
-         ${python:Depends}
-Description: Python3 bindings for OpenNebula Cloud API (OCA)
+dnl Package: python3-pyone
+dnl Section: python
+dnl Architecture: all
+dnl Depends: python,
+dnl          python-pip,
+dnl          ${misc:Depends},
+dnl          ${python:Depends}
+dnl Description: Python3 bindings for OpenNebula Cloud API (OCA)
 
 Package: ruby-opennebula
 Section: ruby
@@ -307,40 +307,40 @@ Description: Command-line tools for OpenNebula Cloud
  .
  This package provides the OpenNebula CLI.
 
-Package: libopennebula-java
-Section: java
-Architecture: all
-Depends: ${java:Depends}, ${misc:Depends},
-         libws-commons-util-java,
-         libxmlrpc3-client-java,
-         libxmlrpc3-common-java
-Description: Java bindings for OpenNebula Cloud API (OCA)
- OpenNebula is an open source virtual infrastructure engine that enables the
- dynamic deployment and re-placement of virtual machines on a pool of physical
- resources.
- .
- ONE (OpenNebula) extends the benefits of virtualization platforms from a
- single physical resource to a pool of resources, decoupling the server not
- only from the physical infrastructure but also from the physical location.
- .
- This package provides the OpenNebula Cloud API (OCA) Java bindings.
+dnl Package: libopennebula-java
+dnl Section: java
+dnl Architecture: all
+dnl Depends: ${java:Depends}, ${misc:Depends},
+dnl          libws-commons-util-java,
+dnl          dnl libxmlrpc3-client-java,
+dnl          libxmlrpc3-common-java
+dnl Description: Java bindings for OpenNebula Cloud API (OCA)
+dnl  OpenNebula is an open source virtual infrastructure engine that enables the
+dnl  dynamic deployment and re-placement of virtual machines on a pool of physical
+dnl  resources.
+dnl  .
+dnl  ONE (OpenNebula) extends the benefits of virtualization platforms from a
+dnl  single physical resource to a pool of resources, decoupling the server not
+dnl  only from the physical infrastructure but also from the physical location.
+dnl  .
+dnl  This package provides the OpenNebula Cloud API (OCA) Java bindings.
 
-Package: libopennebula-java-doc
-Section: doc
-Architecture: all
-Depends: ${misc:Depends}
-Recommends: ${java:Recommends}
-Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
- OpenNebula is an open source virtual infrastructure engine that enables the
- dynamic deployment and re-placement of virtual machines on a pool of physical
- resources.
- .
- ONE (OpenNebula) extends the benefits of virtualization platforms from a
- single physical resource to a pool of resources, decoupling the server not
- only from the physical infrastructure but also from the physical location.
- .
- This package provides the documentation (Javadoc API) and examples for
- OpenNebula Cloud API (OCA) Java bindings.
+dnl Package: libopennebula-java-doc
+dnl Section: doc
+dnl Architecture: all
+dnl Depends: ${misc:Depends}
+dnl Recommends: ${java:Recommends}
+dnl Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
+dnl  OpenNebula is an open source virtual infrastructure engine that enables the
+dnl  dynamic deployment and re-placement of virtual machines on a pool of physical
+dnl  resources.
+dnl  .
+dnl  ONE (OpenNebula) extends the benefits of virtualization platforms from a
+dnl  single physical resource to a pool of resources, decoupling the server not
+dnl  only from the physical infrastructure but also from the physical location.
+dnl  .
+dnl  This package provides the documentation (Javadoc API) and examples for
+dnl  OpenNebula Cloud API (OCA) Java bindings.
 
 Package: opennebula-provision
 Architecture: all

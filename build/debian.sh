@@ -109,7 +109,8 @@ tar -czf build_opennebula.tar.gz \
 ################################################################################
 
 # if host uses package mirror, use this for pbuilder as well
-if [ -f /etc/apt/sources.list.d/local-mirror.list ]; then
+# but not for ubutnu2004
+if [ -f /etc/apt/sources.list.d/local-mirror.list -a $DISTRO != 'ubuntu2004' ]; then
     MIRRORSITE="$(dirname "$(cut -d' ' -f2 /etc/apt/sources.list.d/local-mirror.list | head -1)")"
     if [[ "${DISTRO}" =~ ubuntu ]]; then
         export MIRRORSITE="${MIRRORSITE}/ubuntu/"

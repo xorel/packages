@@ -43,11 +43,11 @@ ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 endif
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
 	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)"
-	(cd src/oca/java/; \
-	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
-	ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
-	ln -s /usr/share/java/ws-commons-util.jar lib/; \
-	./build.sh -d)
+	# (cd src/oca/java/; \
+	# ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
+	# ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
+	# ln -s /usr/share/java/ws-commons-util.jar lib/; \
+	# ./build.sh -d)
 
 override_dh_auto_install:
 	rm -rf src/sunstone/public/node_modules/ || :
@@ -139,12 +139,12 @@ endif
 ifneq (,$(filter opennebula-tools, $(shell dh_listpackages)))
 	cp share/install_gems/${GEMFILE_LOCK}/Gemfile.lock dist/usr/share/one/
 endif
-ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
-	(cd src/oca/python/; make install ROOT=../../../dist)
-endif
-ifneq (,$(filter python3-pyone, $(shell dh_listpackages)))
-	(cd src/oca/python/; make install3 ROOT=../../../dist)
-endif
+# ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
+# 	(cd src/oca/python/; make install ROOT=../../../dist)
+# endif
+# ifneq (,$(filter python3-pyone, $(shell dh_listpackages)))
+# 	(cd src/oca/python/; make install3 ROOT=../../../dist)
+# endif
 
 override_dh_installinit:
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
@@ -205,13 +205,13 @@ override_dh_systemd_enable:
 override_dh_auto_clean:
 	dh_auto_clean
 	rm -rf dist/
-	scons --clean .
-	(cd src/oca/java/; \
-	rm lib/xmlrpc-common-3.1.jar; \
-	rm lib/xmlrpc-client-3.1.jar; \
-	rm lib/ws-commons-util.jar; \
-	rm -rf jar/; rm -rf share/doc/; \
-	./build.sh -c)
+	# scons --clean .
+	# (cd src/oca/java/; \
+	# rm lib/xmlrpc-common-3.1.jar; \
+	# rm lib/xmlrpc-client-3.1.jar; \
+	# rm lib/ws-commons-util.jar; \
+	# rm -rf jar/; rm -rf share/doc/; \
+	# ./build.sh -c)
 	-rm -Rf .scons_temp
 	-rm -Rf share/scons/lex_bison.pyc \
 		src/nebula/.xmlrpc_test/xmlrpc_test.* \
