@@ -274,7 +274,7 @@ Package: opennebula-rubygems
 Architecture: all
 Depends: ruby,
          _RUBYGEMS_REQ_
-         libffi6,
+         libffi7,
          libsqlite3-0,
          libmysqlclient21,
          libcurl4,
