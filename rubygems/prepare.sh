@@ -58,7 +58,7 @@ case "${OPTION}" in
         yum -y install ruby-devel make gcc sqlite-devel mysql-devel \
             openssl-devel curl-devel rubygem-rake libxml2-devel \
             libxslt-devel patch expat-devel gcc-c++ rpm-build augeas-devel \
-            postgresql-devel \
+            postgresql-devel rubygems \
             >/dev/null
         ;;
     *)
