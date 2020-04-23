@@ -75,6 +75,8 @@ ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula.service \
 		/lib/systemd/system/
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-ssh-agent.service \
+		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-scheduler.service \
 		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-hem.service \

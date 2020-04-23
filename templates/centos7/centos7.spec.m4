@@ -512,14 +512,15 @@ export DESTDIR=%{buildroot}
 %endif
 
 # Init scripts
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service           %{buildroot}/lib/systemd/system/opennebula.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service %{buildroot}/lib/systemd/system/opennebula-scheduler.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service       %{buildroot}/lib/systemd/system/opennebula-hem.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service  %{buildroot}/lib/systemd/system/opennebula-sunstone.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-gate.service      %{buildroot}/lib/systemd/system/opennebula-gate.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.service     %{buildroot}/lib/systemd/system/opennebula-econe.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service      %{buildroot}/lib/systemd/system/opennebula-flow.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service     %{buildroot}/lib/systemd/system/opennebula-novnc.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service             %{buildroot}/lib/systemd/system/opennebula.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-agent.service   %{buildroot}/lib/systemd/system/opennebula-ssh-agent.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service   %{buildroot}/lib/systemd/system/opennebula-scheduler.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service         %{buildroot}/lib/systemd/system/opennebula-hem.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service    %{buildroot}/lib/systemd/system/opennebula-sunstone.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-gate.service        %{buildroot}/lib/systemd/system/opennebula-gate.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.service       %{buildroot}/lib/systemd/system/opennebula-econe.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service        %{buildroot}/lib/systemd/system/opennebula-flow.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service       %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
 install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula.conf
 install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
@@ -1300,6 +1301,7 @@ echo ""
 %config %{_sysconfdir}/logrotate.d/opennebula-hem
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
+/lib/systemd/system/opennebula-ssh-agent.service
 /lib/systemd/system/opennebula-hem.service
 /lib/tmpfiles.d/opennebula.conf
 /usr/share/augeas/lenses/oned.aug
