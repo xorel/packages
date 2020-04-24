@@ -105,8 +105,8 @@ Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
-         python,
-         python-numpy,
+         python3,
+         python3-numpy,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
 Description: web interface to which executes the OpenNebula cluster services
