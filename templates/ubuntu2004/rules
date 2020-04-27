@@ -166,9 +166,9 @@ endif
 # ifneq (,$(filter python-pyone, $(shell dh_listpackages)))
 # 	(cd src/oca/python/; make install ROOT=../../../dist)
 # endif
-# ifneq (,$(filter python3-pyone, $(shell dh_listpackages)))
-# 	(cd src/oca/python/; make install3 ROOT=../../../dist)
-# endif
+ifneq (,$(filter python3-pyone, $(shell dh_listpackages)))
+	(cd src/oca/python/; make install3 ROOT=../../../dist)
+endif
 
 override_dh_installinit:
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))

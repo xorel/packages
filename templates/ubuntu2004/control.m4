@@ -22,9 +22,7 @@ Build-Depends: bash-completion,
                libcurl4,
                libsystemd-dev,
                libvncserver-dev,
-               dnl python-setuptools,
-               dnl python-wheel,
-               dnl python3-setuptools,
+               python3-setuptools,
                ruby,
                scons,
 # Rubygems, TODO: reduce
@@ -247,23 +245,14 @@ Depends: adduser,
          ${misc:Depends}
 Description: sets up an OpenNebula Firecracker virtualization node
 
-dnl Package: python-pyone
-dnl Section: python
-dnl Architecture: all
-dnl Depends: python,
-dnl          python-pip,
-dnl          ${misc:Depends},
-dnl          ${python:Depends}
-dnl Description: Python bindings for OpenNebula Cloud API (OCA)
-
-dnl Package: python3-pyone
-dnl Section: python
-dnl Architecture: all
-dnl Depends: python,
-dnl          python-pip,
-dnl          ${misc:Depends},
-dnl          ${python:Depends}
-dnl Description: Python3 bindings for OpenNebula Cloud API (OCA)
+Package: python3-pyone
+Section: python
+Architecture: all
+Depends: python3,
+         python3-pip,
+         ${misc:Depends},
+         ${python:Depends}
+Description: Python3 bindings for OpenNebula Cloud API (OCA)
 
 Package: ruby-opennebula
 Section: ruby
