@@ -811,6 +811,7 @@ if [ $1 = 2 ]; then
     /sbin/service opennebula stop >/dev/null || :
     /sbin/service opennebula-scheduler stop >/dev/null || :
     /sbin/service opennebula-hem stop >/dev/null || :
+    /sbin/service opennebula-ssh-agent stop >/dev/null || :
 fi
 
 %post server
@@ -837,6 +838,7 @@ if [ $1 = 0 ]; then
     /sbin/service opennebula stop >/dev/null || :
     /sbin/service opennebula-scheduler stop >/dev/null || :
     /sbin/service opennebula-hem stop >/dev/null || :
+    /sbin/service opennebula-ssh-agent stop >/dev/null || :
 fi
 
 %postun server
@@ -1209,13 +1211,17 @@ echo ""
 
 %files ruby
 %defattr(-, root, root, 0755)
+%dir /usr/lib/one/ruby/opennebula
 /usr/lib/one/ruby/opennebula.rb
 /usr/lib/one/ruby/opennebula/*
+%dir /usr/lib/one/ruby/vendors
 /usr/lib/one/ruby/vendors/packethost
 
+%dir /usr/lib/one/ruby/cloud
 /usr/lib/one/ruby/cloud/CloudClient.rb
 /usr/lib/one/ruby/cloud/CloudAuth.rb
 /usr/lib/one/ruby/cloud/CloudServer.rb
+%dir /usr/lib/one/ruby/cloud/CloudAuth
 /usr/lib/one/ruby/cloud/CloudAuth/*
 
 %{_datadir}/one/install_gems
@@ -1241,10 +1247,13 @@ echo ""
 %config %{_sysconfdir}/logrotate.d/opennebula-econe
 %config %{_sysconfdir}/logrotate.d/opennebula-sunstone
 %config %{_sysconfdir}/logrotate.d/opennebula-novnc
+%dir /usr/lib/one/sunstone
 /usr/lib/one/sunstone/*
 /usr/lib/one/ruby/OpenNebulaVNC.rb
 /usr/lib/one/ruby/OpenNebulaAddons.rb
+%dir /usr/lib/one/ruby/cloud/econe
 /usr/lib/one/ruby/cloud/econe/*
+%dir %{_datadir}/one/websockify
 %{_datadir}/one/websockify/*
 
 %{_bindir}/sunstone-server
@@ -1325,6 +1334,7 @@ echo ""
 %files gate
 %attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula-gate
+%dir /usr/lib/one/onegate
 /usr/lib/one/onegate/*
 %{_bindir}/onegate-server
 /lib/systemd/system/opennebula-gate.service
@@ -1345,6 +1355,7 @@ echo ""
 %files flow
 %attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula-flow
+%dir /usr/lib/one/oneflow
 /usr/lib/one/oneflow/*
 %{_bindir}/oneflow-server
 /lib/systemd/system/opennebula-flow.service
@@ -1424,31 +1435,41 @@ echo ""
 %{_bindir}/onedb
 %{_bindir}/onehem-server
 
+%dir %{_datadir}/one/examples
 %{_datadir}/one/examples/*
+%dir %{_datadir}/one/esx-fw-vnc
 %{_datadir}/one/esx-fw-vnc/*
 %{_datadir}/one/follower_cleanup
+%dir %{_datadir}/one/start-scripts
 %{_datadir}/one/start-scripts/*
 
+%dir /usr/lib/one/mads
 /usr/lib/one/mads/*
+%dir /usr/lib/one/onehem
 /usr/lib/one/onehem/*
+%dir /usr/lib/one/ruby
 /usr/lib/one/ruby/ActionManager.rb
 /usr/lib/one/ruby/az_driver.rb
 /usr/lib/one/ruby/CommandManager.rb
 /usr/lib/one/ruby/DriverExecHelper.rb
 /usr/lib/one/ruby/ec2_driver.rb
 /usr/lib/one/ruby/nsx_driver.rb
+%dir /usr/lib/one/ruby/nsx_driver
 /usr/lib/one/ruby/nsx_driver/*
+%dir /usr/lib/one/ruby/onedb
 /usr/lib/one/ruby/onedb/*
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/opennebula_driver.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb
 /usr/lib/one/ruby/scripts_common.rb
 /usr/lib/one/ruby/ssh_stream.rb
+%dir /usr/lib/one/ruby/vcenter_driver
 /usr/lib/one/ruby/vcenter_driver.rb
 /usr/lib/one/ruby/vcenter_driver/*
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/ruby/PublicCloudDriver.rb
+%dir /usr/lib/one/sh
 /usr/lib/one/sh/*
 
 %{_mandir}/man1/onedb.1*
@@ -1495,6 +1516,7 @@ echo ""
 
 %files
 %attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
+%dir %{_sysconfdir}/one/cli
 %config %{_sysconfdir}/one/cli/oneacct.yaml
 %config %{_sysconfdir}/one/cli/oneacl.yaml
 %config %{_sysconfdir}/one/cli/onecluster.yaml
@@ -1568,6 +1590,8 @@ echo ""
 %{_mandir}/man1/onevrouter.1*
 %{_mandir}/man1/onezone.1*
 
+%dir /usr/lib/one/ruby/cli
+%dir /usr/lib/one/ruby/cli/one_helper
 /usr/lib/one/ruby/cli/one_helper/oneacct_helper.rb
 /usr/lib/one/ruby/cli/one_helper/oneacl_helper.rb
 /usr/lib/one/ruby/cli/one_helper/onecluster_helper.rb
