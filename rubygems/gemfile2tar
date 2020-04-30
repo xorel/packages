@@ -18,8 +18,9 @@
 #--------------------------------------------------------------------------- #
 
 require 'bundler'
-require 'tmpdir'
 require 'open3'
+require 'open-uri'
+require 'tmpdir'
 
 GEMFILE = ARGV[0]
 LOCK    = ARGV[1]
@@ -98,14 +99,22 @@ Dir.mktmpdir do |tmp_dir|
             manifest.puts file_name
             puts "    #{file_name}"
 
-            # TODO: directly download from Ruby gems to improve speed
-            fetch_cmd = ['gem', 'fetch', name, '--version', version]
-            _, stderr, status = Open3.capture3(*fetch_cmd)
+            begin
+                # try to download directly from RubyGems
+                url = "https://rubygems.org/downloads/#{file_name}"
+                IO.copy_stream(URI.open(url), file_name)
+            rescue StandardError
+                File.unlink(file_name) if File.exist?(file_name)
 
-            unless status.success?
-                STDERR.puts 'ERROR: Failed to download'
-                STDERR.puts stderr
-                exit 1
+                # fallback to gem fetch in case of error
+                fetch_cmd = ['gem', 'fetch', name, '--version', version]
+                _, stderr, status = Open3.capture3(*fetch_cmd)
+
+                unless status.success? && File.exist?(file_name)
+                    STDERR.puts 'ERROR: Failed to download'
+                    STDERR.puts stderr
+                    exit 1
+                end
             end
         end
 
