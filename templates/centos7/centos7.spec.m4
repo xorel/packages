@@ -1152,6 +1152,9 @@ echo ""
 %files common
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula
 %attr(0750, oneadmin, oneadmin) %dir %{_sharedstatedir}/one
+%dir /usr/lib/one
+%dir %{_datadir}/one
+%dir /usr/share/docs/one
 /usr/share/docs/one/*
 
 ################################################################################
