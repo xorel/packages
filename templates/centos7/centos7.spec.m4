@@ -682,7 +682,7 @@ make install3 ROOT=%{buildroot}
 cd -
 
 # Firecracker
-install -p -D -m 755 src/vmm_mad/remotes/lib/lxd/svncterm_server/svncterm_server            %{buildroot}%{_bindir}/svncterm_server
+install -p -D -m 755 src/svncterm_server/svncterm_server                                    %{buildroot}%{_bindir}/svncterm_server
 install -p -D -m 755 src/vmm_mad/remotes/lib/firecracker/one-clean-firecracker-domain       %{buildroot}%{_sbindir}/one-clean-firecracker-domain
 
 # fix permissions
