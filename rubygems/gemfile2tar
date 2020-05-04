@@ -102,7 +102,7 @@ Dir.mktmpdir do |tmp_dir|
             begin
                 # try to download directly from RubyGems
                 url = "https://rubygems.org/downloads/#{file_name}"
-                IO.copy_stream(URI.open(url), file_name)
+                IO.copy_stream(URI.parse(url).open, file_name)
             rescue StandardError
                 File.unlink(file_name) if File.exist?(file_name)
 
