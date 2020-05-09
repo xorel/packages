@@ -32,6 +32,19 @@
 %define dir_services systemd
 %define dir_tmpfiles %{nil}
 
+%if 0%{?fedora} >= 31
+    %define with_oca_java_prebuilt 1
+    %define with_oca_python2       0
+    %define scons            scons-3
+    %define gemfile_lock     Fedora%{?fedora}
+
+    # don't mangle shebangs (e.g., fix /usr/bin/env ruby -> /usr/bin/ruby)
+    %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems)/
+
+    # don't generate automatic requirements from bower components
+    %global __requires_exclude_from ^\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*$
+%endif
+
 %if 0%{?rhel} == 8
     %define with_oca_java_prebuilt 1
     %define scons            scons-3
@@ -87,7 +100,9 @@ Source9: java-oca-%{version}.tar.gz
 Source10: opennebula-rubygems-%{version}.tar
 %endif
 
-Patch0: proper_path_emulator.diff
+# Distribution specific KVM emulator paths to configure on front-end
+Patch0: opennebula-emulator_libexec.patch
+Patch1: opennebula-emulator_bin.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -111,7 +126,7 @@ BuildRequires: systemd-devel
 BuildRequires: libvncserver-devel
 BuildRequires: gnutls-devel
 BuildRequires: libjpeg-turbo-devel
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 || 0%{?fedora}
 BuildRequires: python3-rpm-macros
 BuildRequires: python3-scons
 BuildRequires: /usr/bin/pathfix.py
@@ -194,7 +209,7 @@ Requires: wget
 Requires: curl
 Requires: rsync
 Requires: iputils
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 || 0%{?fedora}
 Requires: zeromq >= 4, zeromq < 5
 %endif
 %if 0%{?rhel} == 7
@@ -335,7 +350,7 @@ Ruby gems dependencies for OpenNebula.
 Summary: Provides the OpenNebula Python libraries
 Group: System
 BuildArch: noarch
-%if 0%{?rhel} >= 8
+%if 0%{?rhel} >= 8 || 0%{?fedora}
 Requires: python2
 BuildRequires: python2-devel
 BuildRequires: python2-setuptools
@@ -377,7 +392,7 @@ Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 || 0%{?fedora}
 Requires: python3
 Requires: python3-numpy
 %endif
@@ -489,7 +504,7 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 Summary: Java interface to OpenNebula Cloud API
 Group:   System
 BuildArch: noarch
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 || 0%{?fedora}
 # no build dependencies available
 #BuildRequires: java-11-openjdk-devel
 %endif
@@ -624,7 +639,11 @@ mv java-oca-%{version}/jar/ src/oca/java/
 %setup -T -D -a 10
 %endif
 
+%if 0%{?rhel}
 %patch0 -p1
+%else
+%patch1 -p1
+%endif
 
 %build
 %set_build_flags
@@ -639,6 +658,7 @@ mv java-oca-%{version}/jar/ src/oca/java/
 pushd opennebula-rubygems-%{version}
     GEM_PATH=$PWD/gems-dist/ GEM_HOME=$PWD/gems-dist/ \
         gem install \
+            --local \
             --ignore-dependencies \
             --no-document \
             --conservative \
@@ -753,7 +773,7 @@ make install3 ROOT=%{buildroot}
 %endif
 cd -
 
-%if 0%{?rhel} == 8
+%if 0%{?rhel} == 8 || 0%{?fedora}
 # fix ambiguous Python shebangs
 pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/lib/one/sunstone/public/bower_components/no-vnc/utils/*.py
 pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/share/one/websockify/websockify/websocketproxy.py
