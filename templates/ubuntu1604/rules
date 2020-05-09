@@ -49,6 +49,7 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 		CXXFLAGS="${CXXFLAGS/-fPIE/}" CFLAGS="${CFLAGS/-fPIE/}" \
 		GEM_PATH=$$PWD/gems-dist/ GEM_HOME=$$PWD/gems-dist/ \
 			gem install \
+				--local \
 				--ignore-dependencies \
 				--no-document \
 				--conservative \

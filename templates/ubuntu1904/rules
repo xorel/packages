@@ -48,6 +48,7 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 		CPATH=/usr/include/libxml2 \
 		GEM_PATH=$$PWD/gems-dist/ GEM_HOME=$$PWD/gems-dist/ \
 			gem install \
+				--local \
 				--ignore-dependencies \
 				--no-document \
 				--conservative \

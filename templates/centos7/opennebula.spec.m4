@@ -579,6 +579,7 @@ OpenNebula provisioning tool
 pushd opennebula-rubygems-%{version}
     GEM_PATH=$PWD/gems-dist/ GEM_HOME=$PWD/gems-dist/ \
         gem install \
+            --local \
             --ignore-dependencies \
             --no-document \
             --conservative \
