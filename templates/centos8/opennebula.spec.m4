@@ -732,6 +732,10 @@ install -p -D -m 440 share/pkgs/sudoers/opennebula-server %{buildroot}%{_sysconf
 install -p -D -m 440 share/pkgs/sudoers/opennebula-node   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node
 install -p -D -m 440 share/pkgs/sudoers/opennebula-node-firecracker   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node-firecracker
 
+# oneadmin ssh config
+%{__mkdir} -p %{buildroot}/usr/share/one/ssh
+install -p -D -m 644 share/pkgs/ssh/config* %{buildroot}/usr/share/one/ssh/
+
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
 install -p -D -m 644 share/pkgs/logrotate/opennebula           %{buildroot}%{_sysconfdir}/logrotate.d/opennebula
@@ -898,6 +902,18 @@ if [ $1 = 1 ]; then
     # only on install once again fix directory SELinux type
     # TODO: https://github.com/OpenNebula/one/issues/739
     chcon -t user_home_dir_t %{oneadmin_home} 2>/dev/null || :
+
+    # install ~oneadmin/.ssh/config if not present on a fresh install only
+    if [ ! -e '%{oneadmin_home}/.ssh/config' ]; then
+        if [ ! -d '%{oneadmin_home}/.ssh' ]; then
+            mkdir -p '%{oneadmin_home}/.ssh'
+            chmod 0700 '%{oneadmin_home}/.ssh'
+            chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh'
+        fi
+        cp /usr/share/one/ssh/config '%{oneadmin_home}/.ssh/config'
+        chmod 0600 '%{oneadmin_home}/.ssh/config'
+        chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh/config'
+    fi
 fi
 
 ################################################################################
@@ -924,10 +940,12 @@ if [ $1 = 1 ]; then
         /bin/chmod 600 %{oneadmin_home}/.one/one_auth
     fi
 
-    if [ ! -d "%{oneadmin_home}/.ssh" ]; then
+    if [ ! -f "%{oneadmin_home}/.ssh/id_rsa" ]; then
         su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh/id_rsa"
-        cp -p %{oneadmin_home}/.ssh/id_rsa.pub %{oneadmin_home}/.ssh/authorized_keys
-        /bin/chmod 600 %{oneadmin_home}/.ssh/authorized_keys
+        if ! [ -f "%{oneadmin_home}/.ssh/authorized_keys" ]; then
+            cp -p %{oneadmin_home}/.ssh/id_rsa.pub %{oneadmin_home}/.ssh/authorized_keys
+            /bin/chmod 600 %{oneadmin_home}/.ssh/authorized_keys
+        fi
     fi
 fi
 systemctl daemon-reload 2>/dev/null || :
@@ -1258,9 +1276,11 @@ echo ""
 %attr(0750, oneadmin, oneadmin) %dir %{_sharedstatedir}/one
 %dir /usr/lib/one
 %dir %{_datadir}/one
+%dir /usr/share/one/ssh
 #TODO: /usr/share/doc ???
 %dir /usr/share/docs/one
 /usr/share/docs/one/*
+/usr/share/one/ssh/*
 
 ################################################################################
 # node-kvm - files

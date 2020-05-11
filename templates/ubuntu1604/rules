@@ -91,6 +91,8 @@ endif
 ifneq (,$(filter opennebula-common, $(shell dh_listpackages)))
 	dh_install -p opennebula-common share/pkgs/sudoers/${DIR_SUDOERS}/opennebula \
 		/etc/sudoers.d
+	dh_install -p opennebula-common share/pkgs/ssh/* \
+		/usr/share/one/ssh
 endif
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 	dh_install -p opennebula share/pkgs/logrotate/opennebula /etc/logrotate.d/
