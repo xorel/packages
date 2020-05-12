@@ -93,6 +93,7 @@ ifneq (,$(filter opennebula-common, $(shell dh_listpackages)))
 		/etc/sudoers.d
 	dh_install -p opennebula-common share/pkgs/ssh/* \
 		/usr/share/one/ssh
+	dh_install -p opennebula-common share/etc/cron.d/opennebula-ssh-socks-cleaner /etc/cron.d/
 endif
 ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 	dh_install -p opennebula share/pkgs/logrotate/opennebula /etc/logrotate.d/

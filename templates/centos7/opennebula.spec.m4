@@ -672,6 +672,7 @@ install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysco
 
 # cron
 install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}/cron.d/opennebula-node
+install -p -D -m 644 share/etc/cron.d/opennebula-ssh-socks-cleaner %{buildroot}%{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 
 # Gemfile
 install -p -D -m 644 share/install_gems/%{gemfile_lock}/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
@@ -1171,6 +1172,7 @@ echo ""
 %files common
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula
 %attr(0750, oneadmin, oneadmin) %dir %{_sharedstatedir}/one
+%config %{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 %dir /usr/lib/one
 %dir %{_datadir}/one
 %dir /usr/share/docs/one
