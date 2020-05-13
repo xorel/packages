@@ -651,7 +651,11 @@ install -p -D -m 440 share/pkgs/sudoers/opennebula-node-firecracker   %{buildroo
 
 # oneadmin ssh config
 %{__mkdir} -p %{buildroot}/usr/share/one/ssh
-install -p -D -m 644 share/pkgs/ssh/config* %{buildroot}/usr/share/one/ssh/
+install -p -D -m 644 share/ssh/etc/config* %{buildroot}/usr/share/one/ssh/
+
+# ssh wrapper
+%{__mkdir} -p %{buildroot}/usr/lib/one/sh/override
+install -p -D -m 755 share/ssh/bin/ssh %{buildroot}/usr/lib/one/sh/override/
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -1172,7 +1176,6 @@ echo ""
 %files common
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula
 %attr(0750, oneadmin, oneadmin) %dir %{_sharedstatedir}/one
-%config %{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 %dir /usr/lib/one
 %dir %{_datadir}/one
 %dir /usr/share/docs/one
@@ -1448,6 +1451,7 @@ echo ""
 %config %{_sysconfdir}/logrotate.d/opennebula
 %config %{_sysconfdir}/logrotate.d/opennebula-scheduler
 %config %{_sysconfdir}/logrotate.d/opennebula-hem
+%config %{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
 /lib/systemd/system/opennebula-ssh-agent.service
