@@ -74,10 +74,7 @@ if [ "$1" = "configure" ]; then
     for F in /var/lib/one \
         /var/lib/one/vms \
         /var/lib/one/datastores \
-        /var/lib/one/remotes \
-        /var/lock/one \
-        /var/log/one \
-        /var/run/one;
+        /var/lib/one/remotes;
     do
         if [ -d "${F}" ]; then
             chmod 0750 "${F}"
@@ -90,7 +87,5 @@ if [ "$1" = "configure" ]; then
         chown "${ONE_USER}:${ONE_GROUP}" "${F}"
     done
 fi
-
-systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf
 
 #DEBHELPER#

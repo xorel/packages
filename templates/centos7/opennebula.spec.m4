@@ -97,6 +97,7 @@ BuildRequires: java-1.7.0-openjdk-devel
 BuildRequires: ws-commons-util
 BuildRequires: xmlrpc-common
 BuildRequires: xmlrpc-client
+BuildRequires: systemd
 BuildRequires: systemd-devel
 BuildRequires: libvncserver-devel
 BuildRequires: gnutls-devel
@@ -623,21 +624,20 @@ cp -a opennebula-rubygems-%{version}/gems-dist %{buildroot}/usr/share/one/
 %endif
 
 # Init scripts
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service             %{buildroot}/lib/systemd/system/opennebula.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-agent.service   %{buildroot}/lib/systemd/system/opennebula-ssh-agent.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service   %{buildroot}/lib/systemd/system/opennebula-scheduler.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service         %{buildroot}/lib/systemd/system/opennebula-hem.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service    %{buildroot}/lib/systemd/system/opennebula-sunstone.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-gate.service        %{buildroot}/lib/systemd/system/opennebula-gate.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.service       %{buildroot}/lib/systemd/system/opennebula-econe.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service        %{buildroot}/lib/systemd/system/opennebula-flow.service
-install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service       %{buildroot}/lib/systemd/system/opennebula-novnc.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service                     %{buildroot}/lib/systemd/system/opennebula.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-agent.service           %{buildroot}/lib/systemd/system/opennebula-ssh-agent.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-socks-cleaner.service   %{buildroot}/lib/systemd/system/opennebula-ssh-socks-cleaner.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-socks-cleaner.timer     %{buildroot}/lib/systemd/system/opennebula-ssh-socks-cleaner.timer
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service           %{buildroot}/lib/systemd/system/opennebula-scheduler.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service                 %{buildroot}/lib/systemd/system/opennebula-hem.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service            %{buildroot}/lib/systemd/system/opennebula-sunstone.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-gate.service                %{buildroot}/lib/systemd/system/opennebula-gate.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.service               %{buildroot}/lib/systemd/system/opennebula-econe.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service                %{buildroot}/lib/systemd/system/opennebula-flow.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service               %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula.conf
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-sunstone.conf
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-gate.conf
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/lib/tmpfiles.d/opennebula-flow.conf
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{buildroot}/lib/tmpfiles.d/opennebula-node.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/%{_tmpfilesdir}/opennebula.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{buildroot}/%{_tmpfilesdir}/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
@@ -648,14 +648,6 @@ install -p -D -m 440 share/pkgs/sudoers/%{dir_sudoers}/opennebula %{buildroot}%{
 install -p -D -m 440 share/pkgs/sudoers/opennebula-server %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-server
 install -p -D -m 440 share/pkgs/sudoers/opennebula-node   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node
 install -p -D -m 440 share/pkgs/sudoers/opennebula-node-firecracker   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node-firecracker
-
-# oneadmin ssh config
-%{__mkdir} -p %{buildroot}/usr/share/one/ssh
-install -p -D -m 644 share/ssh/etc/config* %{buildroot}/usr/share/one/ssh/
-
-# ssh wrapper
-%{__mkdir} -p %{buildroot}/usr/lib/one/sh/override
-install -p -D -m 755 share/ssh/bin/ssh %{buildroot}/usr/lib/one/sh/override/
 
 # logrotate
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -676,7 +668,6 @@ install -p -D -m 644 share/etc/sysctl.d/bridge-nf-call.conf %{buildroot}%{_sysco
 
 # cron
 install -p -D -m 644 share/etc/cron.d/opennebula-node %{buildroot}%{_sysconfdir}/cron.d/opennebula-node
-install -p -D -m 644 share/etc/cron.d/opennebula-ssh-socks-cleaner %{buildroot}%{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 
 # Gemfile
 install -p -D -m 644 share/install_gems/%{gemfile_lock}/Gemfile.lock %{buildroot}/usr/share/one/Gemfile.lock
@@ -822,6 +813,8 @@ if [ $1 = 1 ]; then
         chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh/config'
     fi
 fi
+
+systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf || :
 
 ################################################################################
 # server - scripts
@@ -1182,6 +1175,13 @@ echo ""
 %dir /usr/share/one/ssh
 /usr/share/docs/one/*
 /usr/share/one/ssh/*
+%{_tmpfilesdir}/opennebula.conf
+%{_tmpfilesdir}/opennebula-node.conf
+
+%defattr(0640, oneadmin, oneadmin, 0750)
+%dir %{_localstatedir}/lock/one
+%dir %{_localstatedir}/log/one
+%dir %{_localstatedir}/run/one
 
 ################################################################################
 # node-kvm - files
@@ -1192,7 +1192,6 @@ echo ""
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 %config %{_sysconfdir}/cron.d/opennebula-node
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node
-/lib/tmpfiles.d/opennebula-node.conf
 
 ################################################################################
 # node-firecracker - files
@@ -1205,7 +1204,6 @@ echo ""
 %{_sbindir}/one-clean-firecracker-domain
 %{_bindir}/svncterm_server
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node-firecracker
-/lib/tmpfiles.d/opennebula-node.conf
 
 ################################################################################
 # node-xen - files
@@ -1337,7 +1335,6 @@ echo ""
 /lib/systemd/system/opennebula-sunstone.service
 /lib/systemd/system/opennebula-econe.service
 /lib/systemd/system/opennebula-novnc.service
-/lib/tmpfiles.d/opennebula-sunstone.conf
 
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one/ec2query_templates
@@ -1350,9 +1347,6 @@ echo ""
 %config %{_sysconfdir}/one/sunstone-views/*
 
 %defattr(0640, oneadmin, oneadmin, 0750)
-%dir %{_localstatedir}/lock/one
-%dir %{_localstatedir}/log/one
-%dir %{_localstatedir}/run/one
 %dir %{_sharedstatedir}/one/sunstone
 %exclude %{_sharedstatedir}/one/sunstone/main.js
 
@@ -1367,15 +1361,9 @@ echo ""
 /usr/lib/one/onegate/*
 %{_bindir}/onegate-server
 /lib/systemd/system/opennebula-gate.service
-/lib/tmpfiles.d/opennebula-gate.conf
 
 %defattr(0640, root, oneadmin, 0750)
 %config %{_sysconfdir}/one/onegate-server.conf
-
-%defattr(0640, oneadmin, oneadmin, 0750)
-%dir %{_localstatedir}/lock/one
-%dir %{_localstatedir}/log/one
-%dir %{_localstatedir}/run/one
 
 ################################################################################
 # flow - files
@@ -1388,15 +1376,9 @@ echo ""
 /usr/lib/one/oneflow/*
 %{_bindir}/oneflow-server
 /lib/systemd/system/opennebula-flow.service
-/lib/tmpfiles.d/opennebula-flow.conf
 
 %defattr(0640, root, oneadmin, 0750)
 %config %{_sysconfdir}/one/oneflow-server.conf
-
-%defattr(-, oneadmin, oneadmin, 0750)
-%dir %{_localstatedir}/lock/one
-%dir %{_localstatedir}/log/one
-%dir %{_localstatedir}/run/one
 
 ################################################################################
 # docker-machine - files
@@ -1451,12 +1433,12 @@ echo ""
 %config %{_sysconfdir}/logrotate.d/opennebula
 %config %{_sysconfdir}/logrotate.d/opennebula-scheduler
 %config %{_sysconfdir}/logrotate.d/opennebula-hem
-%config %{_sysconfdir}/cron.d/opennebula-ssh-socks-cleaner
 /lib/systemd/system/opennebula.service
 /lib/systemd/system/opennebula-scheduler.service
 /lib/systemd/system/opennebula-ssh-agent.service
+/lib/systemd/system/opennebula-ssh-socks-cleaner.service
+/lib/systemd/system/opennebula-ssh-socks-cleaner.timer
 /lib/systemd/system/opennebula-hem.service
-/lib/tmpfiles.d/opennebula.conf
 /usr/share/augeas/lenses/oned.aug
 
 %{_bindir}/mm_sched
@@ -1531,10 +1513,6 @@ echo ""
 %dir %{_sharedstatedir}/one/datastores
 %dir %{_sharedstatedir}/one/remotes
 %dir %{_sharedstatedir}/one/vms
-
-%dir %{_localstatedir}/lock/one
-%dir %{_localstatedir}/log/one
-%dir %{_localstatedir}/run/one
 
 %exclude %{_sharedstatedir}/one/datastores/*
 %{_sharedstatedir}/one/remotes/*

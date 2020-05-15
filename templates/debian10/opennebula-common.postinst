@@ -48,6 +48,25 @@ if [ "$1" = "configure" ]; then
         chmod 0600 "${ONEHOME}/.ssh/config"
         chown "$ONE_USER:$ONE_GROUP" "${ONEHOME}/.ssh/config"
     fi
+
+    systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf
+    systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula-node.conf
+
+    # Fix permissions oneadmin:oneadmin (0640/0750)
+    for F in /var/lock/one \
+        /var/log/one \
+        /var/run/one;
+    do
+        if [ -d "${F}" ]; then
+            chmod 0750 "${F}"
+        elif [ -f "${F}" ]; then
+            chmod 0640 "${F}"
+        else
+            continue
+        fi
+
+        chown "${ONE_USER}:${ONE_GROUP}" "${F}"
+    done
 fi
 
 #DEBHELPER#
