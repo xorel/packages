@@ -50,6 +50,7 @@ dist/usr/share/one/examples/*       /usr/share/one/examples/
 dist/usr/share/one/esx-fw-vnc/*     /usr/share/one/esx-fw-vnc/
 dist/usr/share/one/follower_cleanup /usr/share/one/
 dist/usr/share/one/start-scripts/*  /usr/share/one/start-scripts/
+dist/usr/share/one/schemas/*        /usr/share/one/schemas/
 
 dist/usr/bin/oned          /usr/bin/
 dist/usr/bin/mm_sched      /usr/bin/

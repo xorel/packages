@@ -1565,6 +1565,8 @@ echo ""
 %{_datadir}/one/follower_cleanup
 %dir %{_datadir}/one/start-scripts
 %{_datadir}/one/start-scripts/*
+%dir %{_datadir}/one/schemas
+%{_datadir}/one/schemas/*
 
 %dir /usr/lib/one/mads
 /usr/lib/one/mads/*
@@ -1640,6 +1642,8 @@ echo ""
 %config %{_sysconfdir}/one/cli/oneacl.yaml
 %config %{_sysconfdir}/one/cli/onecluster.yaml
 %config %{_sysconfdir}/one/cli/onedatastore.yaml
+%config %{_sysconfdir}/one/cli/oneflow.yaml
+%config %{_sysconfdir}/one/cli/oneflowtemplate.yaml
 %config %{_sysconfdir}/one/cli/onegroup.yaml
 %config %{_sysconfdir}/one/cli/onehook.yaml
 %config %{_sysconfdir}/one/cli/onehost.yaml
