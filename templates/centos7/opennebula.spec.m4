@@ -636,7 +636,7 @@ install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.servic
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service                %{buildroot}/lib/systemd/system/opennebula-flow.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service               %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/%{_tmpfilesdir}/opennebula.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/%{_tmpfilesdir}/opennebula-common.conf
 install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{buildroot}/%{_tmpfilesdir}/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
@@ -814,7 +814,7 @@ if [ $1 = 1 ]; then
     fi
 fi
 
-systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula.conf || :
+systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula-common.conf || :
 
 ################################################################################
 # server - scripts
@@ -1175,7 +1175,7 @@ echo ""
 %dir /usr/share/one/ssh
 /usr/share/docs/one/*
 /usr/share/one/ssh/*
-%{_tmpfilesdir}/opennebula.conf
+%{_tmpfilesdir}/opennebula-common.conf
 %{_tmpfilesdir}/opennebula-node.conf
 
 %defattr(0640, oneadmin, oneadmin, 0750)

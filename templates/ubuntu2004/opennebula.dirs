@@ -1,4 +1,3 @@
-/var/log/one/
 /var/lib/one/
 /var/lib/one/datastores/
 /etc/one/auth/certificates/

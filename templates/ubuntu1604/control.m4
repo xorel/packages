@@ -160,11 +160,9 @@ Package: opennebula-common
 Architecture: all
 Depends: adduser, openssh-client, ${misc:Depends}
 Recommends: lvm2, sudo (>= 1.7.2p1)
-Replaces: opennebula (<< 5.11.85),
-          opennebula-node (<< 5.11.85),
+Replaces: opennebula-node (<< 5.11.85),
           opennebula-node-firecracker (<< 5.11.85)
-Breaks: opennebula (<< 5.11.85),
-        opennebula-node (<< 5.11.85),
+Breaks: opennebula-node (<< 5.11.85),
         opennebula-node-firecracker (<< 5.11.85)
 Description: empty package to create OpenNebula users and directories
  OpenNebula is an open source virtual infrastructure engine that enables the
