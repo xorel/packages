@@ -53,6 +53,7 @@ Architecture: any
 Depends: apg,
          genisoimage,
          opennebula-common (= ${source:Version}),
+         opennebula-common-onescape (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -102,6 +103,7 @@ Description: debug symbols for opennebula
 Package: opennebula-sunstone
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
+         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -127,6 +129,7 @@ Description: web interface to which executes the OpenNebula cluster services
 Package: opennebula-gate
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
+         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
@@ -143,6 +146,7 @@ Description: send information to OpenNebula from the Virtual Machines.
 Package: opennebula-flow
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
+         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          curl,
@@ -159,11 +163,16 @@ Description: Manage services.
 
 Package: opennebula-common
 Architecture: all
-Depends: adduser, openssh-client, ${misc:Depends}
+Depends: opennebula-common-onescape (= ${source:Version}),
+         adduser,
+         openssh-client,
+         ${misc:Depends}
 Recommends: lvm2, sudo (>= 1.7.2p1)
-Replaces: opennebula-node (<< 5.11.85),
+Replaces: opennebula (<< 5.11.85),
+          opennebula-node (<< 5.11.85),
           opennebula-node-firecracker (<< 5.11.85)
-Breaks: opennebula-node (<< 5.11.85),
+Breaks: opennebula (<< 5.11.85),
+        opennebula-node (<< 5.11.85),
         opennebula-node-firecracker (<< 5.11.85)
 Description: empty package to create OpenNebula users and directories
  OpenNebula is an open source virtual infrastructure engine that enables the
@@ -176,6 +185,11 @@ Description: empty package to create OpenNebula users and directories
  .
  This package sets up the basic directory structure and users needed to run
  an OpenNebula cloud.
+
+Package: opennebula-common-onescape
+Architecture: all
+Depends: ${misc:Depends}
+Description: Helpers for OpenNebula OneScape project
 
 Package: opennebula-node
 Architecture: all
@@ -374,6 +388,7 @@ Description: Complete Ruby gems dependencies for OpenNebula
 Package: opennebula-tools
 Architecture: all
 Depends: opennebula-common (= ${source:Version}),
+         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          less,

@@ -90,9 +90,7 @@ endif
 ifneq (,$(filter opennebula-common, $(shell dh_listpackages)))
 	dh_install -p opennebula-common share/pkgs/sudoers/${DIR_SUDOERS}/opennebula \
 		/etc/sudoers.d
-	cp share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf \
-		share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-common.conf
-	dh_install -p opennebula-common share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-common.conf \
+	dh_install -p opennebula-common share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula.conf \
 		/usr/lib/tmpfiles.d/
 	dh_install -p opennebula-common share/pkgs/tmpfiles/${DIR_TMPFILES}/opennebula-node.conf \
 		/usr/lib/tmpfiles.d/
