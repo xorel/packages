@@ -628,6 +628,8 @@ install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula.service     
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-agent.service           %{buildroot}/lib/systemd/system/opennebula-ssh-agent.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-socks-cleaner.service   %{buildroot}/lib/systemd/system/opennebula-ssh-socks-cleaner.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-ssh-socks-cleaner.timer     %{buildroot}/lib/systemd/system/opennebula-ssh-socks-cleaner.timer
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-showback.service            %{buildroot}/lib/systemd/system/opennebula-showback.service
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-showback.timer              %{buildroot}/lib/systemd/system/opennebula-showback.timer
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-scheduler.service           %{buildroot}/lib/systemd/system/opennebula-scheduler.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-hem.service                 %{buildroot}/lib/systemd/system/opennebula-hem.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-sunstone.service            %{buildroot}/lib/systemd/system/opennebula-sunstone.service
@@ -1440,6 +1442,8 @@ echo ""
 /lib/systemd/system/opennebula-ssh-agent.service
 /lib/systemd/system/opennebula-ssh-socks-cleaner.service
 /lib/systemd/system/opennebula-ssh-socks-cleaner.timer
+/lib/systemd/system/opennebula-showback.service
+/lib/systemd/system/opennebula-showback.timer
 /lib/systemd/system/opennebula-hem.service
 /usr/share/augeas/lenses/oned.aug
 

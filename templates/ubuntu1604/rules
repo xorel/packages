@@ -111,6 +111,10 @@ ifneq (,$(filter opennebula, $(shell dh_listpackages)))
 		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-ssh-socks-cleaner.timer \
 		/lib/systemd/system/
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-showback.service \
+		/lib/systemd/system/
+	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-showback.timer \
+		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-scheduler.service \
 		/lib/systemd/system/
 	dh_install -p opennebula share/pkgs/services/${DIR_SERVICES}/opennebula-hem.service \
