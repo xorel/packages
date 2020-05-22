@@ -20,15 +20,6 @@ elif [ "${DISTRO}" = 'ubuntu1604' ]; then
 elif [ "${DISTRO}" = 'ubuntu1804' ]; then
     CODENAME='bionic'
     GEMFILE_LOCK='Ubuntu1804'
-elif [ "${DISTRO}" = 'ubuntu1810' ]; then
-    CODENAME='cosmic'
-    GEMFILE_LOCK='Ubuntu1810'
-elif [ "${DISTRO}" = 'ubuntu1904' ]; then
-    CODENAME='disco'
-    GEMFILE_LOCK='Ubuntu1904'
-elif [ "${DISTRO}" = 'ubuntu1910' ]; then
-    CODENAME='eoan'
-    GEMFILE_LOCK='Ubuntu1910'
 elif [ "${DISTRO}" = 'ubuntu2004' ]; then
     CODENAME='focal'
     GEMFILE_LOCK='Ubuntu2004'
@@ -121,8 +112,7 @@ tar -czf build_opennebula.tar.gz \
 ################################################################################
 
 # if host uses package mirror, use this for pbuilder as well
-# but not for ubutnu2004
-if [ -f /etc/apt/sources.list.d/local-mirror.list -a $DISTRO != 'ubuntu2004' ]; then
+if [ -f /etc/apt/sources.list.d/local-mirror.list ]; then
     MIRRORSITE="$(dirname "$(cut -d' ' -f2 /etc/apt/sources.list.d/local-mirror.list | head -1)")"
     if [[ "${DISTRO}" =~ ubuntu ]]; then
         export MIRRORSITE="${MIRRORSITE}/ubuntu/"
