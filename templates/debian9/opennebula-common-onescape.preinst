@@ -36,17 +36,13 @@ fi
 # detect previous installed version
 if [ "$1" = 'upgrade' ]; then
     PREV_VERSION=${2%%-*}
-    echo "DEBUG: Previous version by upgrade = '${PREV_VERSION}'" >&2
 elif [ "$1" = 'install' ]; then
     PREV_VERSION=$(dpkg-query --show --showformat='${Version}' opennebula-common 2>/dev/null)
     PREV_VERSION=${PREV_VERSION%%-*}
-    echo "DEBUG: Previous version by install = '${PREV_VERSION}' ??" >&2
 fi
 
 # upgrade
 if [ -n "${PREV_VERSION}" ]; then
-    echo "DEBUG: Detected upgrade from '${PREV_VERSION}', backing up" >&2
-
     # backup configuration
     BACKUP_DIR="${ONESCAPE_BAK}/$(date +'%Y-%m-%d_%H:%M:%S')-v${PREV_VERSION:-UNKNOWN}"
     mkdir "${BACKUP_DIR}"
@@ -89,8 +85,6 @@ EOF
 elif [ "$1" = 'install' ]; then
     VERSION=$(dpkg-query --show --showformat='${Version}' opennebula-common-onescape 2>/dev/null)
     VERSION=${VERSION%%-*}
-
-    echo "DEBUG: Detected clean install in version '${PREV_VERSION}'" >&2
 
     if [ -n "${VERSION}" ]; then
         cat - <<EOF >"${ONESCAPE_CFG}"
