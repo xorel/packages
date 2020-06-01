@@ -41,6 +41,9 @@ endif
 ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 	tar xzvf opennebula-addon-markets-*.tar.gz
 endif
+ifneq (,$(filter opennebula-migrators, $(shell dh_listpackages)))
+	tar xzvf opennebula-ee-tools-*.tar.gz
+endif
 ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 	tar xvf opennebula-rubygems-*.tar
 
@@ -82,6 +85,10 @@ ifneq (,$(filter opennebula-addon-tools, $(shell dh_listpackages)))
 endif
 ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 	(cd addon-markets && \
+	DESTDIR=../dist ./install.sh)
+endif
+ifneq (,$(filter opennebula-migrators, $(shell dh_listpackages)))
+	(cd one-ee-tools && \
 	DESTDIR=../dist ./install.sh)
 endif
 ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))

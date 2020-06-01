@@ -22,10 +22,12 @@
 %define with_docker_machine     0%{?_with_docker_machine:1}
 %define with_addon_tools        0%{?_with_addon_tools:1}
 %define with_addon_markets      0%{?_with_addon_markets:1}
+%define with_ee                 0%{?_with_ee:1}
 %define with_oca_java           0%{!?_without_oca_java:1}
 %define with_oca_java_prebuilt  0%{?_with_oca_java_prebuilt:1}
 %define with_oca_python2        0%{!?_without_oca_python2:1}
 %define with_oca_python3        0%{!?_without_oca_python3:1}
+
 
 # distribution specific content
 %define dir_sudoers  centos
@@ -99,6 +101,9 @@ Source9: java-oca-%{version}.tar.gz
 %if %{with_rubygems}
 Source10: opennebula-rubygems-%{version}.tar
 %endif
+%if %{with_ee}
+Source11: opennebula-ee-tools-%{version}.tar.gz
+%endif
 
 # Distribution specific KVM emulator paths to configure on front-end
 Patch0: opennebula-emulator_libexec.patch
@@ -170,6 +175,9 @@ Requires: less
 Obsoletes: %{name}-addon-tools
 Requires: %{name}-common = %{version}
 Requires: %{name}-ruby = %{version}
+%if %{with_ee}
+Requires: %{name}-migrators = %{version}
+%endif
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
@@ -497,6 +505,41 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 %endif
 
 ################################################################################
+# Packages for Enterprise Edition
+################################################################################
+
+%if %{with_ee}
+%package migrators
+License: OpenNebula Systems Commercial Open-Source Software License
+Summary: OpenNebula migrators
+BuildArch: noarch
+Requires: %{name} = %{version}
+Requires: %{name}-server = %{version}
+Conflicts: %{name}-migrators-previous
+
+%description migrators
+Migrators from previous OpenNebula versions.
+
+This package is distributed under the
+OpenNebula Systems Commercial Open-Source Software License
+https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+
+%package migrators-previous
+License: OpenNebula Systems Commercial Open-Source Software License
+Summary: OpenNebula migrators from previous version
+BuildArch: noarch
+Requires: %{name}-server >= 5.11.90, %{name}-server < 5.13
+Conflicts: %{name}-migrators
+
+%description migrators-previous
+Migrators from previous OpenNebula version.
+
+This package is distributed under the
+OpenNebula Systems Commercial Open-Source Software License
+https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+%endif
+
+################################################################################
 # Package java
 ################################################################################
 
@@ -639,6 +682,9 @@ mv java-oca-%{version}/jar/ src/oca/java/
 %if %{with_rubygems}
 %setup -T -D -a 10
 %endif
+%if %{with_ee}
+%setup -T -D -a 11
+%endif
 
 %if 0%{?rhel}
 %patch0 -p1
@@ -700,6 +746,11 @@ export DESTDIR=%{buildroot}
         cd addon-markets
         ./install.sh
     )
+%endif
+%if %{with_ee}
+pushd one-ee-tools
+    ./install.sh
+popd
 %endif
 
 %if %{with_rubygems}
@@ -1539,6 +1590,20 @@ echo ""
 %endif
 
 ################################################################################
+# Packages for Enterprise Edition - files
+################################################################################
+
+%if %{with_ee}
+%files migrators
+/usr/lib/one/ruby/onedb/local/*
+/usr/lib/one/ruby/onedb/shared/*
+
+%files migrators-previous
+/usr/lib/one/ruby/onedb/local/5.10.0_to_5.12.0.rb
+/usr/lib/one/ruby/onedb/shared/5.10.0_to_5.12.0.rb
+%endif
+
+################################################################################
 # server - files
 ################################################################################
 
@@ -1588,7 +1653,13 @@ echo ""
 %dir /usr/lib/one/ruby/nsx_driver
 /usr/lib/one/ruby/nsx_driver/*
 %dir /usr/lib/one/ruby/onedb
-/usr/lib/one/ruby/onedb/*
+%dir /usr/lib/one/ruby/onedb/local
+%dir /usr/lib/one/ruby/onedb/shared
+%dir /usr/lib/one/ruby/onedb/fsck
+%dir /usr/lib/one/ruby/onedb/patches
+/usr/lib/one/ruby/onedb/*.rb
+/usr/lib/one/ruby/onedb/fsck/*
+/usr/lib/one/ruby/onedb/patches/*
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/opennebula_driver.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb

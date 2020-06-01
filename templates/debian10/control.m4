@@ -55,6 +55,7 @@ Depends: apg,
          opennebula-common-onescape (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
+         ifdef(`_WITH_EE_',`opennebula-migrators (= ${source:Version}),')dnl
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          wget,
          curl,
@@ -476,6 +477,33 @@ Depends: opennebula-common (= ${source:Version}),
 Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org
  as a marketplace allowing users to easily interact and download
  existing appliances from Turnkey.
+ .
+ This package is distributed under the
+ OpenNebula Systems Commercial Open-Source Software License
+ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+')
+
+ifdef(`_WITH_EE_',`
+Package: opennebula-migrators
+Architecture: all
+Depends: opennebula (= ${source:Version}),
+         ${misc:Depends}
+Replaces: opennebula-migrators-previous
+Conflicts: opennebula-migrators-previous
+Description: OpenNebula migrators
+ .
+ This package is distributed under the
+ OpenNebula Systems Commercial Open-Source Software License
+ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+
+Package: opennebula-migrators-previous
+Architecture: all
+Depends: opennebula (>= 5.11.90),
+         opennebula (<< 5.13),
+         ${misc:Depends}
+Replaces: opennebula-migrators
+Conflicts: opennebula-migrators
+Description: OpenNebula migrators from previous version
  .
  This package is distributed under the
  OpenNebula Systems Commercial Open-Source Software License
