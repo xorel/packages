@@ -41,7 +41,7 @@ endif
 ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 	tar xzvf opennebula-addon-markets-*.tar.gz
 endif
-ifneq (,$(filter opennebula-migrators, $(shell dh_listpackages)))
+ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
 	tar xzvf opennebula-ee-tools-*.tar.gz
 endif
 ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
@@ -65,12 +65,21 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 endif
 
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
+ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
+	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)" enterprise=yes
+else
 	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)"
+endif
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
 	ln -s /usr/share/java/xmlrpc-client-3.1.jar lib/; \
 	ln -s /usr/share/java/ws-commons-util.jar lib/; \
 	./build.sh -d)
+
+ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
+	(cd one-ee-tools/src/onedb/ && \
+	./build.rb)
+endif
 
 override_dh_auto_install:
 	rm -rf src/sunstone/public/node_modules/ || :
@@ -86,9 +95,15 @@ ifneq (,$(filter opennebula-addon-markets, $(shell dh_listpackages)))
 	(cd addon-markets && \
 	DESTDIR=../dist ./install.sh)
 endif
-ifneq (,$(filter opennebula-migrators, $(shell dh_listpackages)))
+ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
 	(cd one-ee-tools && \
-	DESTDIR=../dist ./install.sh)
+	DESTDIR=../dist ./install-ee-tools.sh)
+endif
+ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
+	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.10.0_to_5.12.0.rbm \
+		/usr/lib/one/ruby/onedb/local/
+	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/shared/5.10.0_to_5.12.0.rbm \
+		/usr/lib/one/ruby/onedb/shared/
 endif
 ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 	cp -a opennebula-rubygems-*/gems-dist dist/usr/share/one/

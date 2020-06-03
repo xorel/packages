@@ -55,7 +55,7 @@ Depends: apg,
          opennebula-common-onescape (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
-         ifdef(`_WITH_EE_',`opennebula-migrators (= ${source:Version}),')dnl
+         ifdef(`_WITH_ENTERPRISE_',`opennebula-migration (= ${source:Version}),')dnl
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          wget,
          curl,
@@ -456,26 +456,25 @@ Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org
  https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 ')
 
-ifdef(`_WITH_EE_',`
-Package: opennebula-migrators
+ifdef(`_WITH_ENTERPRISE_',`
+Package: opennebula-migration
 Architecture: all
 Depends: opennebula (= ${source:Version}),
          ${misc:Depends}
-Replaces: opennebula-migrators-previous
-Conflicts: opennebula-migrators-previous
+Replaces: opennebula-migration-community
+Conflicts: opennebula-migration-community
 Description: OpenNebula migrators
  .
  This package is distributed under the
  OpenNebula Systems Commercial Open-Source Software License
  https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 
-Package: opennebula-migrators-previous
+Package: opennebula-migration-community
 Architecture: all
-Depends: opennebula (>= 5.11.90),
-         opennebula (<< 5.13),
+Depends: opennebula (>= 5.12), opennebula (<< 5.13),
          ${misc:Depends}
-Replaces: opennebula-migrators
-Conflicts: opennebula-migrators
+Replaces: opennebula-migration
+Conflicts: opennebula-migration
 Description: OpenNebula migrators from previous version
  .
  This package is distributed under the
