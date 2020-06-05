@@ -174,6 +174,7 @@ Requires: less
 
 Obsoletes: %{name}-addon-tools
 Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_enterprise}
 Requires: %{name}-migration = %{version}
@@ -208,6 +209,7 @@ This package provides the CLI interface.
 Summary: Provides the OpenNebula servers
 Group: System
 Requires: %{name} = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: sqlite
 Requires: openssh-server
 Requires: genisoimage
@@ -241,6 +243,7 @@ This package provides the OpenNebula servers: oned (main daemon) and mm_sched
 Summary: Provides the OpenNebula user
 Group: System
 BuildArch: noarch
+Requires: %{name}-common-onescape = %{version}
 Requires: shadow-utils
 Requires: coreutils
 Requires: sudo
@@ -248,6 +251,18 @@ Requires: glibc-common
 
 %description common
 This package creates the oneadmin user and group, with id/gid 9869.
+
+################################################################################
+# Package common-onescape
+################################################################################
+
+%package common-onescape
+Summary: Helpers for OpenNebula OneScape project
+Group: System
+BuildArch: noarch
+
+%description common-onescape
+Helpers for OpenNebula OneScape project
 
 ################################################################################
 # Package ruby
@@ -397,6 +412,7 @@ Python3 interface for OpenNebula.
 Summary: Browser based UI and public cloud interfaces.
 BuildArch: noarch
 Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -423,6 +439,7 @@ API).
 Summary: Transfer information from Virtual Machines to OpenNebula
 BuildArch: noarch
 Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -439,6 +456,7 @@ Transfer information from Virtual Machines to OpenNebula
 Summary: Manage OpenNebula Services
 BuildArch: noarch
 Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -652,6 +670,7 @@ Summary: OpenNebula provisioning tool
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-server = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
@@ -881,6 +900,32 @@ if ! getent group disk | grep '\boneadmin\b' &>/dev/null; then
     usermod -a -G disk oneadmin
 fi
 
+%post common
+if [ $1 = 1 ]; then
+    # only on install once again fix directory SELinux type
+    # TODO: https://github.com/OpenNebula/one/issues/739
+    chcon -t user_home_dir_t %{oneadmin_home} 2>/dev/null || :
+
+    # install ~oneadmin/.ssh/config if not present on a fresh install only
+    if [ ! -e '%{oneadmin_home}/.ssh/config' ]; then
+        if [ ! -d '%{oneadmin_home}/.ssh' ]; then
+            mkdir -p '%{oneadmin_home}/.ssh'
+            chmod 0700 '%{oneadmin_home}/.ssh'
+            chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh'
+        fi
+        cp /usr/share/one/ssh/config-pre7.6 '%{oneadmin_home}/.ssh/config'
+        chmod 0600 '%{oneadmin_home}/.ssh/config'
+        chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh/config'
+    fi
+fi
+
+systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula-common.conf || :
+
+################################################################################
+# common-onescape - scripts
+################################################################################
+
+%pre common-onescape
 ### Backup configuration ###
 
 # better fail silently than break installation
@@ -904,13 +949,13 @@ if [ ! -d '%{onescape_bak}' ]; then
     fi
 fi
 
-# upgrade
-if [ "$1" = '2' ]; then
-    # poor detection of old version
-    PREV_VERSION=${PREV_VERSION:-$(oned --version 2>/dev/null | grep '^OpenNebula [0-9.]*[[:space:]]' | cut -d' ' -f2)}
-    PREV_VERSION=${PREV_VERSION:-$(grep -x "^[[:space:]]*VERSION = '[0-9.]*'[[:space:]]*" /usr/lib/one/ruby/opennebula.rb | cut -d"'" -f2)}
-    PREV_VERSION=${PREV_VERSION:-$(cat /var/lib/one/remotes/VERSION 2>/dev/null)}
+# detect previous installed version
+PREV_VERSION=${PREV_VERSION:-$(oned --version 2>/dev/null | grep '^OpenNebula [0-9.]*[[:space:]]' | cut -d' ' -f2)}
+PREV_VERSION=${PREV_VERSION:-$(grep -x "^[[:space:]]*VERSION = '[0-9.]*'[[:space:]]*" /usr/lib/one/ruby/opennebula.rb | cut -d"'" -f2)}
+PREV_VERSION=${PREV_VERSION:-$(cat /var/lib/one/remotes/VERSION 2>/dev/null)}
 
+# upgrade
+if [ -n "${PREV_VERSION}" ]; then
     # backup configuration
     BACKUP_DIR="%{onescape_bak}/$(date +'%Y-%m-%d_%H:%M:%%S')-v${PREV_VERSION:-UNKNOWN}"
     mkdir "${BACKUP_DIR}"
@@ -948,10 +993,9 @@ EOF
             printf "\nversion: '%%s'\n" "${PREV_VERSION}" >> '%{onescape_cfg}'
         fi
     fi
-fi
 
 # install
-if [ "$1" = '1' ]; then
+elif [ "$1" = '1' ]; then
     cat - <<EOF >'%{onescape_cfg}'
 ---
 version: '%{version}'
@@ -961,25 +1005,6 @@ fi
 # pass silently
 set -e
 /bin/true
-
-%post common
-if [ $1 = 1 ]; then
-    # only on install once again fix directory SELinux type
-    # TODO: https://github.com/OpenNebula/one/issues/739
-    chcon -t user_home_dir_t %{oneadmin_home} 2>/dev/null || :
-
-    # install ~oneadmin/.ssh/config if not present on a fresh install only
-    if [ ! -e '%{oneadmin_home}/.ssh/config' ]; then
-        if [ ! -d '%{oneadmin_home}/.ssh' ]; then
-            mkdir -p '%{oneadmin_home}/.ssh'
-            chmod 0700 '%{oneadmin_home}/.ssh'
-            chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh'
-        fi
-        cp /usr/share/one/ssh/config '%{oneadmin_home}/.ssh/config'
-        chmod 0600 '%{oneadmin_home}/.ssh/config'
-        chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh/config'
-    fi
-fi
 
 ################################################################################
 # server - scripts
@@ -1355,6 +1380,12 @@ echo ""
 %dir %{_localstatedir}/run/one
 
 ################################################################################
+# common-onescape - files
+################################################################################
+
+%files common-onescape
+
+################################################################################
 # node-kvm - files
 ################################################################################
 
@@ -1690,7 +1721,7 @@ echo ""
 /usr/lib/one/sh/*
 
 %{_mandir}/man1/onedb.1*
-%doc LICENSE LICENSE.addons NOTICE
+%doc LICENSE LICENSE.onsla LICENSE.onsla-nc NOTICE
 
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one/auth
