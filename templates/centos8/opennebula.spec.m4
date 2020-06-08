@@ -71,16 +71,16 @@
 
 # Editions
 %if %{with_enterprise}
-    %define edition 'Enterprise Edition'
-    %define edition_short 'ee'
+    %define edition Enterprise Edition
+    %define edition_short ee
 %else
-    %define edition 'Community Edition'
-    %define edition_short 'ce'
+    %define edition Community Edition
+    %define edition_short ce
 %endif
 
 Name: opennebula
 Version: _VERSION_
-Summary: Cloud computing solution for Data Center Virtualization (%{edition})
+Summary: OpenNebula command line tools (%{edition})
 Release: _PKG_VERSION_%{?dist}
 %if %{undefined packager}
 Packager: Unsupported Community Build
@@ -211,7 +211,7 @@ This package provides the CLI interface.
 ################################################################################
 
 %package server
-Summary: Provides the OpenNebula servers (%{edition})
+Summary: OpenNebula Server and Scheduler (%{edition})
 Group: System
 Requires: %{name} = %{version}
 Requires: %{name}-common-onescape = %{version}
@@ -250,7 +250,7 @@ This package provides the OpenNebula servers: oned (main daemon) and mm_sched
 ################################################################################
 
 %package common
-Summary: Provides the OpenNebula user (%{edition})
+Summary: Common OpenNebula package shared by various components (%{edition})
 Group: System
 BuildArch: noarch
 Requires: %{name}-common-onescape = %{version}
@@ -267,7 +267,7 @@ This package creates the oneadmin user and group, with id/gid 9869.
 ################################################################################
 
 %package common-onescape
-Summary: Helpers for OpenNebula OneScape project (%{edition})
+Summary: Common OpenNebula package with helpers for OneScape (%{edition})
 Group: System
 BuildArch: noarch
 
@@ -279,7 +279,7 @@ Helpers for OpenNebula OneScape project
 ################################################################################
 
 %package ruby
-Summary: Provides the OpenNebula Ruby libraries (%{edition})
+Summary: Internal OpenNebula Ruby libraries (%{edition})
 Group: System
 BuildArch: noarch
 Requires: ruby
@@ -301,7 +301,7 @@ Ruby interface for OpenNebula.
 
 %if %{with_rubygems}
 %package rubygems
-Summary: Complete Ruby gems dependencies for OpenNebula (%{edition})
+Summary: Ruby dependencies for OpenNebula (%{edition})
 Group: System
 Requires: ruby
 Requires: rubygems
@@ -381,7 +381,7 @@ Ruby gems dependencies for OpenNebula.
 
 %if %{with_oca_python2}
 %package -n python-pyone
-Summary: Provides the OpenNebula Python libraries (%{edition})
+Summary: Python 2 bindings for OpenNebula Cloud API, OCA (%{edition})
 Group: System
 BuildArch: noarch
 %if 0%{?rhel} >= 8 || 0%{?fedora}
@@ -402,7 +402,7 @@ Python interface for OpenNebula.
 
 %if %{with_oca_python3}
 %package -n python3-pyone
-Summary: Provides the OpenNebula Python libraries (%{edition})
+Summary: Python 3 bindings for OpenNebula Cloud API, OCA (%{edition})
 Group: System
 BuildArch: noarch
 Requires: python3
@@ -419,7 +419,7 @@ Python3 interface for OpenNebula.
 ################################################################################
 
 %package sunstone
-Summary: Browser based UI and public cloud interfaces (%{edition})
+Summary: OpenNebula web interface Sunstone (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onescape = %{version}
@@ -446,7 +446,7 @@ API).
 ################################################################################
 
 %package gate
-Summary: Transfer information from Virtual Machines to OpenNebula (%{edition})
+Summary: OpenNebula Gate server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onescape = %{version}
@@ -463,7 +463,7 @@ Transfer information from Virtual Machines to OpenNebula
 ################################################################################
 
 %package flow
-Summary: Manage OpenNebula Services (%{edition})
+Summary: OpenNebula Flow server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onescape = %{version}
@@ -539,7 +539,7 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 %if %{with_enterprise}
 %package migration
 License: OpenNebula Software License
-Summary: OpenNebula Migrators (%{edition})
+Summary: Migrators for OpenNebula Enterprise Edition
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
@@ -554,7 +554,7 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 
 %package migration-community
 License: OpenNebula Software License for Non-Commercial Use
-Summary: OpenNebula Migrators for Community Edition
+Summary: Migrators for OpenNebula Community Edition
 BuildArch: noarch
 Requires: %{name}-server >= 5.12, %{name}-server < 5.13
 Obsoletes: %{name}-migration
@@ -573,7 +573,7 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 
 %if %{with_oca_java}
 %package java
-Summary: Java interface to OpenNebula Cloud API (%{edition})
+Summary: Java bindings for OpenNebula Cloud API, OCA (%{edition})
 Group:   System
 BuildArch: noarch
 %if 0%{?rhel} == 8 || 0%{?fedora}
@@ -600,7 +600,7 @@ Java interface to OpenNebula Cloud API.
 ################################################################################
 
 %package node-kvm
-Summary: Configures an OpenNebula node providing kvm (%{edition})
+Summary: Services for OpenNebula KVM node (%{edition})
 Group: System
 Conflicts: %{name}-node-xen
 BuildArch: noarch
@@ -628,7 +628,7 @@ Configures an OpenNebula node providing kvm.
 ################################################################################
 
 %package node-firecracker
-Summary: Configures an OpenNebula node providing firecracker (%{edition})
+Summary: Services for OpenNebula Firecracker node (%{edition})
 Group: System
 Conflicts: %{name}-node-xen
 Requires: ruby
@@ -676,7 +676,7 @@ Configures an OpenNebula node providing firecracker.
 ################################################################################
 
 %package provision
-Summary: OpenNebula provisioning tool (%{edition})
+Summary: OpenNebula infrastructure provisioning (%{edition})
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-common = %{version}
