@@ -1,3 +1,6 @@
+define(`P_EDITION',       ifdef(`_WITH_ENTERPRISE_', `Enterprise Edition', `Community Edition'))
+define(`P_EDITION_SHORT', ifdef(`_WITH_ENTERPRISE_', `ee', `ce'))
+
 Source: opennebula
 Section: utils
 Priority: extra
@@ -82,7 +85,7 @@ Breaks:  ruby-opennebula (<< 5.5.80),
          opennebula-common (<< 5.5.80),
          opennebula-addon-markets (<< 5.10.2)
 Suggests: mysql-server
-Description: controller which executes the OpenNebula cluster services
+Description: controller which executes the OpenNebula cluster services (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -98,7 +101,7 @@ Package: opennebula-dbgsym
 Architecture: any
 Depends: opennebula (= ${source:Version}),
          ${misc:Depends}
-Description: debug symbols for opennebula
+Description: debug symbols for opennebula (P_EDITION)
 
 Package: opennebula-sunstone
 Architecture: all
@@ -134,7 +137,7 @@ Depends: opennebula-common (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
-Description: send information to OpenNebula from the Virtual Machines.
+Description: send information to OpenNebula from the Virtual Machines. (P_EDITION)
  .
  ONE (OpenNebula) extends the benefits of virtualization platforms from a
  single physical resource to a pool of resources, decoupling the server not
@@ -152,7 +155,7 @@ Depends: opennebula-common (= ${source:Version}),
          curl,
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
-Description: Manage services.
+Description: Manage services. (P_EDITION)
  .
  ONE (OpenNebula) extends the benefits of virtualization platforms from a
  single physical resource to a pool of resources, decoupling the server not
@@ -174,7 +177,7 @@ Replaces: opennebula (<< 5.11.85),
 Breaks: opennebula (<< 5.11.85),
         opennebula-node (<< 5.11.85),
         opennebula-node-firecracker (<< 5.11.85)
-Description: empty package to create OpenNebula users and directories
+Description: empty package to create OpenNebula users and directories (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -189,7 +192,7 @@ Description: empty package to create OpenNebula users and directories
 Package: opennebula-common-onescape
 Architecture: all
 Depends: ${misc:Depends}
-Description: Helpers for OpenNebula OneScape project
+Description: Helpers for OpenNebula OneScape project (P_EDITION)
 
 Package: opennebula-node
 Architecture: all
@@ -207,7 +210,7 @@ Depends: adduser,
          ruby-sqlite3,
          ${misc:Depends}
 Recommends: openssh-server | ssh-server
-Description: empty package to prepare a machine as OpenNebula Node
+Description: empty package to prepare a machine as OpenNebula Node (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -226,7 +229,7 @@ Replaces: lxd,
           lxd-client
 Conflicts: lxd,
            lxd-client
-Description: LXD installed as a snap
+Description: LXD installed as a snap (P_EDITION)
 
 Package: opennebula-node-lxd
 Architecture: any
@@ -251,7 +254,7 @@ Replaces: lxd (<< 3.0.0),
           lxd-client (<< 3.0.0)
 Conflicts: lxd (<< 3.0.0),
            lxd-client (<< 3.0.0)
-Description: sets up an OpenNebula LXD virtualization node
+Description: sets up an OpenNebula LXD virtualization node (P_EDITION)
 
 Package: opennebula-node-firecracker
 Architecture: any
@@ -271,7 +274,7 @@ Depends: adduser,
          e2fsprogs,
          qemu-utils,
          ${misc:Depends}
-Description: sets up an OpenNebula Firecracker virtualization node
+Description: sets up an OpenNebula Firecracker virtualization node (P_EDITION)
 
 Package: python-pyone
 Section: python
@@ -280,7 +283,7 @@ Depends: python,
          python-pip,
          ${misc:Depends},
          ${python:Depends}
-Description: Python bindings for OpenNebula Cloud API (OCA)
+Description: Python bindings for OpenNebula Cloud API (OCA) (P_EDITION)
 
 Package: python3-pyone
 Section: python
@@ -289,7 +292,7 @@ Depends: python3,
          python3-pip,
          ${misc:Depends},
          ${python:Depends}
-Description: Python3 bindings for OpenNebula Cloud API (OCA)
+Description: Python3 bindings for OpenNebula Cloud API (OCA) (P_EDITION)
 
 Package: ruby-opennebula
 Section: ruby
@@ -300,7 +303,7 @@ Depends: ruby,
          ${ruby:Depends}
 Breaks: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
 Replaces: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
-Description: Ruby bindings for OpenNebula Cloud API (OCA)
+Description: Ruby bindings for OpenNebula Cloud API (OCA) (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -383,7 +386,7 @@ Conflicts: opennebula (<< ${source:Version}),
            opennebula-rubygem-xmlrpc,
            opennebula-rubygem-xml-simple,
            opennebula-rubygem-zendesk-api
-Description: Complete Ruby gems dependencies for OpenNebula
+Description: Complete Ruby gems dependencies for OpenNebula (P_EDITION)
 ')
 
 Package: opennebula-tools
@@ -399,7 +402,7 @@ Breaks: opennebula (<< 5.5.90),
         opennebula-addon-tools (<< 5.10.2)
 Replaces: opennebula (<< 5.5.90),
           opennebula-addon-tools (<< 5.10.2)
-Description: Command-line tools for OpenNebula Cloud
+Description: Command-line tools for OpenNebula Cloud (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -417,7 +420,7 @@ Depends: ${java:Depends}, ${misc:Depends},
          libws-commons-util-java,
          libxmlrpc3-client-java,
          libxmlrpc3-common-java
-Description: Java bindings for OpenNebula Cloud API (OCA)
+Description: Java bindings for OpenNebula Cloud API (OCA) (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -433,7 +436,7 @@ Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Recommends: ${java:Recommends}
-Description: Java bindings for OpenNebula Cloud API (OCA) - documentation
+Description: Java bindings for OpenNebula Cloud API (OCA) - documentation (P_EDITION)
  OpenNebula is an open source virtual infrastructure engine that enables the
  dynamic deployment and re-placement of virtual machines on a pool of physical
  resources.
@@ -453,12 +456,12 @@ Depends: opennebula (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
-Description: OpenNebula provisioning tool
+Description: OpenNebula provisioning tool (P_EDITION)
 
 ifdef(`_WITH_DOCKER_MACHINE_',`
 Package: docker-machine-opennebula
 Architecture: any
-Description: OpenNebula driver for Docker Machine
+Description: OpenNebula driver for Docker Machine (P_EDITION)
 ')
 
 ifdef(`_WITH_ADDON_TOOLS_',`
@@ -468,7 +471,7 @@ Depends: opennebula-common (= ${source:Version}),
          opennebula (= ${source:Version}),
          ${misc:Depends}
 Conflicts: opennebula-cli-extensions
-Description: The CLI extension package install new subcomands that extend
+Description: The CLI extension package install new subcomands that extend (P_EDITION)
  the functionality of the standard OpenNebula CLI, to enable and/or
  simplify common workflows for production deployments.
  .
@@ -483,7 +486,7 @@ Architecture: all
 Depends: opennebula-common (= ${source:Version}),
          opennebula (= ${source:Version}),
          ${misc:Depends}
-Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org
+Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org (P_EDITION)
  as a marketplace allowing users to easily interact and download
  existing appliances from Turnkey.
  .
@@ -499,7 +502,7 @@ Depends: opennebula (= ${source:Version}),
          ${misc:Depends}
 Replaces: opennebula-migration-community
 Conflicts: opennebula-migration-community
-Description: OpenNebula migrators
+Description: OpenNebula Migrators (P_EDITION)
  .
  This package is distributed under the
  OpenNebula Systems Commercial Open-Source Software License
@@ -511,7 +514,7 @@ Depends: opennebula (>= 5.12), opennebula (<< 5.13),
          ${misc:Depends}
 Replaces: opennebula-migration
 Conflicts: opennebula-migration
-Description: OpenNebula migrators from previous version
+Description: OpenNebula Migrators for Community Edition
  .
  This package is distributed under the
  OpenNebula Systems Commercial Open-Source Software License
