@@ -1,18 +1,19 @@
 # -------------------------------------------------------------------------- #
-# Copyright 2002-2019, OpenNebula Project Leads (OpenNebula.org)             #
+# Copyright 2019-2020, OpenNebula Systems S.L.                               #
 #                                                                            #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may    #
-# not use this file except in compliance with the License. You may obtain    #
-# a copy of the License at                                                   #
+# Licensed under the OpenNebula Software License                             #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
 #                                                                            #
-# http://www.apache.org/licenses/LICENSE-2.0                                 #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla            #
+# (or copy bundled with OpenNebula documentation in /usr/share/doc/one/)     #
 #                                                                            #
-# Unless required by applicable law or agreed to in writing, software        #
-# distributed under the License is distributed on an "AS IS" BASIS,          #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.   #
-# See the License for the specific language governing permissions and        #
-# limitations under the License.                                             #
-#--------------------------------------------------------------------------- #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
 
 %define oneadmin_home /var/lib/one
 %define oneadmin_uid 9869
@@ -73,9 +74,11 @@
 %if %{with_enterprise}
     %define edition Enterprise Edition
     %define edition_short ee
+    %define license OpenNebula Software License
 %else
     %define edition Community Edition
     %define edition_short ce
+    %define license Apache
 %endif
 
 Name: opennebula
@@ -83,9 +86,9 @@ Version: _VERSION_
 Summary: OpenNebula command line tools (%{edition})
 Release: _PKG_VERSION_%{?dist}
 %if %{undefined packager}
-Packager: Unsupported Community Build
+Packager: Unofficial Unsupported Build
 %endif
-License: Apache
+License: %{license}
 Group: System
 URL: https://opennebula.io
 
@@ -193,18 +196,7 @@ Requires: %{name}-rubygems = %{version}
 ################################################################################
 
 %description
-OpenNebula.org is an open-source project aimed at building the industry
-standard open source cloud computing tool to manage the complexity and
-heterogeneity of distributed data center infrastructures.
-
-The OpenNebula.org Project is maintained and driven by the community. The
-OpenNebula.org community has thousands of users, contributors, and supporters,
-who interact through various online email lists, blogs and innovative projects
-to support each other.
-
-OpenNebula is free software released under the Apache License.
-
-This package provides the CLI interface.
+CLI tools of OpenNebula.
 
 ################################################################################
 # Package opennebula-server
@@ -242,8 +234,7 @@ Obsoletes: %{name}-migration
 %endif
 
 %description server
-This package provides the OpenNebula servers: oned (main daemon) and mm_sched
-(scheduler).
+OpenNebula Server and Scheduler daemons.
 
 ################################################################################
 # Package common
@@ -260,7 +251,7 @@ Requires: sudo
 Requires: glibc-common
 
 %description common
-This package creates the oneadmin user and group, with id/gid 9869.
+Common package shared by various OpenNebula components.
 
 ################################################################################
 # Package common-onescape
@@ -293,7 +284,7 @@ Requires: %{name}-rubygems = %{version}
 %endif
 
 %description ruby
-Ruby interface for OpenNebula.
+Internal OpenNebula Ruby libraries.
 
 ################################################################################
 # Package rubygems
@@ -302,6 +293,7 @@ Ruby interface for OpenNebula.
 %if %{with_rubygems}
 %package rubygems
 Summary: Ruby dependencies for OpenNebula (%{edition})
+License: See bundled components
 Group: System
 Requires: ruby
 Requires: rubygems
@@ -372,7 +364,7 @@ Obsoletes: %{name}-rubygem-xml-simple
 Obsoletes: %{name}-rubygem-zendesk-api
 
 %description rubygems
-Ruby gems dependencies for OpenNebula.
+Ruby dependencies for OpenNebula.
 %endif
 
 ################################################################################
@@ -397,7 +389,7 @@ BuildRequires: python-wheel
 %endif
 
 %description -n python-pyone
-Python interface for OpenNebula.
+Python 2 bindings for OpenNebula Cloud API (OCA).
 %endif
 
 %if %{with_oca_python3}
@@ -411,7 +403,7 @@ BuildRequires: python3-setuptools
 BuildRequires: python3-wheel
 
 %description -n python3-pyone
-Python3 interface for OpenNebula.
+Python 3 bindings for OpenNebula Cloud API (OCA).
 %endif
 
 ################################################################################
@@ -437,9 +429,7 @@ Requires: numpy
 %endif
 
 %description sunstone
-Browser based UI for administrating a OpenNebula cloud. Also includes
-the public cloud interface econe-server (AWS cloud
-API).
+Browser based UI for OpenNebula cloud management and usage.
 
 ################################################################################
 # Package gate
@@ -456,7 +446,7 @@ Requires: %{name}-rubygems = %{version}
 %endif
 
 %description gate
-Transfer information from Virtual Machines to OpenNebula
+Server for information exchange between Virtual Machines and OpenNebula.
 
 ################################################################################
 # Package flow
@@ -473,7 +463,7 @@ Requires: %{name}-rubygems = %{version}
 %endif
 
 %description flow
-Manage OpenNebula Services
+Server for multi-VM orchestration.
 
 ################################################################################
 # Package Docker Machine ONE driver
@@ -484,7 +474,8 @@ Manage OpenNebula Services
 Summary: OpenNebula driver for Docker Machine (%{edition})
 
 %description -n docker-machine-opennebula
-OpenNebula driver for the Docker Macihne
+OpenNebula driver for the Docker Machine (note: Docker Machine needs
+to be installed separately).
 %endif
 
 ################################################################################
@@ -539,32 +530,31 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 %if %{with_enterprise}
 %package migration
 License: OpenNebula Software License
-Summary: Migrators for OpenNebula Enterprise Edition
+Summary: Migration tools for OpenNebula Enterprise Edition
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-server = %{version}
 Obsoletes: %{name}-migration-community
 
 %description migration
-Migrators from previous OpenNebula versions.
+Migration tools for OpenNebula Enterprise Edition
 
-This package is distributed under the
-OpenNebula Systems Commercial Open-Source Software License
-https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+IMPORTANT: This package is distributed under "OpenNebula Software License".
+See /usr/share/doc/one/LICENSE.onsla provided by opennebula-common package.
 
 %package migration-community
 License: OpenNebula Software License for Non-Commercial Use
-Summary: Migrators for OpenNebula Community Edition
+Summary: Migration tools for OpenNebula Community Edition
 BuildArch: noarch
 Requires: %{name}-server >= 5.12, %{name}-server < 5.13
 Obsoletes: %{name}-migration
 
 %description migration-community
-Migrators from previous OpenNebula version.
+Migration tools for OpenNebula Community Edition
 
-This package is distributed under the
-OpenNebula Systems Commercial Open-Source Software License
-https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
+IMPORTANT: This package is distributed under the "OpenNebula Software License
+for Non-Commercial Use". See /usr/share/doc/one/LICENSE.onsla-nc provided by
+opennebula-common package.
 %endif
 
 ################################################################################
@@ -592,7 +582,7 @@ BuildRequires: xmlrpc-client
 %endif
 
 %description java
-Java interface to OpenNebula Cloud API.
+Java bindings for OpenNebula Cloud API (OCA)
 %endif
 
 ################################################################################
@@ -621,7 +611,7 @@ Requires: rubygem-sqlite3
 Requires: %{name}-common = %{version}
 
 %description node-kvm
-Configures an OpenNebula node providing kvm.
+Services and configurations for OpenNebula KVM node.
 
 ################################################################################
 # Package node-firecracker
@@ -649,7 +639,7 @@ Requires: qemu-img
 Requires: %{name}-common = %{version}
 
 %description node-firecracker
-Configures an OpenNebula node providing firecracker.
+Services and configurations for OpenNebula Firecracker node.
 
 ################################################################################
 # Package node-xen
