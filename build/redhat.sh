@@ -48,7 +48,7 @@ PACKAGE=${SOURCE%.tar.gz}
 
 NAME=$(echo "${PACKAGE}" | cut -d'-' -f1) # opennebula
 VERSION=$(echo "${PACKAGE}" |cut -d'-' -f2) # 1.9.90
-CONTACT=${CONTACT:-Unsupported Community Build}
+CONTACT=${CONTACT:-Unofficial Unsupported Build}
 BASE_NAME="${NAME}-${VERSION}-${PKG_VERSION}"
 GEMS_RELEASE="${VERSION}_${PKG_VERSION}.${DIST_TAG}"
 GIT_VERSION=${GIT_VERSION:-not known}
