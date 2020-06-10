@@ -298,6 +298,7 @@ Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          less,
+         gnuplot-nox,
          ${misc:Depends},
          ${ruby:Depends}
 Breaks: opennebula (<< 5.5.90),
