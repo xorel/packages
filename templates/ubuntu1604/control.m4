@@ -168,6 +168,15 @@ Depends: adduser,
 Recommends: openssh-server | ssh-server
 Description: Services for OpenNebula KVM node (P_EDITION)
 
+Package: opennebula-lxd-snap
+Architecture: any
+Pre-Depends: snapd
+Replaces: lxd,
+          lxd-client
+Conflicts: lxd,
+           lxd-client
+Description: LXD installed as a snap (P_EDITION)
+
 Package: opennebula-node-lxd
 Architecture: any
 Depends: opennebula-common (= ${source:Version}),
