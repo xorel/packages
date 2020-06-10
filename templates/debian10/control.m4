@@ -241,7 +241,7 @@ Depends: ruby,
          ${ruby:Depends}
 Breaks: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
 Replaces: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
-Description: Internal OpenNebula Ruby libraries (P_EDITION)
+Description: OpenNebula Ruby libraries (P_EDITION)
 
 ifdef(`_WITH_RUBYGEMS_',`
 Package: opennebula-rubygems

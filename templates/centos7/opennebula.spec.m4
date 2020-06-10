@@ -232,7 +232,7 @@ Helpers for OpenNebula OneScape project
 ################################################################################
 
 %package ruby
-Summary: Internal OpenNebula Ruby libraries (%{edition})
+Summary: OpenNebula Ruby libraries (%{edition})
 Group: System
 BuildArch: noarch
 Requires: ruby
@@ -246,7 +246,7 @@ Requires: %{name}-rubygems = %{version}
 %endif
 
 %description ruby
-Internal OpenNebula Ruby libraries.
+OpenNebula Ruby libraries.
 
 ################################################################################
 # Package rubygems
