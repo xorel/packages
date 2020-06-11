@@ -165,7 +165,7 @@ Requires: openssl
 Requires: openssh
 Requires: openssh-clients
 Requires: less
-Requires: gnuplot
+Recommends: gnuplot
 
 Obsoletes: %{name}-addon-tools
 Requires: %{name}-common = %{version}

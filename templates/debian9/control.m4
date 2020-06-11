@@ -298,9 +298,9 @@ Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          less,
-         gnuplot-nox,
          ${misc:Depends},
          ${ruby:Depends}
+Recommends: gnuplot-nox
 Breaks: opennebula (<< 5.5.90),
         opennebula-addon-tools (<< 5.10.2)
 Replaces: opennebula (<< 5.5.90),
