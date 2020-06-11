@@ -136,12 +136,12 @@ Depends: opennebula-common-onescape (= ${source:Version}),
          openssh-client,
          ${misc:Depends}
 Recommends: lvm2, sudo (>= 1.7.2p1)
-Replaces: opennebula (<< 5.11.85),
-          opennebula-node (<< 5.11.85),
-          opennebula-node-firecracker (<< 5.11.85)
-Breaks: opennebula (<< 5.11.85),
-        opennebula-node (<< 5.11.85),
-        opennebula-node-firecracker (<< 5.11.85)
+Replaces: opennebula (<< 5.11.90),
+          opennebula-node (<< 5.11.90),
+          opennebula-node-firecracker (<< 5.11.90)
+Breaks: opennebula (<< 5.11.90),
+        opennebula-node (<< 5.11.90),
+        opennebula-node-firecracker (<< 5.11.90)
 Description: Common OpenNebula package shared by various components (P_EDITION)
 
 Package: opennebula-common-onescape
