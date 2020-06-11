@@ -52,10 +52,10 @@ Vcs-Browser: http://git.debian.org/?p=pkg-opennebula/opennebula.git
 
 Package: opennebula
 Architecture: any
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: apg,
          genisoimage,
          opennebula-common (= ${source:Version}),
-         opennebula-common-onescape (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_ENTERPRISE_',`opennebula-migration (= ${source:Version}),')dnl
@@ -94,8 +94,8 @@ Description: Debug symbols for package opennebula (P_EDITION)
 
 Package: opennebula-sunstone
 Architecture: all
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -108,8 +108,8 @@ Description: OpenNebula web interface Sunstone (P_EDITION)
 
 Package: opennebula-gate
 Architecture: all
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
@@ -119,8 +119,8 @@ Description: OpenNebula Gate server (P_EDITION)
 
 Package: opennebula-flow
 Architecture: all
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          curl,
@@ -131,8 +131,8 @@ Description:  OpenNebula Flow server (P_EDITION)
 
 Package: opennebula-common
 Architecture: all
-Depends: opennebula-common-onescape (= ${source:Version}),
-         adduser,
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Depends: adduser,
          openssh-client,
          ${misc:Depends}
 Recommends: lvm2, sudo (>= 1.7.2p1)
@@ -293,8 +293,8 @@ Description: Ruby dependencies for OpenNebula (P_EDITION)
 
 Package: opennebula-tools
 Architecture: all
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         opennebula-common-onescape (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          less,
@@ -325,6 +325,7 @@ Description: Documentation for Java bindings for OpenNebula Cloud API, OCA (P_ED
 
 Package: opennebula-provision
 Architecture: all
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula (= ${source:Version}),
          opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
