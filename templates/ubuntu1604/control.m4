@@ -218,6 +218,7 @@ Depends: adduser,
          screen,
          libvncserver1,
          e2fsprogs,
+         lsof,
          qemu-utils,
          ${misc:Depends}
 Description: Services for OpenNebula Firecracker node (P_EDITION)
