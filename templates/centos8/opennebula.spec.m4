@@ -165,7 +165,8 @@ Requires: openssl
 Requires: openssh
 Requires: openssh-clients
 Requires: less
-Recommends: gnuplot
+Requires: gnuplot
+# Recommends: gnuplot   # TODO: we are missing repository metadata to handle weak dependencies
 
 Obsoletes: %{name}-addon-tools
 Requires: %{name}-common = %{version}
