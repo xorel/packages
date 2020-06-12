@@ -898,7 +898,7 @@ if [ $1 = 1 ]; then
             chmod 0700 '%{oneadmin_home}/.ssh'
             chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh'
         fi
-        cp /usr/share/one/ssh/config-pre7.6 '%{oneadmin_home}/.ssh/config'
+        cp /usr/share/one/ssh/config '%{oneadmin_home}/.ssh/config'
         chmod 0600 '%{oneadmin_home}/.ssh/config'
         chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/.ssh/config'
     fi
