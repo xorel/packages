@@ -1343,6 +1343,38 @@ echo ""
 %endif
 
 ################################################################################
+# Enterprise Edition - scripts
+################################################################################
+
+%if %{with_enterprise}
+%pre migration-community
+cat <<EOF
+# -------------------------------------------------------------------------- #
+# Copyright 2019-2020, OpenNebula Systems S.L.                               #
+#                                                                            #
+# Licensed under the OpenNebula Software License for Non-Commercial Use      #
+# (the "License"); you may not use this file except in compliance with       #
+# the License. You may obtain a copy of the License as part of the software  #
+# distribution.                                                              #
+#                                                                            #
+# See https://github.com/OpenNebula/one/blob/master/LICENSE.onsla-nc         #
+# (or copy bundled with OpenNebula in /usr/share/doc/one/).                  #
+#                                                                            #
+# Unless agreed to in writing, software distributed under the License is     #
+# distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY   #
+# KIND, either express or implied. See the License for the specific language #
+# governing permissions and  limitations under the License.                  #
+# -------------------------------------------------------------------------- #
+
+OpenNebula Community Edition Migration package is distributed under
+license above. By installing the package, you agree with the license.
+Installation will automatically continue in 10 seconds ...
+EOF
+
+sleep 10
+%endif
+
+################################################################################
 # common - files
 ################################################################################
 
