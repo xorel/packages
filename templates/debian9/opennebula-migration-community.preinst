@@ -18,9 +18,9 @@ cat <<EOF
 # governing permissions and  limitations under the License.                  #
 # -------------------------------------------------------------------------- #
 
-OpenNebula Community Edition Migration package is distributed under
-license above. By installing the package, you agree with the license.
-Installation will automatically continue in 10 seconds ...
+OpenNebula Community Edition Migration package is distributed under the above
+license only for non-commercial use. By installing the package, you agree with
+the license. Installation will automatically continue in 10 seconds ...
 EOF
 
 sleep 10
