@@ -72,3 +72,8 @@ dist/usr/bin/econe-stop-instances        /usr/bin/
 dist/usr/bin/econe-create-keypair        /usr/bin/
 dist/usr/bin/econe-delete-keypair        /usr/bin/
 dist/usr/bin/econe-describe-keypairs     /usr/bin/
+
+# Fireedge
+
+dist/usr/lib/one/fireedge/*     /usr/lib/one/fireedge/*
+dist/usr/bin/fireedge-server    /usr/bin/

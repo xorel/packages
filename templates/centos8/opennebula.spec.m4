@@ -1519,6 +1519,8 @@ sleep 10
 /usr/lib/one/ruby/cloud/econe/*
 %dir %{_datadir}/one/websockify
 %{_datadir}/one/websockify/*
+%dir /usr/lib/one/fireedge
+/usr/lib/one/fireedge/*
 
 %{_bindir}/sunstone-server
 %{_bindir}/novnc-server
@@ -1545,6 +1547,7 @@ sleep 10
 %{_bindir}/econe-stop-instances
 %{_bindir}/econe-terminate-instances
 %{_bindir}/econe-upload
+%{_bindir}/fireedge-server
 
 %{_mandir}/man1/econe-allocate-address.1*
 %{_mandir}/man1/econe-associate-address.1*
