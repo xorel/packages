@@ -248,6 +248,9 @@ Requires: wget
 Requires: curl
 Requires: rsync
 Requires: iputils
+Requires: file
+Requires: procps
+Requires: util-linux
 %if 0%{?rhel} == 8 || 0%{?fedora}
 Requires: zeromq >= 4, zeromq < 5
 %endif
