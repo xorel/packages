@@ -1424,6 +1424,7 @@ sleep 10
 %dir /usr/lib/one/sunstone
 /usr/lib/one/sunstone/*
 /usr/lib/one/ruby/OpenNebulaVNC.rb
+/usr/lib/one/ruby/OpenNebulaGuac.rb
 /usr/lib/one/ruby/OpenNebulaAddons.rb
 %dir /usr/lib/one/ruby/cloud/econe
 /usr/lib/one/ruby/cloud/econe/*
@@ -1434,6 +1435,7 @@ sleep 10
 
 %{_bindir}/sunstone-server
 %{_bindir}/novnc-server
+%{_bindir}/guac-server
 %{_bindir}/econe-server
 %{_bindir}/econe-allocate-address
 %{_bindir}/econe-associate-address
