@@ -857,6 +857,7 @@ cd -
 
 %if 0%{?rhel} == 8 || 0%{?fedora}
 # fix ambiguous Python shebangs
+pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/lib/one/sunstone/public/bower_components/guacamole-common-js/guacamole/util/*.py
 pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/lib/one/sunstone/public/bower_components/no-vnc/utils/*.py
 pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/share/one/websockify/websockify/websocketproxy.py
 pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/share/one/websockify/run
