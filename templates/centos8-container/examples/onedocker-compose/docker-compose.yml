@@ -1,0 +1,260 @@
+version: '3.7'
+
+volumes:
+  opennebula_db:
+  opennebula_data:
+  opennebula_sharedtmp:
+  oneadmin_auth_data:
+  oneadmin_ssh_priv_data:
+  oneadmin_ssh_pub_data:
+
+networks:
+  onenet:
+#    external: true
+
+services:
+  db:
+    env_file:
+      - ".env"
+    image: mariadb:10
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - opennebula_db:/var/lib/mysql
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-frontend:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    privileged: true
+    restart: always
+    environment:
+      CONTAINER_DEPLOYMENT_TYPE: "${CONTAINER_DEPLOYMENT_TYPE}"
+      OPENNEBULA_FRONTEND_SERVICE: "oned"
+      OPENNEBULA_FRONTEND_SSH_HOSTNAME: "${OPENNEBULA_FRONTEND_SSH_HOSTNAME}"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+      OPENNEBULA_ONEGATE_HOSTNAME: "${OPENNEBULA_ONEGATE_HOSTNAME}"
+      ONEADMIN_PASSWORD: "${ONEADMIN_PASSWORD}"
+      ONEADMIN_SSH_PRIVKEY: "/ssh/id_rsa"
+      ONEADMIN_SSH_PUBKEY: "/ssh/id_rsa.pub"
+      MYSQL_HOST: "db"
+      MYSQL_PORT: "3306"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_USER: "${MYSQL_USER}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    depends_on:
+      - db
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONED_PUBLISHED_APIPORT:-2633}:${OPENNEBULA_ONED_APIPORT:-2633}"
+    volumes:
+      - opennebula_data:/data
+      - opennebula_sharedtmp:/var/tmp/sunstone
+      - oneadmin_auth_data:/oneadmin/auth_data
+      - oneadmin_ssh_priv_data:/oneadmin/ssh_data
+      - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
+      - ./ssh:/ssh:ro
+      # enable docker.sock if you want the DockerHub marketplace to work...
+      #- /var/run/docker.sock:/var/run/docker.sock
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+      - /var/lib/containers
+      - /var/lib/docker
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-frontend-ssh:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "sshd"
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_FRONTEND_PUBLISHED_SSHPORT:-2222}:22"
+    depends_on:
+      - opennebula-frontend
+    volumes:
+      - opennebula_data:/data
+      - oneadmin_ssh_pub_data:/oneadmin/ssh_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-memcached:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "memcached"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-scheduler:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "scheduler"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+    depends_on:
+      - opennebula-frontend
+    volumes:
+      - oneadmin_auth_data:/oneadmin/auth_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-oneflow:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "oneflow"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
+    depends_on:
+      - opennebula-frontend
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONEFLOW_PUBLISHED_APIPORT:-2474}:${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
+    volumes:
+      - oneadmin_auth_data:/oneadmin/auth_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-onegate:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "onegate"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
+      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
+      OPENNEBULA_ONEGATE_APIPORT: "${OPENNEBULA_ONEGATE_APIPORT}"
+    depends_on:
+      - opennebula-frontend
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT:-5030}:${OPENNEBULA_ONEGATE_APIPORT:-5030}"
+    volumes:
+      - oneadmin_auth_data:/oneadmin/auth_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
+  opennebula-sunstone:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "sunstone"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
+      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
+      OPENNEBULA_MEMCACHED_HOSTNAME: "opennebula-memcached"
+      OPENNEBULA_SUNSTONE_HTTPD: "yes"
+      OPENNEBULA_SUNSTONE_MEMCACHED: "yes"
+    depends_on:
+      - opennebula-frontend
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}:9869"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_VNCPORT:-29876}:29876"
+    volumes:
+      - opennebula_sharedtmp:/var/tmp/sunstone
+      - oneadmin_auth_data:/oneadmin/auth_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    deploy:
+      restart_policy:
+        condition: always
+        delay: 10s
+      replicas: 1
+
