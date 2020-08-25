@@ -1,27 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# This script builds docker images with the dockerized OpenNebula
+####
+# External parameters which might affect the build:
+# OPENNEBULA_URL_REPO - base URL of custom repository
+# OPENNEBULA_VERSION  - package version
 
-set -e
+set -e -o pipefail
 
-#
-# directives
-#
+export LANG="en_US.UTF-8"
 
-# if DISTRO is not set then try to deduce it from the running name - we expect
-# that the name fits the following scheme:
-#   <distro>-container*
-
-CMD=$(basename "${0}")
-WORKDIR=$(dirname "${0}")
-
-DISTRO="${DISTRO:-${CMD%%-container*}}"
-
-DOCKER_CMD="${DOCKER_CMD:-podman}"
-DOCKER_EXTRA_ARGS="${DOCKER_EXTRA_ARGS:---squash --pull}"
-DOCKER_PATH="./templates/${DISTRO}-container/"
-DOCKER_FILE="./templates/${DISTRO}-container/Dockerfile-frontend"
-
+# distro code name
+DISTRO=${DISTRO:-$(basename "$0")}
+DISTRO=${DISTRO%.*}                         # strip .sh
+DISTRO_FULL=${DISTRO}
+DISTRO=${DISTRO%%-*}                        # strip flavour
 
 # ARG1 OR OPENNEBULA_URL_REPO
 if [ -z "$OPENNEBULA_URL_REPO" ] ; then
@@ -29,77 +21,118 @@ if [ -z "$OPENNEBULA_URL_REPO" ] ; then
         echo "ERROR: Missing repo argument (or 'OPENNEBULA_URL_REPO')" >&2
         exit 1
     else
-        OPENNEBULA_URL_REPO=$(echo "$1" | \
+        SERVICES_URL=$(echo "$1" | \
             sed -n 's#^\(https\?://services/build/[^/]\+\)/.*#\1#p')
-        if [ -z "$OPENNEBULA_URL_REPO" ] ; then
+
+        if [ -z "$SERVICES_URL" ] ; then
             echo "ERROR: URL is in wrong format: '${1}'" >&2
             exit 1
-        else
-            OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO}/centos8/repo"
         fi
     fi
 fi
 
-# ARG2 OR OPENNEBULA_VERSION
-if [ -z "$OPENNEBULA_VERSION" ] ; then
-    if [ -z "$2" ] ; then
-        echo "ERROR: Missing version argument (or 'OPENNEBULA_VERSION')" >&2
-        exit 1
-    else
-        OPENNEBULA_VERSION="$2"
-    fi
+if [[ "${DISTRO}" =~ ^centos8 ]]; then
+    OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO:-${SERVICES_URL}/centos8/repo}"
+    OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO}/CentOS/\$releasever/\$basearch"
+    OPENNEBULA_URL_GPGKEY="${OPENNEBULA_URL_GPGKEY:-https://downloads.opennebula.io/repo/repo.key}"
+else
+    echo "ERROR: Invalid target '${DISTRO}'" >&2
+    exit 1
 fi
 
-# optional
-OPENNEBULA_EDITION="${OPENNEBULA_EDITION:+-}${OPENNEBULA_EDITION}"
+###
+
+cd "$(dirname "$0")"
+
+URL="$1"
+PKG_VERSION=${2:-1}
+
+TEMPLATES=${TEMPLATES:-${DISTRO_FULL}}
+BUILD_DIR=$(mktemp -d)
+
+SOURCE=$(basename "${URL}")
+PACKAGE=${SOURCE%.tar.gz}
+NAME=$(echo "${PACKAGE}" | cut -d'-' -f1) # opennebula
+NAME=${NAME:-opennebula}
+VERSION=${VERSION:-$OPENNEBULA_VERSION}
+VERSION=${VERSION:-$(echo "${PACKAGE}" |cut -d'-' -f2)}   # 1.9.90
+CONTACT=${CONTACT:-Unofficial Unsupported Build}
+BASE_NAME="${NAME}-${VERSION}-${PKG_VERSION}"
+DATE=$(date +'%Y%m%d%H%M')
+
+DOCKER_CMD="${DOCKER_CMD:-podman}"
+DOCKER_EXTRA_ARGS="${DOCKER_EXTRA_ARGS:---squash --pull}"
+OPENNEBULA_EDITION=${OPENNEBULA_EDITION:-${PKG_VERSION}}
+IMAGE_TAG="${VERSION}${OPENNEBULA_EDITION:+-${OPENNEBULA_EDITION}}-${DATE}"
 # TODO: OPENNEBULA_TOKEN="${OPENNEBULA_TOKEN}"
 
-# prepare repo docker build args
-case "$DISTRO" in
-    centos8)
-        OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO}/CentOS/\$releasever/\$basearch"
-        OPENNEBULA_URL_GPGKEY="${OPENNEBULA_URL_GPGKEY:-https://downloads.opennebula.io/repo/repo.key}"
-        ;;
-    *)
-        # unsupported distro
-        echo "ERROR: Invalid target '${DISTRO}'" >&2
-        exit 1
-        ;;
-esac
+################################################################################
+# Validations
+################################################################################
 
-# docker image name
-IMAGE_NAME="opennebula-frontend"
-IMAGE_TAG="${OPENNEBULA_VERSION}${OPENNEBULA_EDITION}-$(date +%s)"
+if [ -z "$VERSION" ] ; then
+    echo "ERROR: Missing version arguments" >&2
+    exit 1
+fi
 
-#
-# main
-#
-
-cd "$WORKDIR"
-
+# check for docker
 if ! command -v "${DOCKER_CMD}" >/dev/null 2>&1 ; then
     cat >&2 <<EOF
-[!] missing docker-compliant cli command: ${DOCKER_CMD}
-    Try to install either 'docker' or 'podman' and set the 'DOCKER_CMD' env.
-    variable accordingly.
+ERROR: Missing docker-compliant CLI command '${DOCKER_CMD}'
+Try to install either 'docker' or 'podman' and set the 'DOCKER_CMD' env.
+variable accordingly.
 EOF
 
     exit 1
 fi
 
-# build image
-${DOCKER_CMD} build ${DOCKER_EXTRA_ARGS} \
-    --build-arg OPENNEBULA_VERSION="${OPENNEBULA_VERSION}" \
-    --build-arg OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO}" \
-    --build-arg OPENNEBULA_URL_GPGKEY="${OPENNEBULA_URL_GPGKEY}" \
-    -f "${DOCKER_FILE}" \
-    -t "${IMAGE_NAME}:${IMAGE_TAG}" \
-    "${DOCKER_PATH}"
+################################################################################
+# Build image(s)
+################################################################################
 
-# save image
+# process all available Dockerfiles
+# note: from Dockerfile-frontend built image opennebula-frontend
+for DOCKER_FILE in "templates/${TEMPLATES}"/Dockerfile-*; do
+    DOCKER_PATH=$(dirname "${DOCKER_FILE}")
+    IMAGE_NAME=$(basename "${DOCKER_FILE}" | sed -e 's/^Dockerfile/opennebula/') #TODO
+
+    # build image
+    echo "***** Building image ${IMAGE_NAME}" >&2
+    "${DOCKER_CMD}" build ${DOCKER_EXTRA_ARGS} \
+        --build-arg OPENNEBULA_VERSION="${OPENNEBULA_VERSION}" \
+        --build-arg OPENNEBULA_URL_REPO="${OPENNEBULA_URL_REPO}" \
+        --build-arg OPENNEBULA_URL_GPGKEY="${OPENNEBULA_URL_GPGKEY}" \
+        -f "${DOCKER_FILE}" \
+        -t "${IMAGE_NAME}:${IMAGE_TAG}" \
+        "${DOCKER_PATH}"
+
+    # export image
+    echo "***** Exporting image ${IMAGE_NAME}" >&2
+    "${DOCKER_CMD}" save "${IMAGE_NAME}:${IMAGE_TAG}" \
+        -o "${BUILD_DIR}/${IMAGE_NAME}-${IMAGE_TAG}.tar"
+done
+
+# TODO: fail if nothing was built
+
+################################################################################
+# Create archive with all images
+################################################################################
+
+echo '***** Creating tar archive' >&2
+cd "${BUILD_DIR}"
+tar -czf "${BASE_NAME}.tar.gz" \
+    --owner=root --group=root  \
+    --transform "s,^,${BASE_NAME}/," \
+    *
+
+# copy tar to ~/tar
 rm -rf ~/tar
 mkdir -p ~/tar
-${DOCKER_CMD} save "${IMAGE_NAME}:${IMAGE_TAG}" | \
-    gzip > ~/tar/"${IMAGE_NAME}:${IMAGE_TAG}.tar.gz"
+mv -f "${BASE_NAME}.tar.gz" ~/tar
+ln -s "${BASE_NAME}.tar.gz" ~/tar/"${NAME}.tar.gz"
 
-exit 0
+################################################################################
+# Cleanups
+################################################################################
+
+rm -rf "${BUILD_DIR}"
