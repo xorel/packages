@@ -45,6 +45,7 @@ if ! wait_for_oned ; then
     echo "OPENNEBULA VNC: TIMEOUT"
     exit 1
 fi
+echo "OPENNEBULA VNC: ONED IS RUNNING - CONTINUE"
 
 #
 # run service

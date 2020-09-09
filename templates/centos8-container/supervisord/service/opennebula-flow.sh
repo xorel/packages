@@ -21,6 +21,7 @@ if ! wait_for_oned ; then
     echo "OPENNEBULA FLOW: TIMEOUT"
     exit 1
 fi
+echo "OPENNEBULA FLOW: ONED IS RUNNING - CONTINUE"
 
 if ! [ -f /var/lib/one/.one/oneflow_auth ] ; then
     echo "OPENNEBULA FLOW: NO ONEFLOW_AUTH"

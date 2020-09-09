@@ -67,11 +67,16 @@ RUN curl --fail -sSLo /etc/yum.repos.d/passenger.repo \
 
 # opennebula packages and dependencies
 RUN dnf -y install \
+        crontabs \
+        logrotate \
         supervisor \
         mariadb \
+        mariadb-server \
+        expect \
         docker-ce-cli \
         memcached \
         httpd \
+        mod_ssl \
         passenger \
         mod_passenger \
         opennebula-server \
@@ -93,6 +98,9 @@ RUN rm -f /etc/machine-id
 
 # cleanup supervisord's config files
 RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
+
+# create supervisord logdir
+RUN mkdir -p /var/log/supervisor/services
 
 # TODO: remove this when supervisord becomes part of one repo
 # copy supervised service files
@@ -138,6 +146,7 @@ COPY conf/opennebula-httpd.conf /etc/httpd/conf.d/opennebula.conf
 RUN chown root:root /etc/httpd/conf.d/opennebula.conf
 RUN chmod 644 /etc/httpd/conf.d/opennebula.conf
 RUN rm -f /etc/httpd/conf.d/welcome.conf
+RUN rm -f /etc/httpd/conf.d/ssl.conf
 
 # memcached config
 COPY conf/memcached.conf /etc/sysconfig/memcached
@@ -163,7 +172,19 @@ RUN chmod a+x /var/lib/one/sunstone
 # do here via the two-stage build) - otherwise it will just hide these deleted
 # files in the top layer but they are still easily retrievable!
 
-RUN rm -f /etc/yum.repos.d/opennebula.repo
+RUN rm -rf \
+        /etc/yum.repos.d/opennebula.repo \
+        /var/log/dnf* \
+        /var/log/anaconda \
+        /var/log/hawkey.log
+RUN find \
+        /tmp \
+        /var/tmp \
+        -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \;
+RUN truncate -c -s 0 \
+        /var/log/wtmp \
+        /var/log/btmp \
+        /var/log/lastlog
 
 #
 # HEALTHCHECK

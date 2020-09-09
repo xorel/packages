@@ -1,6 +1,7 @@
 version: '3.7'
 
 volumes:
+  opennebula_certs:
   opennebula_db:
   opennebula_data:
   opennebula_sharedtmp:
@@ -13,12 +14,14 @@ networks:
 #    external: true
 
 services:
-  db:
+  opennebula-mysql:
     env_file:
       - ".env"
-    image: mariadb:10
+    #image: mariadb:10
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
     restart: always
     environment:
+      OPENNEBULA_FRONTEND_SERVICE: "mysqld"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
@@ -38,7 +41,7 @@ services:
       - ".env"
     image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
     init: true
-    privileged: true
+    #privileged: true
     restart: always
     environment:
       CONTAINER_DEPLOYMENT_TYPE: "${CONTAINER_DEPLOYMENT_TYPE}"
@@ -50,16 +53,16 @@ services:
       ONEADMIN_PASSWORD: "${ONEADMIN_PASSWORD}"
       ONEADMIN_SSH_PRIVKEY: "/ssh/id_rsa"
       ONEADMIN_SSH_PUBKEY: "/ssh/id_rsa.pub"
-      MYSQL_HOST: "db"
+      MYSQL_HOST: "opennebula-mysql"
       MYSQL_PORT: "3306"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     depends_on:
-      - db
+      - opennebula-mysql
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONED_PUBLISHED_APIPORT:-2633}:${OPENNEBULA_ONED_APIPORT:-2633}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONED_PUBLISHED_APIPORT:-2633}:${OPENNEBULA_ONED_APIPORT:-2633}"
     volumes:
       - opennebula_data:/data
       - opennebula_sharedtmp:/var/tmp/sunstone
@@ -93,7 +96,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "sshd"
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_FRONTEND_PUBLISHED_SSHPORT:-2222}:22"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_FRONTEND_PUBLISHED_SSHPORT:-2222}:22"
     depends_on:
       - opennebula-frontend
     volumes:
@@ -174,7 +177,7 @@ services:
     depends_on:
       - opennebula-frontend
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONEFLOW_PUBLISHED_APIPORT:-2474}:${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEFLOW_PUBLISHED_APIPORT:-2474}:${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
     volumes:
       - oneadmin_auth_data:/oneadmin/auth_data
     tmpfs:
@@ -206,7 +209,7 @@ services:
     depends_on:
       - opennebula-frontend
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT:-5030}:${OPENNEBULA_ONEGATE_APIPORT:-5030}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT:-5030}:${OPENNEBULA_ONEGATE_APIPORT:-5030}"
     volumes:
       - oneadmin_auth_data:/oneadmin/auth_data
     tmpfs:
@@ -237,14 +240,28 @@ services:
       OPENNEBULA_MEMCACHED_HOSTNAME: "opennebula-memcached"
       OPENNEBULA_SUNSTONE_HTTPD: "yes"
       OPENNEBULA_SUNSTONE_MEMCACHED: "yes"
+      OPENNEBULA_SUNSTONE_HTTPPORT: "${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
+      OPENNEBULA_SUNSTONE_HTTPSPORT: "${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
+      # TODO: this is not ideal - but I need to redirect to this port...
+      OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT: "${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-4443}"
+      OPENNEBULA_SUNSTONE_HTTP_REDIRECT: "no"
+      OPENNEBULA_SUNSTONE_HTTPS_ONLY: "no"
+      OPENNEBULA_SUNSTONE_HTTPS_ENABLED: "yes"
+      OPENNEBULA_TLS_DOMAIN_LIST: "${OPENNEBULA_TLS_DOMAIN_LIST}"
+      OPENNEBULA_TLS_CERT: "/certs/opennebula.crt"
+      OPENNEBULA_TLS_KEY: "/certs/opennebula.key"
+      OPENNEBULA_TLS_VALID_DAYS: "365"
     depends_on:
       - opennebula-frontend
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}:9869"
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_VNCPORT:-29876}:29876"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}:${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-4443}:${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_SUNSTONE_PUBLISHED_VNCPORT:-29876}:29876"
     volumes:
+      - opennebula_certs:/cert_data
       - opennebula_sharedtmp:/var/tmp/sunstone
       - oneadmin_auth_data:/oneadmin/auth_data
+      - ./certs:/certs:ro
     tmpfs:
       - /run
       - /run/lock

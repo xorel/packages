@@ -21,6 +21,7 @@ if ! wait_for_oned ; then
     echo "OPENNEBULA SUNSTONE HTTPD: TIMEOUT"
     exit 1
 fi
+echo "OPENNEBULA SUNSTONE HTTPD: ONED IS RUNNING - CONTINUE"
 
 if ! [ -f /var/lib/one/.one/sunstone_auth ] ; then
     echo "OPENNEBULA SUNSTONE HTTPD: NO SUNSTONE_AUTH"

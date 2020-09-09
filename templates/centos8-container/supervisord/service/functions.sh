@@ -15,6 +15,21 @@ is_running()
     return 1
 )
 
+check_pidfile()
+(
+    if [ -f "$1" ] ; then
+        _pid=$(cat "$1")
+    else
+        return 1
+    fi
+
+    if ! kill -0 ${_pid} ; then
+        return 1
+    fi
+
+    return 0
+)
+
 wait_for_oned()
 (
     TIMEOUT="${TIMEOUT:-120}"
@@ -54,3 +69,34 @@ wait_for_memcached()
     return 1
 )
 
+wait_for_ssh_agent()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if [ -e ${SSH_AUTH_SOCK} ] ; then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1
+    done
+
+    return 1
+)
+
+wait_for_mysqld()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if check_pidfile /var/run/mariadb/mariadb.pid ; then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1
+    done
+
+    return 1
+)

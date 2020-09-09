@@ -21,6 +21,7 @@ if ! wait_for_oned ; then
     echo "OPENNEBULA GATE: TIMEOUT"
     exit 1
 fi
+echo "OPENNEBULA GATE: ONED IS RUNNING - CONTINUE"
 
 if ! [ -f /var/lib/one/.one/onegate_auth ] ; then
     echo "OPENNEBULA GATE: NO ONEGATE_AUTH"

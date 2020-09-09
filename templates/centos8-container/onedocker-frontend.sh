@@ -22,26 +22,38 @@ set -e
 # image params
 #
 
-OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
-OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-opennebula-frontend}"
-OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-opennebula-frontend}"
-OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
-OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-opennebula-frontend}"
-OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
-OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-opennebula-frontend}"
-OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
-OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-opennebula-memcached}"
-OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-no}"
-OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-no}"
-ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
-#ONEADMIN_PASSWORD
-#ONEADMIN_SSH_PRIVKEY
-#ONEADMIN_SSH_PUBKEY
-MYSQL_HOST="${MYSQL_HOST:-db}"
-MYSQL_PORT="${MYSQL_PORT:-3306}"
-MYSQL_DATABASE="${MYSQL_DATABASE:-opennebula}"
-#MYSQL_PASSWORD
-#MYSQL_ROOT_PASSWORD
+export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
+export OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-opennebula-frontend}"
+export OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
+export OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
+export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
+export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-no}"
+export OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-no}"
+export OPENNEBULA_SUNSTONE_HTTPPORT="${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
+export OPENNEBULA_SUNSTONE_HTTPSPORT="${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
+# TODO: this is not ideal - but I need to redirect to this port...
+export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-443}"
+export OPENNEBULA_SUNSTONE_HTTP_REDIRECT="${OPENNEBULA_SUNSTONE_HTTP_REDIRECT:-no}"
+export OPENNEBULA_SUNSTONE_HTTPS_ONLY="${OPENNEBULA_SUNSTONE_HTTPS_ONLY:-no}"
+export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-no}"
+export OPENNEBULA_TLS_DOMAIN_LIST="${OPENNEBULA_TLS_DOMAIN_LIST:-*}"
+export OPENNEBULA_TLS_VALID_DAYS="${OPENNEBULA_TLS_VALID_DAYS:-365}"
+#export OPENNEBULA_TLS_CERT
+#export OPENNEBULA_TLS_KEY
+export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
+#export ONEADMIN_PASSWORD
+#export ONEADMIN_SSH_PRIVKEY
+#export ONEADMIN_SSH_PUBKEY
+export MYSQL_USER="${MYSQL_USER:-oneadmin}"
+export MYSQL_HOST="${MYSQL_HOST:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export MYSQL_PORT="${MYSQL_PORT:-3306}"
+export MYSQL_DATABASE="${MYSQL_DATABASE:-opennebula}"
+#export MYSQL_PASSWORD
+#export MYSQL_ROOT_PASSWORD
 
 #
 # globals
@@ -309,6 +321,106 @@ prepare_ssh()
     fi
 }
 
+prepare_cert()
+(
+    # ensure the existence of cert_data directory
+    if ! [ -d /cert_data ] ; then
+        mkdir -p /cert_data
+    fi
+
+    # internal filepaths can be hardcoded - only the content is variable
+    _cert_path="/cert_data/one.crt"
+    _key_path="/cert_data/one.key"
+    _cert_info_path="/cert_data/one.txt"
+
+    # copy the custom certificate
+    _custom_cert=no
+    if [ -n "$OPENNEBULA_TLS_CERT" ] && [ -n "$OPENNEBULA_TLS_KEY" ] ; then
+        if [ -f "$OPENNEBULA_TLS_CERT" ] && [ -f "$OPENNEBULA_TLS_KEY" ] ; then
+            _custom_cert=yes
+
+            cat "$OPENNEBULA_TLS_CERT" > "${_cert_path}"
+            chmod 0644 "${_cert_path}"
+
+            cat "$OPENNEBULA_TLS_KEY" > "${_key_path}"
+            chmod 0600 "${_key_path}"
+        fi
+    fi
+
+    # generate self-signed certificate if no custom one is provided
+    if [ "$_custom_cert" != 'yes' ] ; then
+        # if we already created a cert and the cert params are unchanged then
+        # we do not wish to generate a new one...
+        if [ -f "${_cert_path}" ] && [ -f "${_key_path}" ] ; then
+            # TODO: this should be rewritten by inspecting the actual cert and
+            # not rely onto this info file...but I was lazy to parse it (it can
+            # have different output on different systems and with different
+            # versions of openssl command)
+            if [ -f "${_cert_info_path}" ] ; then
+                _new_cert_info=$(cat <<EOF
+DNS = ${OPENNEBULA_TLS_DOMAIN_LIST}
+DAYS = ${OPENNEBULA_TLS_VALID_DAYS}
+EOF
+                )
+                _new_cert_info_hash=$(echo "${_new_cert_info}" | sha256sum)
+                _old_cert_info_hash=$(sha256sum < "${_cert_info_path}")
+
+                if [ "$_new_cert_info_hash" = "$_old_cert_info_hash" ] ; then
+                    # the cert does not need to be generated again
+                    return 0
+                else
+                    # store the new info
+                    echo "$_new_cert_info" > "$_cert_info_path"
+                fi
+            fi
+        fi
+
+        # we remove the leftover old cert in the internal path
+        rm -f "${_cert_path}" "${_key_path}"
+
+        # we either use a user provided domain list or we will default to the
+        # asterisk: *
+        #
+        # this is defined at the top of this script in the params section
+
+        # exploit the shell argument array
+        set -f
+        set -- ${OPENNEBULA_TLS_DOMAIN_LIST}
+        set +f
+        _cn="${1}"
+        shift
+
+        # loop over the rest of the names to create a valid list prefixed
+        # with 'DNS:' to be used as a value for subjectAltName
+        _alt=
+        for _name in $* ; do
+            _alt="${_alt}${_alt:+,} DNS:${_name}"
+        done
+
+        # TODO: this can be improved (support for more configuration options?)
+        # + rewrite this whole section with a config file in mind which will
+        # also deduplicate this openssl command
+        if [ -n "$_alt" ] ; then
+            openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
+                -days "${OPENNEBULA_TLS_VALID_DAYS}" \
+                -subj "/CN=${_cn}" \
+                -addext "subjectAltName=${_alt}" \
+                -out "${_cert_path}" \
+                -keyout "${_key_path}"
+        else
+            openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
+                -days "${OPENNEBULA_TLS_VALID_DAYS}" \
+                -subj "/CN=${_cn}" \
+                -out "${_cert_path}" \
+                -keyout "${_key_path}"
+        fi
+
+    fi
+
+    chown -R "${ONEADMIN_USERNAME}:" /cert_data
+    chmod 0700 /cert_data
+)
+
 prepare_onedata()
 {
     # ensure the existence of the datastores directory
@@ -393,8 +505,29 @@ configure_sunstone()
     sed -i \
         -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
         -e "s#^:oneflow_server:.*#:oneflow_server: http://${OPENNEBULA_ONEFLOW_HOSTNAME}:${OPENNEBULA_ONEFLOW_APIPORT}#" \
+        -e "s#^:port:.*#:port: ${OPENNEBULA_SUNSTONE_HTTPPORT}#" \
         -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
         /etc/one/sunstone-server.conf
+
+    # enable vnc over ssl when https is required and certs provided
+    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        if [ -f /cert_data/one.crt ] && [ -f /cert_data/one.key ] ; then
+            if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
+                _wss="only"
+            else
+                _wss="yes"
+            fi
+
+            sed -i \
+                -e "s#^:vnc_proxy_support_wss:.*#:vnc_proxy_support_wss: ${_wss}#" \
+                -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /cert_data/one.crt#" \
+                -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /cert_data/one.key#" \
+                /etc/one/sunstone-server.conf
+        else
+            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
+            exit 1
+        fi
+    fi
 
     # shared tmpdir with oned
     mkdir -p /var/tmp/sunstone/shared
@@ -417,13 +550,13 @@ configure_sunstone()
         chown root:apache /run/httpd
         chmod 0710 /run/httpd
 
-        # permission settings according to:
-        # https://docs.opennebula.io/stable/deployment/sunstone_setup/suns_advance.html
-        #chmod a+x /oneadmin/auth_data/auth
-        #chgrp apache /var/log/one/sunstone*
-        #chmod g+w /var/log/one/sunstone*
-        #chgrp apache /etc/one/sunstone-server.conf
-        #chown -R root:apache /usr/lib/one/sunstone/public
+        # the if conditional in the httpd conf will expect yes or true
+        if is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
+            OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
+        fi
+    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPD' IS FALSE - ABORT"
+        exit 1
     fi
 
     if is_true "${OPENNEBULA_SUNSTONE_MEMCACHED}" ; then
@@ -460,23 +593,26 @@ configure_onegate()
         /etc/one/onegate-server.conf
 }
 
-wait_for_mysql()
-{
-    while ! mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -D "$MYSQL_DATABASE" \
-        -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" \
-        -e 'exit'
-    do
-        printf .
-        sleep 1s
-    done
-    echo
-}
+# TODO: remove?
+# The logic was moved to the mysqld-configure service
+#configure_db()
+#{
+#    mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" \
+#        -u root -p"$MYSQL_ROOT_PASSWORD" \
+#        -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
+#}
 
-configure_db()
+sanity_check()
 {
-    mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" \
-        -u root -p"$MYSQL_ROOT_PASSWORD" \
-        -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
+    if [ -z "$MYSQL_PASSWORD" ] ; then
+        err "EMPTY 'MYSQL_PASSWORD' - ABORT"
+        exit 1
+    fi
+
+    if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
+        err "EMPTY 'MYSQL_ROOT_PASSWORD' - ABORT"
+        exit 1
+    fi
 }
 
 fix_docker()
@@ -563,8 +699,19 @@ sshd()
     add_supervised_service sshd
 }
 
+mysqld()
+{
+    msg "SETUP SERVICE: MYSQLD"
+    add_supervised_service mysqld
+    add_supervised_service mysqld-upgrade
+    add_supervised_service mysqld-configure
+}
+
 oned()
 {
+    msg "SANITY CHECK"
+    sanity_check
+
     msg "FIX DOCKER"
     fix_docker
 
@@ -580,20 +727,27 @@ oned()
     msg "CONFIGURE ONED (oned.conf)"
     configure_oned
 
-    msg "WAIT FOR DATABASE"
-    wait_for_mysql
-
-    msg "CONFIGURE DATABASE"
-    configure_db
-
     msg "SETUP SERVICE: OPENNEBULA ONED"
     add_supervised_service opennebula
+
+    msg "SETUP SERVICE: SSH AGENT"
     add_supervised_service opennebula-ssh-agent
+    add_supervised_service opennebula-ssh-add
+
+    msg "SETUP SERVICE: SSH SOCKET CLEANER"
     add_supervised_service opennebula-ssh-socks-cleaner
+
+    msg "SETUP SERVICE: OPENNEBULA SHOWBACK"
+    add_supervised_service opennebula-showback
 }
 
 sunstone()
 {
+    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        msg "PREPARE CERTIFICATE"
+        prepare_cert
+    fi
+
     msg "CONFIGURE OPENNEBULA SUNSTONE"
     configure_sunstone
 
@@ -666,24 +820,33 @@ msg "BEGIN BOOTSTRAP (${0}): ${OPENNEBULA_FRONTEND_SERVICE}"
 common_configuration
 initialize_supervisord_conf
 
-# supervisord needs at least one program section...
-msg "SETUP SERVICE: INFINITE LOOP"
-add_supervised_service infinite-loop
+# this is mandatory for logrotate and it also functions as a more meaningful
+# replacement for the infinite loop service
+msg "SETUP SERVICE: CRON"
+add_supervised_service crond
 
 case "${OPENNEBULA_FRONTEND_SERVICE}" in
     none)
-        msg "MAINTENANCE MODE - NO RUNNING SERVICES"
+        msg "MAINTENANCE MODE - NOTHING TO DO"
+        # supervisord needs at least one program section...should not be needed
+        # thanks to the crond but just in case...
+        msg "SETUP SERVICE: INFINITE LOOP"
+        add_supervised_service infinite-loop
         ;;
     all)
         msg "CONFIGURE FRONTEND SERVICE: ALL"
+        # this will fix some issues:
+        echo 127.0.0.1 "$OPENNEBULA_FRONTEND_SSH_HOSTNAME" \
+            >> /etc/hosts
         sshd
+        mysqld
         oned
         scheduler
         oneflow
         onegate
         onehem
         sunstone
-        # note: memcached is not used by default
+        memcached
         ;;
     oned)
         msg "CONFIGURE FRONTEND SERVICE: ONED"
@@ -693,6 +856,10 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
         sshd
+        ;;
+    mysqld)
+        msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
+        mysqld
         ;;
     memcached)
         msg "CONFIGURE FRONTEND SERVICE: MEMCACHED"

@@ -21,6 +21,7 @@ if ! wait_for_oned ; then
     echo "OPENNEBULA SCHEDULER: TIMEOUT"
     exit 1
 fi
+echo "OPENNEBULA SCHEDULER: ONED IS RUNNING - CONTINUE"
 
 if ! [ -f /var/lib/one/.one/one_auth ] ; then
     echo "OPENNEBULA SCHEDULER: NO ONE_AUTH"
