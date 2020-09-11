@@ -101,6 +101,7 @@ BuildRequires: systemd-devel
 BuildRequires: libvncserver-devel
 BuildRequires: gnutls-devel
 BuildRequires: libjpeg-turbo-devel
+BuildRequires: devtoolset-7
 
 %if %{with_rubygems}
 BuildRequires: rubygems
@@ -669,9 +670,9 @@ popd
 # Compile OpenNebula
 # scons -j2 mysql=yes new_xmlrpc=yes
 %if %{with_enterprise}
-../build_opennebula.sh systemd=yes gitversion='%{gitversion}' enterprise=yes
+scl enable devtoolset-7 "../build_opennebula.sh systemd=yes gitversion='%{gitversion}' enterprise=yes"
 %else
-../build_opennebula.sh systemd=yes gitversion='%{gitversion}'
+scl enable devtoolset-7 "../build_opennebula.sh systemd=yes gitversion='%{gitversion}'"
 %endif
 
 pushd src/oca/java
