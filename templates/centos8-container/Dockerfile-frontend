@@ -1,34 +1,74 @@
-# ---------------------------------------------------------------------------- #
-# Copyright 2020, OpenNebula Project, OpenNebula Systems                       #
-#                                                                              #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may      #
-# not use this file except in compliance with the License. You may obtain      #
-# a copy of the License at                                                     #
-#                                                                              #
-# http://www.apache.org/licenses/LICENSE-2.0                                   #
-#                                                                              #
-# Unless required by applicable law or agreed to in writing, software          #
-# distributed under the License is distributed on an "AS IS" BASIS,            #
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.     #
-# See the License for the specific language governing permissions and          #
-# limitations under the License.                                               #
-# ---------------------------------------------------------------------------- #
-
 ARG CENTOS_VERSION=8
 FROM centos:${CENTOS_VERSION}
-LABEL version="1.0" \
-    maintainer="Petr Ospalý (pospaly@opennebula.io)" \
-    description="ONE Docker - Dockerized OpenNebula"
 
 #
 # BUILD ARGS
 #
 
+ARG IMAGE_VERSION=1.0
+ARG OPENNEBULA_LICENSE
 ARG CENTOS_VERSION
 ARG OPENNEBULA_VERSION="5.12"
 ARG OPENNEBULA_URL_REPO="https://downloads.opennebula.io/repo/${OPENNEBULA_VERSION}/CentOS/\$releasever/\$basearch"
 ARG OPENNEBULA_URL_GPGKEY="https://downloads.opennebula.io/repo/repo.key"
 # TODO: ARG DOCKER_VERSION=19.03
+
+#
+# LABELS
+#
+
+LABEL version="${IMAGE_VERSION}"
+LABEL maintainer="OpenNebula Team (contact@opennebula.io)"
+LABEL description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL org.label-schema.name="opennebula-frontend"
+LABEL org.label-schema.description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL org.label-schema.version="${IMAGE_VERSION}"
+LABEL org.label-schema.license="${OPENNEBULA_LICENSE}"
+LABEL org.label-schema.vendor="OpenNebula"
+LABEL org.opencontainers.image.title="opennebula-frontend"
+LABEL org.opencontainers.image.description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+LABEL org.opencontainers.image.authors="OpenNebula Team (contact@opennebula.io)"
+LABEL org.opencontainers.image.licenses="${OPENNEBULA_LICENSE}"
+LABEL org.opencontainers.image.vendor="OpenNebula"
+
+# image params
+
+LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Fontend service to run (or all), \
+OPENNEBULA_FRONTEND_SSH_HOSTNAME=Host to which node will ssh into, \
+OPENNEBULA_ONED_HOSTNAME=Host of the oned API server, \
+OPENNEBULA_ONED_APIPORT=Port of the oned server, \
+OPENNEBULA_ONEFLOW_HOSTNAME=Host of the oneflow server, \
+OPENNEBULA_ONEFLOW_APIPORT=Port of the oneflow server, \
+OPENNEBULA_ONEGATE_HOSTNAME=Host of the onegate server, \
+OPENNEBULA_ONEGATE_APIPORT=Port of the onegate server, \
+OPENNEBULA_MEMCACHED_HOSTNAME=Host of the memcached server, \
+OPENNEBULA_MEMCACHED_APIPORT=Port of the memcached server, \
+OPENNEBULA_SUNSTONE_HTTPD=yes/no if sunstone should use the apache webserver, \
+OPENNEBULA_SUNSTONE_MEMCACHED=yes/no if sunstone should use the memcached, \
+OPENNEBULA_SUNSTONE_HTTPPORT=HTTP port for the sunstone server, \
+OPENNEBULA_SUNSTONE_HTTPSPORT=HTTPS port for the sunstone server, \
+OPENNEBULA_SUNSTONE_HTTP_REDIRECT=yes/no if HTTP traffic should be redirected to HTTPS, \
+OPENNEBULA_SUNSTONE_HTTPS_ONLY=yes/no if only HTTPS should be used, \
+OPENNEBULA_SUNSTONE_HTTPS_ENABLED=yes/no if HTTPS should be enabled at all, \
+OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT=Published HTTP port on the host part, \
+OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT=Published HTTPS port on the host part, \
+OPENNEBULA_SUNSTONE_VNCPORT=Port of the VNC server, \
+OPENNEBULA_TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
+OPENNEBULA_TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
+OPENNEBULA_TLS_CERT_BASE64=Custom certificate in base64 format, \
+OPENNEBULA_TLS_KEY_BASE64=Privkey to the custom certificate in base64 format, \
+OPENNEBULA_TLS_CERT=Custom certificate as a filename, \
+OPENNEBULA_TLS_KEY=Privkey to the custom certificate as a filename, \
+ONEADMIN_PASSWORD=Password for the oneadmin user (otherwise generated), \
+ONEADMIN_SSH_PRIVKEY=Privkey of the custom ssh key as a filename, \
+ONEADMIN_SSH_PUBKEY=Pubkey of the custom ssh key as a filename, \
+MYSQL_HOST=Host of the mysql server, \
+MYSQL_PORT=Port of the mysql server, \
+MYSQL_DATABASE=Database name for the OpenNebula database, \
+MYSQL_USER=Database user for the OpenNebula database, \
+MYSQL_PASSWORD=Password of the OpenNebula database user, \
+MYSQL_ROOT_PASSWORD=Root password of the mysql server"
 
 #
 # PACKAGES
@@ -194,8 +234,10 @@ COPY onedocker-healthcheck.sh /
 RUN chown root:root /onedocker-healthcheck.sh
 RUN chmod 0755 /onedocker-healthcheck.sh
 
-HEALTHCHECK --start-period=2m --interval=10s --retries=3 --timeout=10s \
-    CMD [ "/onedocker-healthcheck.sh" ]
+# this is a docker extension and it is not part of OCI definition - logic is
+# moved to the docker-compose file now
+#HEALTHCHECK --start-period=2m --interval=10s --retries=3 --timeout=10s \
+#    CMD [ "/onedocker-healthcheck.sh" ]
 
 #
 # ENTRYPOINT
@@ -215,9 +257,32 @@ ENTRYPOINT [ "/onedocker-frontend.sh" ]
 # PUBLISHED SERVICES
 #
 
+# these are the default ports - *most* of them can be changed on every start...
+# the exceptions are sshd and mysqld services for the moment
+
+# sshd:
+EXPOSE 22/tcp
+
+# mysql:
+EXPOSE 3306/tcp
+
+# sunstone:
 EXPOSE 9869/tcp
+EXPOSE 80/tcp
+EXPOSE 443/tcp
+
+# oned:
 EXPOSE 2633/tcp
+
+# oneflow:
 EXPOSE 2474/tcp
+
+# onegate:
 EXPOSE 5030/tcp
+
+# memcached:
+EXPOSE 11211/tcp
+
+# vnc:
 EXPOSE 29876/tcp
 

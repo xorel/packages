@@ -31,29 +31,36 @@ export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
 export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
 export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-no}"
-export OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-no}"
+export OPENNEBULA_MEMCACHED_APIPORT="${OPENNEBULA_MEMCACHED_APIPORT:-11211}"
+export OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-yes}"
+# NOTE: sunstone with apache requires memcached - so that is why this default
+export OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-${OPENNEBULA_SUNSTONE_HTTPD}}"
 export OPENNEBULA_SUNSTONE_HTTPPORT="${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
 export OPENNEBULA_SUNSTONE_HTTPSPORT="${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
-# TODO: this is not ideal - but I need to redirect to this port...
+export OPENNEBULA_SUNSTONE_VNCPORT="${OPENNEBULA_SUNSTONE_VNCPORT:-29876}"
+# TODO: this is not ideal - but I need to match and/or redirect these ports...
+export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}"
 export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-443}"
 export OPENNEBULA_SUNSTONE_HTTP_REDIRECT="${OPENNEBULA_SUNSTONE_HTTP_REDIRECT:-no}"
 export OPENNEBULA_SUNSTONE_HTTPS_ONLY="${OPENNEBULA_SUNSTONE_HTTPS_ONLY:-no}"
-export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-no}"
+export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-yes}"
 export OPENNEBULA_TLS_DOMAIN_LIST="${OPENNEBULA_TLS_DOMAIN_LIST:-*}"
 export OPENNEBULA_TLS_VALID_DAYS="${OPENNEBULA_TLS_VALID_DAYS:-365}"
-#export OPENNEBULA_TLS_CERT
-#export OPENNEBULA_TLS_KEY
+export OPENNEBULA_TLS_CERT_BASE64
+export OPENNEBULA_TLS_KEY_BASE64
+export OPENNEBULA_TLS_CERT
+export OPENNEBULA_TLS_KEY
+# TODO: oneadmin is hardcoded on the installation - a change here would only broke things
 export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
-#export ONEADMIN_PASSWORD
-#export ONEADMIN_SSH_PRIVKEY
-#export ONEADMIN_SSH_PUBKEY
-export MYSQL_USER="${MYSQL_USER:-oneadmin}"
+export ONEADMIN_PASSWORD
+export ONEADMIN_SSH_PRIVKEY
+export ONEADMIN_SSH_PUBKEY
 export MYSQL_HOST="${MYSQL_HOST:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export MYSQL_PORT="${MYSQL_PORT:-3306}"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-opennebula}"
-#export MYSQL_PASSWORD
-#export MYSQL_ROOT_PASSWORD
+export MYSQL_USER="${MYSQL_USER:-oneadmin}"
+export MYSQL_PASSWORD
+export MYSQL_ROOT_PASSWORD
 
 #
 # globals
@@ -123,7 +130,7 @@ prepare_oneadmin_data()
     # store the password if not already there
     if ! [ -f /oneadmin/auth_data/auth/one_auth ] ; then
         if [ -z "$ONEADMIN_PASSWORD" ] ; then
-            msg "GENERATE PASSWORD: NO 'ONEADMIN_PASSWORD'"
+            msg "EMPTY 'ONEADMIN_PASSWORD': GENERATE RANDOM"
             ONEADMIN_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
         fi
         echo "${ONEADMIN_USERNAME}:${ONEADMIN_PASSWORD}" \
@@ -335,7 +342,21 @@ prepare_cert()
 
     # copy the custom certificate
     _custom_cert=no
-    if [ -n "$OPENNEBULA_TLS_CERT" ] && [ -n "$OPENNEBULA_TLS_KEY" ] ; then
+    if [ -n "$OPENNEBULA_TLS_CERT_BASE64" ] && [ -n "$OPENNEBULA_TLS_KEY_BASE64" ] ; then
+        _custom_cert=yes
+
+        if ! echo "$OPENNEBULA_TLS_CERT_BASE64" | base64 -d > "${_cert_path}" ; then
+            err "'OPENNEBULA_TLS_CERT_BASE64' does not have a base64 value - ABORT"
+            return 1
+        fi
+        chmod 0644 "${_cert_path}"
+
+        if ! echo "$OPENNEBULA_TLS_KEY_BASE64" | base64 -d > "${_key_path}" ; then
+            err "'OPENNEBULA_TLS_KEY_BASE64' does not have a base64 value - ABORT"
+            return 1
+        fi
+        chmod 0600 "${_key_path}"
+    elif [ -n "$OPENNEBULA_TLS_CERT" ] && [ -n "$OPENNEBULA_TLS_KEY" ] ; then
         if [ -f "$OPENNEBULA_TLS_CERT" ] && [ -f "$OPENNEBULA_TLS_KEY" ] ; then
             _custom_cert=yes
 
@@ -506,6 +527,7 @@ configure_sunstone()
         -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
         -e "s#^:oneflow_server:.*#:oneflow_server: http://${OPENNEBULA_ONEFLOW_HOSTNAME}:${OPENNEBULA_ONEFLOW_APIPORT}#" \
         -e "s#^:port:.*#:port: ${OPENNEBULA_SUNSTONE_HTTPPORT}#" \
+        -e "s#^:vnc_proxy_port:.*#:vnc_proxy_port: ${OPENNEBULA_SUNSTONE_VNCPORT}#" \
         -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
         /etc/one/sunstone-server.conf
 
@@ -563,7 +585,11 @@ configure_sunstone()
         sed -i \
             -e "s#^:sessions:.*#:sessions: 'memcache'#" \
             -e "s#^:memcache_host:.*#:memcache_host: ${OPENNEBULA_MEMCACHED_HOSTNAME}#" \
+            -e "s#^:memcache_port:.*#:memcache_port: ${OPENNEBULA_MEMCACHED_APIPORT}#" \
             /etc/one/sunstone-server.conf
+    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_MEMCACHED' IS FALSE - ABORT"
+        exit 1
     fi
 }
 
@@ -701,6 +727,18 @@ sshd()
 
 mysqld()
 {
+    # for convenience when mysqld and oned are running together
+    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
+        if [ -z "$MYSQL_PASSWORD" ] ; then
+            msg "EMPTY 'MYSQL_PASSWORD': GENERATE RANDOM"
+            MYSQL_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
+        fi
+        if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
+            msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
+            MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
+        fi
+    fi
+
     msg "SETUP SERVICE: MYSQLD"
     add_supervised_service mysqld
     add_supervised_service mysqld-upgrade

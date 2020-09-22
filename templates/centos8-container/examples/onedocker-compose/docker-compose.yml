@@ -30,6 +30,12 @@ services:
       - opennebula_db:/var/lib/mysql
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
@@ -53,8 +59,8 @@ services:
       ONEADMIN_PASSWORD: "${ONEADMIN_PASSWORD}"
       ONEADMIN_SSH_PRIVKEY: "/ssh/id_rsa"
       ONEADMIN_SSH_PUBKEY: "/ssh/id_rsa.pub"
-      MYSQL_HOST: "opennebula-mysql"
-      MYSQL_PORT: "3306"
+      MYSQL_HOST: "${MYSQL_HOST:-opennebula-mysql}"
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
@@ -81,6 +87,12 @@ services:
       - /var/lib/docker
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
@@ -109,6 +121,12 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
@@ -130,6 +148,12 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
@@ -157,13 +181,19 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
         delay: 10s
       replicas: 1
 
-  opennebula-oneflow:
+  opennebula-flow:
     env_file:
       - ".env"
     image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
@@ -187,13 +217,19 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
         delay: 10s
       replicas: 1
 
-  opennebula-onegate:
+  opennebula-gate:
     env_file:
       - ".env"
     image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
@@ -219,6 +255,12 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
@@ -237,20 +279,23 @@ services:
       OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
       OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
       OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
-      OPENNEBULA_MEMCACHED_HOSTNAME: "opennebula-memcached"
-      OPENNEBULA_SUNSTONE_HTTPD: "yes"
-      OPENNEBULA_SUNSTONE_MEMCACHED: "yes"
+      OPENNEBULA_MEMCACHED_HOSTNAME: "${OPENNEBULA_MEMCACHED_HOSTNAME:-opennebula-memcached}"
+      OPENNEBULA_SUNSTONE_HTTPD: "${OPENNEBULA_SUNSTONE_HTTPD}"
+      OPENNEBULA_SUNSTONE_MEMCACHED: "${OPENNEBULA_SUNSTONE_MEMCACHED}"
       OPENNEBULA_SUNSTONE_HTTPPORT: "${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
       OPENNEBULA_SUNSTONE_HTTPSPORT: "${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
-      # TODO: this is not ideal - but I need to redirect to this port...
+      # TODO: this is not ideal - but I need to match and/or redirect these ports...
+      OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT: "${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}"
       OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT: "${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-4443}"
-      OPENNEBULA_SUNSTONE_HTTP_REDIRECT: "no"
-      OPENNEBULA_SUNSTONE_HTTPS_ONLY: "no"
-      OPENNEBULA_SUNSTONE_HTTPS_ENABLED: "yes"
+      OPENNEBULA_SUNSTONE_HTTP_REDIRECT: "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}"
+      OPENNEBULA_SUNSTONE_HTTPS_ONLY: "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}"
+      OPENNEBULA_SUNSTONE_HTTPS_ENABLED: "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}"
       OPENNEBULA_TLS_DOMAIN_LIST: "${OPENNEBULA_TLS_DOMAIN_LIST}"
+      OPENNEBULA_TLS_CERT_BASE64: "${OPENNEBULA_TLS_CERT_BASE64}"
+      OPENNEBULA_TLS_KEY_BASE64: "${OPENNEBULA_TLS_KEY_BASE64}"
       OPENNEBULA_TLS_CERT: "/certs/opennebula.crt"
       OPENNEBULA_TLS_KEY: "/certs/opennebula.key"
-      OPENNEBULA_TLS_VALID_DAYS: "365"
+      OPENNEBULA_TLS_VALID_DAYS: "${OPENNEBULA_TLS_VALID_DAYS}"
     depends_on:
       - opennebula-frontend
     ports:
@@ -269,6 +314,12 @@ services:
       - /var/tmp
     networks:
       - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
     deploy:
       restart_policy:
         condition: always
