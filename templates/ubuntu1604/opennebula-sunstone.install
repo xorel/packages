@@ -3,6 +3,7 @@
 dist/usr/lib/one/ruby/OpenNebulaVNC.rb                  /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/OpenNebulaGuac.rb                 /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/OpenNebulaAddons.rb               /usr/lib/one/ruby/
+dist/usr/lib/one/ruby/opennebula_vmrc.rb                /usr/lib/one/ruby/
 
 dist/usr/bin/novnc-server /usr/bin/
 dist/usr/bin/guac-server  /usr/bin/

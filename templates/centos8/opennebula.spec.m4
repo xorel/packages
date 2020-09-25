@@ -1517,6 +1517,7 @@ sleep 10
 /usr/lib/one/ruby/OpenNebulaVNC.rb
 /usr/lib/one/ruby/OpenNebulaGuac.rb
 /usr/lib/one/ruby/OpenNebulaAddons.rb
+/usr/lib/one/ruby/opennebula_vmrc.rb
 %dir /usr/lib/one/ruby/cloud/econe
 /usr/lib/one/ruby/cloud/econe/*
 %dir %{_datadir}/one/websockify
