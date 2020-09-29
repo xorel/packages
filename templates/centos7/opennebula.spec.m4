@@ -1425,7 +1425,7 @@ sleep 10
 %dir /usr/lib/one/sunstone
 /usr/lib/one/sunstone/*
 /usr/lib/one/ruby/OpenNebulaVNC.rb
-/usr/lib/one/ruby/OpenNebula_guac.rb
+/usr/lib/one/ruby/opennebula_guac.rb
 /usr/lib/one/ruby/OpenNebulaAddons.rb
 /usr/lib/one/ruby/opennebula_vmrc.rb
 %dir /usr/lib/one/ruby/cloud/econe
