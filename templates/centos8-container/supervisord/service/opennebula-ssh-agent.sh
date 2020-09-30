@@ -6,7 +6,7 @@ set -e
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # run service
@@ -25,4 +25,5 @@ fi
 rm -f "$SSH_AUTH_SOCK"
 supervisorctl start opennebula-ssh-add
 
+msg "Service started!"
 exec /usr/bin/ssh-agent -D -a "$SSH_AUTH_SOCK"

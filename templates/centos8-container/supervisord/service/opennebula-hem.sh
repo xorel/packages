@@ -6,7 +6,7 @@ set -e
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # dependencies
@@ -37,4 +37,5 @@ done
 
 export SSH_AUTH_SOCK
 
+msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/onehem/onehem-server.rb

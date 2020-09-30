@@ -152,6 +152,8 @@ RUN chmod 0755 /usr/share/one/supervisord/supervisord.d
 RUN chmod 0644 /usr/share/one/supervisord/supervisord.conf
 RUN chmod 0600 /usr/share/one/supervisord/supervisord.d/*.ini
 RUN chmod 0755 /usr/share/one/supervisord/service/*.sh
+RUN chmod 0755 /usr/share/one/supervisord/service/lib
+RUN chmod 0755 /usr/share/one/supervisord/service/lib/*.sh
 
 # cleanup the oneadmin's ssh
 RUN for f in authorized_keys id_rsa id_rsa.pub ; do rm -f "/var/lib/one/.ssh/${f}" ; done
@@ -182,9 +184,10 @@ RUN mkdir -p /oneadmin \
 COPY conf/httpd.conf /etc/httpd/conf/httpd.conf
 RUN chown root:root /etc/httpd/conf/httpd.conf
 RUN chmod 644 /etc/httpd/conf/httpd.conf
-COPY conf/opennebula-httpd.conf /etc/httpd/conf.d/opennebula.conf
-RUN chown root:root /etc/httpd/conf.d/opennebula.conf
-RUN chmod 644 /etc/httpd/conf.d/opennebula.conf
+COPY conf/opennebula-http.conf /etc/httpd/conf.d/opennebula-http.conf-disabled
+COPY conf/opennebula-https.conf /etc/httpd/conf.d/opennebula-https.conf-disabled
+RUN chown root:root /etc/httpd/conf.d/opennebula-http*.conf-disabled
+RUN chmod 644 /etc/httpd/conf.d/opennebula-http*.conf-disabled
 RUN rm -f /etc/httpd/conf.d/welcome.conf
 RUN rm -f /etc/httpd/conf.d/ssl.conf
 

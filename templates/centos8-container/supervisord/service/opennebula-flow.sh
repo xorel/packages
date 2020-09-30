@@ -9,27 +9,22 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
-
-#
-# dependencies
-#
-
-# emulate dependency
-echo "OPENNEBULA FLOW: WAIT FOR ONED"
-if ! wait_for_oned ; then
-    echo "OPENNEBULA FLOW: TIMEOUT"
-    exit 1
-fi
-echo "OPENNEBULA FLOW: ONED IS RUNNING - CONTINUE"
-
-if ! [ -f /var/lib/one/.one/oneflow_auth ] ; then
-    echo "OPENNEBULA FLOW: NO ONEFLOW_AUTH"
-    exit 1
-fi
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # run service
 #
 
+if [ -f /var/lib/one/.one/oneflow_auth ] ; then
+    msg "Found oneflow_auth - we can start service"
+else
+    msg "No oneflow_auth - wait for oned to create it..."
+    if ! wait_for_file /var/lib/one/.one/oneflow_auth ; then
+        err "Timeout!"
+        exit 1
+    fi
+    msg "File created - continue"
+fi
+
+msg "Service started!"
 exec /usr/bin/ruby /usr/lib/one/oneflow/oneflow-server.rb

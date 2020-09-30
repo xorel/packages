@@ -2,6 +2,16 @@
 
 # here are shared functions for all supervised services
 
+msg()
+(
+    echo "[SUPERVISOR]: ${SUPERVISOR_PROCESS_NAME}: $*"
+)
+
+err()
+(
+    echo "[SUPERVISOR] [!] ERROR: ${SUPERVISOR_PROCESS_NAME}: $*"
+)
+
 is_running()
 (
     _status=$(LANG=C supervisorctl status "$1" | awk '{print $2}')
@@ -100,3 +110,40 @@ wait_for_mysqld()
 
     return 1
 )
+
+wait_for_opennebula_db()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -D "$MYSQL_DATABASE" \
+            -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" \
+            -e 'exit' \
+            ;
+        then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1s
+    done
+
+    return 1
+)
+
+wait_for_file()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if [ -f "$1" ] ; then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1
+    done
+
+    return 1
+)
+

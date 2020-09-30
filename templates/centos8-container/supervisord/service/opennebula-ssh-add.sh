@@ -9,13 +9,12 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # run service
 #
 
-# emulate ExecStartPost from systemd service unit
 for envfile in \
     /var/run/one/ssh-agent.env \
     ;
@@ -26,19 +25,20 @@ do
 done
 
 if [ -z "${SSH_AUTH_SOCK}" ] ; then
-    echo "OPENNEBULA SSH-ADD: NO SOCKET ('SSH_AUTH_SOCK')"
+    err "Socket variable is unset ('SSH_AUTH_SOCK')"
     exit 1
 fi
 
 export SSH_AUTH_SOCK
 
 # wait for ssh-agent socket
-echo "OPENNEBULA SSH-ADD: WAIT FOR SSH-AGENT (${SSH_AUTH_SOCK})"
+msg "Wait for ssh-agent (${SSH_AUTH_SOCK})..."
 if ! wait_for_ssh_agent ; then
-    echo "OPENNEBULA SSH-ADD: TIMEOUT"
+    err "Timeout!"
     exit 1
 fi
-echo "OPENNEBULA SSH-ADD: AGENT IS RUNNING - CONTINUE"
+
+msg "SSH agent is running - continue"
 
 # just in case delete the keys if any found
 /usr/bin/ssh-add -D
@@ -47,4 +47,5 @@ echo "OPENNEBULA SSH-ADD: AGENT IS RUNNING - CONTINUE"
 /usr/bin/ssh-add
 
 # TODO: either this or dealing with a service in EXITED status
+msg "Service finished! (entered infinity sleep)"
 exec /bin/sleep infinity

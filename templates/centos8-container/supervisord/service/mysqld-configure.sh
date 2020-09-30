@@ -9,7 +9,7 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 is_root_password_unset()
 (
@@ -50,18 +50,19 @@ unset MYSQL_HOST
 unset MYSQL_PORT
 
 # wait for mysqld
-echo "OPENNEBULA MYSQLD-CONFIGURE: WAIT FOR MYSQLD"
+msg "Wait for mysqld process..."
 if ! wait_for_mysqld ; then
-    echo "OPENNEBULA MYSQLD-CONFIGURE: TIMEOUT"
+    err "Timeout!"
     exit 1
 fi
-echo "OPENNEBULA MYSQLD-CONFIGURE: MYSQLD IS RUNNING - CONTINUE"
+
+msg "Start configuration - mysqld is running"
 
 # create password, user and database if requested
 
 # root password
 if [ -n "$MYSQL_ROOT_PASSWORD" ] ; then
-    echo "OPENNEBULA MYSQLD-CONFIGURE: SETUP ROOT PASSWORD"
+    msg "Setup root password"
     if is_root_password_unset ; then
         mysql -u root <<EOF
 SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -71,7 +72,7 @@ EOF
     else
         if ! is_root_password_valid ; then
             # TODO: support the change of root password?
-            echo "MYSQL ROOT PASSWORD WAS ALREADY SET AND DIFFERS - ABORT"
+            err "The root password was already set and differs - ABORT"
             exit 1
         fi
     fi
@@ -82,7 +83,7 @@ if [ -n "$MYSQL_USER" ] \
     && [ -n "$MYSQL_PASSWORD" ] \
     && [ -n "$MYSQL_DATABASE" ] ;
 then
-    echo "OPENNEBULA MYSQLD-CONFIGURE: SETUP USER AND DATABASE"
+    msg "Setup the mysql database and its user"
 
     mysql -u root -p"${MYSQL_ROOT_PASSWORD}" <<EOF
 CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
@@ -92,7 +93,7 @@ EOF
 fi
 
 # secure the mysql installation
-echo "OPENNEBULA MYSQLD-CONFIGURE: SECURE THE INSTALLATION"
+msg "Secure the installation"
 LANG=C expect -f - <<EOF
 set timeout 10
 spawn mysql_secure_installation
@@ -119,4 +120,5 @@ expect eof
 EOF
 
 # TODO: either this or dealing with a service in EXITED status
+msg "Service finished! (entered infinity sleep)"
 exec /bin/sleep infinity

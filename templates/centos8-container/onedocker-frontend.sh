@@ -572,12 +572,33 @@ configure_sunstone()
         chown root:apache /run/httpd
         chmod 0710 /run/httpd
 
-        # the if conditional in the httpd conf will expect yes or true
-        if is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
-            OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
+        # enable HTTPS VirtualHost
+        if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+            mv /etc/httpd/conf.d/opennebula-https.conf-disabled \
+                /etc/httpd/conf.d/opennebula-https.conf
+        elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
+            err "ONLY HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
+            exit 1
+        elif is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
+            err "HTTP REDIRECT REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
+            exit 1
+        fi
+
+        # enable HTTP VirtualHost
+        if ! is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
+            # the if conditional in the httpd conf will expect yes or true
+            if is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
+                OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
+            fi
+
+            mv /etc/httpd/conf.d/opennebula-http.conf-disabled \
+                /etc/httpd/conf.d/opennebula-http.conf
         fi
     elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
         err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPD' IS FALSE - ABORT"
+        exit 1
+    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
+        err "ONLY HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
         exit 1
     fi
 

@@ -2,6 +2,16 @@
 
 set -e
 
+#
+# functions
+#
+
+. /usr/share/one/supervisord/service/lib/functions.sh
+
+#
+# run service
+#
+
 for envfile in \
     /etc/sysconfig/memcached \
     ;
@@ -11,5 +21,6 @@ do
     fi
 done
 
+msg "Service started!"
 exec /usr/bin/memcached -p ${PORT} -u ${USER} -m ${CACHESIZE} -c ${MAXCONN} $OPTIONS
 

@@ -2,8 +2,20 @@
 
 set -e
 
+#
+# functions
+#
+
+. /usr/share/one/supervisord/service/lib/functions.sh
+
+#
+# run service
+#
+
 # emulate timer from systemd
-while sleep 1h ; do
+msg "Service started!"
+while sleep 1d ; do
+    # update showback once a day
     /usr/bin/oneshowback calculate 2>&1
 done
 

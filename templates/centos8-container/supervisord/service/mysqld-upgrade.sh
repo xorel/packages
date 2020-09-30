@@ -9,7 +9,7 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # run service
@@ -20,14 +20,15 @@ unset MYSQL_HOST
 unset MYSQL_PORT
 
 # wait for mysqld
-echo "OPENNEBULA MYSQLD-UPGRADE: WAIT FOR MYSQLD"
+msg "Wait for mysqld process..."
 if ! wait_for_mysqld ; then
-    echo "OPENNEBULA MYSQLD-UPGRADE: TIMEOUT"
+    err "Timeout!"
     exit 1
 fi
-echo "OPENNEBULA MYSQLD-UPGRADE: MYSQLD IS RUNNING - CONTINUE"
 
+msg "Try to upgrade the database - mysqld is running"
 /usr/libexec/mysql-check-upgrade
 
 # TODO: either this or dealing with a service in EXITED status
+msg "Service finished! (entered infinity sleep)"
 exec /bin/sleep infinity

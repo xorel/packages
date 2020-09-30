@@ -2,6 +2,16 @@
 
 set -e
 
+#
+# functions
+#
+
+. /usr/share/one/supervisord/service/lib/functions.sh
+
+#
+# run service
+#
+
 for envfile in \
     /etc/crypto-policies/back-ends/opensshserver.config \
     /etc/sysconfig/sshd \
@@ -12,4 +22,5 @@ do
     fi
 done
 
+msg "Service started!"
 exec /usr/sbin/sshd -D $OPTIONS $CRYPTO_POLICY

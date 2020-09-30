@@ -9,27 +9,22 @@ TIMEOUT=120
 # functions
 #
 
-. /usr/share/one/supervisord/service/functions.sh
-
-#
-# dependencies
-#
-
-# emulate dependency
-echo "OPENNEBULA SUNSTONE HTTPD: WAIT FOR ONED"
-if ! wait_for_oned ; then
-    echo "OPENNEBULA SUNSTONE HTTPD: TIMEOUT"
-    exit 1
-fi
-echo "OPENNEBULA SUNSTONE HTTPD: ONED IS RUNNING - CONTINUE"
-
-if ! [ -f /var/lib/one/.one/sunstone_auth ] ; then
-    echo "OPENNEBULA SUNSTONE HTTPD: NO SUNSTONE_AUTH"
-    exit 1
-fi
+. /usr/share/one/supervisord/service/lib/functions.sh
 
 #
 # run service
 #
 
+if [ -f /var/lib/one/.one/sunstone_auth ] ; then
+    msg "Found sunstone_auth - we can start service"
+else
+    msg "No sunstone_auth - wait for oned to create it..."
+    if ! wait_for_file /var/lib/one/.one/sunstone_auth ; then
+        err "Timeout!"
+        exit 1
+    fi
+    msg "File created - continue"
+fi
+
+msg "Service started!"
 exec /usr/sbin/httpd -c "ErrorLog /dev/stdout" -DFOREGROUND
