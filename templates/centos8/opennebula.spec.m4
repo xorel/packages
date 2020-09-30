@@ -34,6 +34,7 @@
     %define with_oca_java_prebuilt 1
     %define scons            scons-3
     %define gemfile_lock     CentOS8
+    %define dir_supervisor   centos8
 
     # don't mangle shebangs (e.g., fix /usr/bin/env ruby -> /usr/bin/ruby)
     %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems)/
@@ -803,6 +804,12 @@ install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{
 
 install -p -D -m 644 %{SOURCE1} \
         %{buildroot}%{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
+
+# supervisor scripts
+%if %{defined dir_supervisor}
+%{__mkdir} -p %{buildroot}%{_datadir}/one/supervisor/
+cp -a share/pkgs/services/supervisor/%{dir_supervisor}/* %{buildroot}%{_datadir}/one/supervisor/
+%endif
 
 # sudoers
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sudoers.d
@@ -1699,6 +1706,11 @@ sleep 10
 /lib/systemd/system/opennebula-showback.timer
 /lib/systemd/system/opennebula-hem.service
 /usr/share/augeas/lenses/oned.aug
+
+%if %{defined dir_supervisor}
+%dir /usr/share/one/supervisor
+/usr/share/one/supervisor/*
+%endif
 
 %{_bindir}/mm_sched
 %{_bindir}/one
