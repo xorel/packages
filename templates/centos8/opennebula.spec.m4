@@ -1589,6 +1589,7 @@ sleep 10
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one/ec2query_templates
 %dir %{_sysconfdir}/one/sunstone-views
+%config %{_sysconfdir}/one/fireedge-server.conf
 %config %{_sysconfdir}/one/sunstone-server.conf
 %config %{_sysconfdir}/one/sunstone-logos.yaml
 %config %{_sysconfdir}/one/ec2query_templates/*

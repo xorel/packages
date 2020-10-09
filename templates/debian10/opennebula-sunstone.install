@@ -77,5 +77,6 @@ dist/usr/bin/econe-describe-keypairs     /usr/bin/
 
 # Fireedge
 
+dist/etc/one/fireedge-server.conf  /etc/one/
 dist/usr/lib/one/fireedge/*     /usr/lib/one/fireedge/*
 dist/usr/bin/fireedge-server    /usr/bin/
