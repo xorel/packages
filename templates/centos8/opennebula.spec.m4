@@ -1646,11 +1646,19 @@ sleep 10
 
 %files provision
 %{_bindir}/oneprovision
+%{_bindir}/oneprovider
+%{_bindir}/oneprovision-template
 %config %{_sysconfdir}/one/cli/oneprovision.yaml
+%config %{_sysconfdir}/one/cli/oneprovider.yaml
+%config %{_sysconfdir}/one/cli/oneprovision_template.yaml
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneprovider_helper.rb
+/usr/lib/one/ruby/cli/one_helper/oneprovision_template_helper.rb
 /usr/lib/one/oneprovision/*
 %{_datadir}/one/oneprovision/*
 %{_mandir}/man1/oneprovision.1*
+%{_mandir}/man1/oneprovider.1*
+%{_mandir}/man1/oneprovision-template.1*
 
 ################################################################################
 # addon tools - files
