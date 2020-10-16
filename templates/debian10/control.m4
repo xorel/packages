@@ -43,6 +43,16 @@ Build-Depends: bash-completion,
                build-essential,
                libssl-dev,
                libaugeas-dev,
+ifdef(`_WITH_FIREEDGE_',`dnl
+               nodejs (>= 10),
+               libnode-dev (>= 10),
+               npm,
+               libzmq5,
+               libzmq3-dev,
+               make,
+               g++,
+               python3,
+')dnl
                postgresql-server-dev-all,
                default-libmysqlclient-dev | libmysqlclient-dev
 Standards-Version: 3.9.3
@@ -105,6 +115,19 @@ Depends: opennebula-common (= ${source:Version}),
 Conflicts: opennebula (<< ${source:Version})
 Description: OpenNebula web interface Sunstone (P_EDITION)
  Browser based UI for OpenNebula cloud management and usage.
+
+ifdef(`_WITH_FIREEDGE_',`
+Package: opennebula-fireedge
+Architecture: any
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Depends: opennebula-common (= ${source:Version}),
+         nodejs (>= 10),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Conflicts: opennebula (<< ${source:Version})
+Description: OpenNebula web interface FireEdge (P_EDITION)
+ Browser based UI for OpenNebula application management.
+')
 
 Package: opennebula-gate
 Architecture: all

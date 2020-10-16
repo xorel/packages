@@ -1,0 +1,12 @@
+#!/bin/sh
+
+set -e
+
+if [ "$1" = 'remove' ]; then
+    /bin/true
+
+elif [ "$1" = 'purge' ]; then
+    # Remove logs
+    rm -rf /var/log/one/fireedge.log* \
+        /var/log/one/fireedge.error*
+fi

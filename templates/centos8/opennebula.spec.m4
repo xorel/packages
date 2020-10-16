@@ -7,6 +7,7 @@
 %define with_addon_tools        0%{?_with_addon_tools:1}
 %define with_addon_markets      0%{?_with_addon_markets:1}
 %define with_enterprise         0%{?_with_enterprise:1}
+%define with_fireedge           0%{?_with_fireedge:1}
 %define with_oca_java           0%{!?_without_oca_java:1}
 %define with_oca_java_prebuilt  0%{?_with_oca_java_prebuilt:1}
 %define with_oca_python2        0%{!?_without_oca_python2:1}
@@ -24,7 +25,7 @@
     %define gemfile_lock     Fedora%{?fedora}
 
     # don't mangle shebangs (e.g., fix /usr/bin/env ruby -> /usr/bin/ruby)
-    %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems\|\/usr\/lib\/one\/sunstone\/public\/bower_components\/no-vnc\/node_modules\/uri-js\/dist\/esnext|\/usr\/lib/one\/sunstone\/guac\/node_modules\/uri-js\/dist\/esnext)/
+    %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems\|\/usr\/lib\/one\/sunstone\/public\/bower_components\/no-vnc\/node_modules\/uri-js\/dist\/esnext|\/usr\/lib/one\/sunstone\/guac\/node_modules\/uri-js\/dist\/esnext|\/usr\/lib\/one\/fireedge\/node_modules\/uri-js\/dist\/esnext)/
 
     # don't generate automatic requirements from bower components
     %global __requires_exclude_from ^\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*$
@@ -59,10 +60,19 @@
     %define edition Enterprise Edition
     %define edition_short ee
     %define license OpenNebula Software License
+    %define arg_enterprise yes
 %else
     %define edition Community Edition
     %define edition_short ce
     %define license Apache
+    %define arg_enterprise no
+%endif
+
+# Build arguments
+%if %{with_fireedge}
+    %define arg_fireedge yes
+%else
+    %define arg_fireedge no
 %endif
 
 Name: opennebula
@@ -99,6 +109,9 @@ Source10: opennebula-rubygems-%{version}.tar
 %if %{with_enterprise}
 Source11: opennebula-ee-tools-%{version}.tar.gz
 %endif
+%if %{with_fireedge}
+Source12: opennebula-fireedge-modules-%{version}.tar.gz
+%endif
 
 # Distribution specific KVM emulator paths to configure on front-end
 Patch0: opennebula-emulator_libexec.patch
@@ -121,6 +134,7 @@ BuildRequires: sqlite-devel
 BuildRequires: openssh
 BuildRequires: pkgconfig
 BuildRequires: ruby
+BuildRequires: rubygems
 BuildRequires: sqlite-devel
 BuildRequires: systemd
 BuildRequires: systemd-devel
@@ -156,6 +170,16 @@ BuildRequires: gcc-c++
 BuildRequires: rpm-build
 BuildRequires: augeas-devel
 BuildRequires: postgresql-devel
+%endif
+
+%if %{with_fireedge}
+BuildRequires: nodejs >= 10
+BuildRequires: nodejs-devel >= 10
+BuildRequires: npm
+BuildRequires: zeromq-devel
+BuildRequires: make
+BuildRequires: gcc-c++
+BuildRequires: python3
 %endif
 
 ################################################################################
@@ -417,6 +441,20 @@ Requires: numpy
 
 %description sunstone
 Browser based UI for OpenNebula cloud management and usage.
+
+################################################################################
+# Package fireedge
+################################################################################
+
+%if %{with_fireedge}
+%package fireedge
+Summary: OpenNebula web interface FireEdge (%{edition})
+Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
+
+%description fireedge
+Browser based UI for OpenNebula application management.
+%endif
 
 ################################################################################
 # Package gate
@@ -692,6 +730,9 @@ mv java-oca-%{version}/jar/ src/oca/java/
 %if %{with_enterprise}
 %setup -T -D -a 11
 %endif
+%if %{with_fireedge}
+%setup -T -D -a 12
+%endif
 
 %if 0%{?rhel}
 %patch0 -p1
@@ -725,13 +766,31 @@ pushd opennebula-rubygems-%{version}
 popd
 %endif
 
+%if %{with_fireedge}
+export CXXFLAGS="${CXXFLAGS} -I/usr/include/node"
+npm config set nodedir /usr/include/node
+npm config set offline true
+npm config set zmq_external true
+
+pushd src/fireedge
+    # backup original package-lock.json and update dependencies locations
+    # from remote https:// to local predownloaded files
+    cp package-lock.json package-lock.json.bak
+    sed -i -e 's/\(resolved": "\).*\//\1file:..\/..\/opennebula-fireedge-modules-%{version}\//' package-lock.json
+popd
+%endif
+
 # Compile OpenNebula
 # scons -j2 mysql=yes new_xmlrpc=yes
 export SCONS=%{scons}
-%if %{with_enterprise}
-../build_opennebula.sh systemd=yes gitversion='%{gitversion}' enterprise=yes
-%else
-../build_opennebula.sh systemd=yes gitversion='%{gitversion}'
+../build_opennebula.sh \
+    systemd=yes \
+    gitversion='%{gitversion}' \
+    enterprise=%{?arg_enterprise} \
+    fireedge=%{?arg_fireedge}
+
+%if %{with_fireedge}
+    mv -f src/fireedge/package-lock.json.bak src/fireedge/package-lock.json
 %endif
 
 %if %{with_oca_java} && ! %{with_oca_java_prebuilt}
@@ -828,6 +887,18 @@ install -p -D -m 644 share/pkgs/logrotate/opennebula-novnc     %{buildroot}%{_sy
 install -p -D -m 644 share/pkgs/logrotate/opennebula-scheduler %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-scheduler
 install -p -D -m 644 share/pkgs/logrotate/opennebula-hem       %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-hem
 install -p -D -m 644 share/pkgs/logrotate/opennebula-sunstone  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-sunstone
+
+# FireEdge
+%if %{with_fireedge}
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-fireedge.service            %{buildroot}/lib/systemd/system/opennebula-fireedge.service
+install -p -D -m 644 share/pkgs/logrotate/opennebula-fireedge  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-fireedge
+%else
+# TODO: don't install with install.sh FireEdge
+rm -rf \
+    %{buildroot}/usr/lib/one/fireedge/ \
+    %{buildroot}%{_bindir}/fireedge-server \
+    %{buildroot}%{_sysconfdir}/one/fireedge-server.conf
+%endif
 
 # Java
 %if %{with_oca_java}
@@ -1250,6 +1321,31 @@ if [ $1 = 0 ]; then
 fi
 
 ################################################################################
+# fireedge - scripts
+################################################################################
+
+%if %{with_fireedge}
+%pre fireedge
+# Upgrade - Stop the service
+if [ $1 = 2 ]; then
+    /sbin/service opennebula-fireedge stop >/dev/null || :
+fi
+
+%post fireedge
+systemctl daemon-reload 2>/dev/null || :
+
+%preun fireedge
+if [ $1 = 0 ]; then
+    /sbin/service opennebula-fireedge stop >/dev/null  || :
+fi
+
+%postun fireedge
+if [ $1 = 0 ]; then
+    systemctl daemon-reload 2>/dev/null || :
+fi
+%endif
+
+################################################################################
 # gate scripts
 ################################################################################
 
@@ -1529,8 +1625,6 @@ sleep 10
 /usr/lib/one/ruby/cloud/econe/*
 %dir %{_datadir}/one/websockify
 %{_datadir}/one/websockify/*
-%dir /usr/lib/one/fireedge
-/usr/lib/one/fireedge/*
 
 %{_bindir}/sunstone-server
 %{_bindir}/novnc-server
@@ -1557,7 +1651,6 @@ sleep 10
 %{_bindir}/econe-stop-instances
 %{_bindir}/econe-terminate-instances
 %{_bindir}/econe-upload
-%{_bindir}/fireedge-server
 
 %{_mandir}/man1/econe-allocate-address.1*
 %{_mandir}/man1/econe-associate-address.1*
@@ -1589,7 +1682,6 @@ sleep 10
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one/ec2query_templates
 %dir %{_sysconfdir}/one/sunstone-views
-%config %{_sysconfdir}/one/fireedge-server.conf
 %config %{_sysconfdir}/one/sunstone-server.conf
 %config %{_sysconfdir}/one/sunstone-logos.yaml
 %config %{_sysconfdir}/one/ec2query_templates/*
@@ -1600,6 +1692,24 @@ sleep 10
 %defattr(0640, oneadmin, oneadmin, 0750)
 %dir %{_sharedstatedir}/one/sunstone
 %exclude %{_sharedstatedir}/one/sunstone/main.js
+
+################################################################################
+# fireedge - files
+################################################################################
+
+%if %{with_fireedge}
+%files fireedge
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
+%config %{_sysconfdir}/logrotate.d/opennebula-fireedge
+%dir /usr/lib/one/fireedge
+/usr/lib/one/fireedge/*
+%{_bindir}/fireedge-server
+
+/lib/systemd/system/opennebula-fireedge.service
+
+%defattr(0640, root, oneadmin, 0750)
+%config %{_sysconfdir}/one/fireedge-server.conf
+%endif
 
 ################################################################################
 # gate - files

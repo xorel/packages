@@ -9,6 +9,19 @@ else
 	LIB_VIRT_GROUP = libvirt
 endif
 
+# Build arguments
+ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
+	ARGS_ENTERPRISE = yes
+else
+	ARGS_ENTERPRISE = no
+endif
+
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	ARGS_FIREEDGE = yes
+else
+	ARGS_FIREEDGE = no
+endif
+
 # distribution specific content
 DIR_SUDOERS  = 'debian'
 DIR_SERVICES = 'systemd'
@@ -63,12 +76,34 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 	rm -rf opennebula-rubygems-*/gems-dist/cache \
 		opennebula-rubygems-*/gems-dist/gems/*/ext
 endif
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	# build doesn't have set HOME, also we can't write into /etc
+	echo 'cache=/tmp'        >> src/fireedge/.npmrc
+	echo 'offline=true'      >> src/fireedge/.npmrc
+	echo 'zmq_external=true' >> src/fireedge/.npmrc
+
+	mkdir opennebula-fireedge-modules
+	tar -xzvf opennebula-fireedge-modules*.tar.gz \
+		-C opennebula-fireedge-modules/ \
+		--strip-components=1
+
+	# backup original package-lock.json and update dependencies locations
+	# from remote https:// to local predownloaded files
+	cd src/fireedge && \
+		cp package-lock.json package-lock.json.bak && \
+		sed -i -e 's/\(resolved": "\).*\//\1file:..\/..\/opennebula-fireedge-modules\//' package-lock.json
+endif
 
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
-ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
-	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)" enterprise=yes
-else
-	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)"
+	./build_opennebula.sh \
+			systemd=yes \
+			gitversion="$(shell cat debian/gitversion)" \
+			enterprise="${ARGS_ENTERPRISE}" \
+			fireedge="${ARGS_FIREEDGE}"
+
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	mv -f src/fireedge/package-lock.json.bak src/fireedge/package-lock.json
+	unlink src/fireedge/.npmrc
 endif
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
@@ -158,6 +193,12 @@ ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_install -p opennebula-sunstone share/pkgs/services/${DIR_SERVICES}/opennebula-novnc.service \
 		/lib/systemd/system/
 endif
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	dh_install -p opennebula-fireedge share/pkgs/logrotate/opennebula-fireedge /etc/logrotate.d/
+
+	dh_install -p opennebula-fireedge share/pkgs/services/${DIR_SERVICES}/opennebula-fireedge.service \
+		/lib/systemd/system/
+endif
 ifneq (,$(filter opennebula-gate, $(shell dh_listpackages)))
 	dh_install -p opennebula-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
 
@@ -202,6 +243,9 @@ ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_installinit -p opennebula-sunstone --name=opennebula-sunstone --onlyscripts --no-start
 	dh_installinit -p opennebula-sunstone --name=opennebula-econe --onlyscripts --no-start
 	dh_installinit -p opennebula-sunstone --name=opennebula-novnc --onlyscripts --no-start
+endif
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	dh_installinit -p opennebula-fireedge --name=opennebula-fireedge --onlyscripts --no-start
 endif
 ifneq (,$(filter opennebula-gate, $(shell dh_listpackages)))
 	dh_installinit -p opennebula-gate --name=opennebula-gate --onlyscripts --no-start
