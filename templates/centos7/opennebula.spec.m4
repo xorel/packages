@@ -68,6 +68,7 @@ Source10: opennebula-rubygems-%{version}.tar
 %if %{with_enterprise}
 Source11: opennebula-ee-tools-%{version}.tar.gz
 %endif
+Source12: guacamole-server.zip
 
 Patch0: proper_path_emulator.diff
 
@@ -98,10 +99,20 @@ BuildRequires: xmlrpc-common
 BuildRequires: xmlrpc-client
 BuildRequires: systemd
 BuildRequires: systemd-devel
+BuildRequires: libtool
+BuildRequires: autoconf
 BuildRequires: libvncserver-devel
 BuildRequires: gnutls-devel
 BuildRequires: libjpeg-turbo-devel
 BuildRequires: devtoolset-7
+BuildRequires: cairo-devel
+BuildRequires: uuid-devel
+BuildRequires: freerdp-devel
+BuildRequires: libssh2-devel
+BuildRequires: pango-devel
+BuildRequires: pulseaudio-libs-devel
+BuildRequires: libwebp-devel
+BuildRequires: libvorbis-devel
 
 %if %{with_rubygems}
 BuildRequires: rubygems
@@ -618,6 +629,18 @@ Requires: %{name}-rubygems = %{version}
 OpenNebula provisioning tool
 
 ################################################################################
+# Package guacd
+################################################################################
+
+%package guacd
+Summary: Provides Guacamole server for Fireedge to be used in Sunstone (%{edition})
+Requires: %{name}-fireegde = %{version}
+
+%description guacd
+OpenNebula Guacamole server
+
+
+################################################################################
 # Build and install
 ################################################################################
 
@@ -650,6 +673,12 @@ OpenNebula provisioning tool
     cp %{SOURCE3} %{SOURCE4} .
 )
 
+# Unzip guacamole server
+(
+    cd ..
+    unzip -qq %{SOURCE12}
+)
+
 %if %{with_rubygems}
 pushd opennebula-rubygems-%{version}
     GEM_PATH=$PWD/gems-dist/ GEM_HOME=$PWD/gems-dist/ \
@@ -666,6 +695,15 @@ pushd opennebula-rubygems-%{version}
     rm -rf gems-dist/cache gems-dist/gems/*/ext
 popd
 %endif
+
+# Compile Guacamole Deamon
+(
+    cd ..
+    cd guacamole-server*
+    autoreconf -i
+    ./configure --prefix=/usr/share/one/guacd --exec-prefix=/usr/share/one/guacd --with-freerdp-plugin-dir=/usr/share/one/guacd
+    make
+)
 
 # Compile OpenNebula
 # scons -j2 mysql=yes new_xmlrpc=yes
@@ -686,6 +724,12 @@ popd
 %endif
 
 %install
+(
+    cd ..
+    cd guacamole-server*
+    %make_install
+)
+
 rm -rf src/sunstone/public/node_modules/ || :
 export DESTDIR=%{buildroot}
 ./install.sh
@@ -1432,8 +1476,6 @@ sleep 10
 /usr/lib/one/ruby/cloud/econe/*
 %dir %{_datadir}/one/websockify
 %{_datadir}/one/websockify/*
-%dir /usr/lib/one/fireedge
-/usr/lib/one/fireedge/*
 
 %{_bindir}/sunstone-server
 %{_bindir}/novnc-server
@@ -1707,6 +1749,14 @@ sleep 10
 %exclude %{_sharedstatedir}/one/datastores/*
 %{_sharedstatedir}/one/remotes/*
 %config %{_sharedstatedir}/one/remotes/etc/*
+
+################################################################################
+# server - guacd
+################################################################################
+
+%files guacd
+%dir /usr/share/one/guacd
+/usr/share/one/guacd/*
 
 ################################################################################
 # main package - files

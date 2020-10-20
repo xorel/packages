@@ -93,6 +93,9 @@ wget -q http://downloads.opennebula.org/extra/xmlrpc-c.tar.gz
 cp "${SOURCES_DIR}/build_opennebula.sh" .
 cp "${SOURCES_DIR}/xml_parse_huge.patch" .
 
+wget -q https://github.com/apache/guacamole-server/archive/1.2.0.zip
+mv 1.2.0.zip guacamole-server.zip
+
 ################################################################################
 # Setup mock build environment
 ################################################################################
