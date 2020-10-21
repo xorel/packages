@@ -102,6 +102,12 @@ cd "${DPKGS_BUILD_DIR}"
 
 # extra sources
 wget -q http://downloads.opennebula.org/extra/xmlrpc-c.tar.gz
+
+# TODO: move into init phase
+GUACAMOLE_VERSION=1.2.0
+wget -q "https://github.com/apache/guacamole-server/archive/${GUACAMOLE_VERSION}.zip" \
+    -O "guacamole-server-${GUACAMOLE_VERSION}.zip"
+
 tar -czf build_opennebula.tar.gz \
     -C "${SOURCES_DIR}" \
     build_opennebula.sh \

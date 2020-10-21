@@ -9,7 +9,7 @@ DISTRO=$(basename "$0")
 DISTRO=${DISTRO%.*}
 
 if [ "${DISTRO}" = 'centos7' ]; then
-    MOCK_CFG='epel-7-x86_64'
+    MOCK_CFG="$(readlink -f $(dirname $0)/build/mock/epel-7-x86_64.cfg)"
     MOCK_PARAMS=''
     DIST_TAG='el7'
     GEMFILE_LOCK='CentOS7'
@@ -93,8 +93,10 @@ wget -q http://downloads.opennebula.org/extra/xmlrpc-c.tar.gz
 cp "${SOURCES_DIR}/build_opennebula.sh" .
 cp "${SOURCES_DIR}/xml_parse_huge.patch" .
 
-wget -q https://github.com/apache/guacamole-server/archive/1.2.0.zip
-mv 1.2.0.zip guacamole-server.zip
+# TODO: move into init phase
+GUACAMOLE_VERSION=1.2.0
+wget -q "https://github.com/apache/guacamole-server/archive/${GUACAMOLE_VERSION}.zip" \
+    -O "guacamole-server-${GUACAMOLE_VERSION}.zip"
 
 ################################################################################
 # Setup mock build environment

@@ -7,6 +7,8 @@
 %define with_addon_tools 0%{?_with_addon_tools:1}
 %define with_addon_markets 0%{?_with_addon_markets:1}
 %define with_enterprise 0%{?_with_enterprise:1}
+%define with_fireedge 0%{?_with_fireedge:1}
+%define with_guacd 0%{!?_without_guacd:1}
 
 # distribution specific content
 %define dir_sudoers centos
@@ -28,11 +30,26 @@
     %define edition Enterprise Edition
     %define edition_short ee
     %define license OpenNebula Software License
+    %define arg_enterprise yes
 %else
     %define edition Community Edition
     %define edition_short ce
     %define license Apache
+    %define arg_enterprise no
 %endif
+
+# Build arguments
+%if %{with_fireedge}
+    %define arg_fireedge yes
+%else
+    %define arg_fireedge no
+%endif
+
+# Node.js packages prefix
+%define nodejs_scl rh-nodejs12
+
+# Version of Guacamole server
+%define guacamole_version 1.2.0
 
 Name: opennebula
 Version: _VERSION_
@@ -68,7 +85,12 @@ Source10: opennebula-rubygems-%{version}.tar
 %if %{with_enterprise}
 Source11: opennebula-ee-tools-%{version}.tar.gz
 %endif
-Source12: guacamole-server.zip
+%if %{with_fireedge}
+Source12: opennebula-fireedge-modules-%{version}.tar.gz
+%endif
+%if %{with_guacd}
+Source13: guacamole-server-%{guacamole_version}.zip
+%endif
 
 Patch0: proper_path_emulator.diff
 
@@ -90,6 +112,7 @@ BuildRequires: sqlite-devel
 BuildRequires: openssh
 BuildRequires: pkgconfig
 BuildRequires: ruby
+BuildRequires: rubygems
 BuildRequires: scons
 BuildRequires: sqlite-devel
 BuildRequires: xmlrpc-c
@@ -99,20 +122,10 @@ BuildRequires: xmlrpc-common
 BuildRequires: xmlrpc-client
 BuildRequires: systemd
 BuildRequires: systemd-devel
-BuildRequires: libtool
-BuildRequires: autoconf
 BuildRequires: libvncserver-devel
 BuildRequires: gnutls-devel
 BuildRequires: libjpeg-turbo-devel
 BuildRequires: devtoolset-7
-BuildRequires: cairo-devel
-BuildRequires: uuid-devel
-BuildRequires: freerdp-devel
-BuildRequires: libssh2-devel
-BuildRequires: pango-devel
-BuildRequires: pulseaudio-libs-devel
-BuildRequires: libwebp-devel
-BuildRequires: libvorbis-devel
 
 %if %{with_rubygems}
 BuildRequires: rubygems
@@ -132,6 +145,29 @@ BuildRequires: gcc-c++
 BuildRequires: rpm-build
 BuildRequires: augeas-devel
 BuildRequires: postgresql-devel
+%endif
+
+%if %{with_fireedge}
+BuildRequires: %{nodejs_scl}
+BuildRequires: %{nodejs_scl}-nodejs-devel
+BuildRequires: %{nodejs_scl}-npm
+BuildRequires: zeromq-devel
+BuildRequires: make
+BuildRequires: gcc-c++
+BuildRequires: python
+%endif
+
+%if %{with_guacd}
+BuildRequires: libtool
+BuildRequires: autoconf
+BuildRequires: cairo-devel
+BuildRequires: uuid-devel
+BuildRequires: freerdp-devel
+BuildRequires: libssh2-devel
+BuildRequires: pango-devel
+BuildRequires: pulseaudio-libs-devel
+BuildRequires: libwebp-devel
+BuildRequires: libvorbis-devel
 %endif
 
 ################################################################################
@@ -370,6 +406,25 @@ Requires: numpy
 
 %description sunstone
 Browser based UI for OpenNebula cloud management and usage.
+
+################################################################################
+# Package fireedge
+################################################################################
+
+%if %{with_fireedge}
+%package fireedge
+Summary: OpenNebula web interface FireEdge (%{edition})
+Requires: %{name}-common = %{version}
+Requires: %{name}-common-onescape = %{version}
+Requires: %{nodejs_scl}
+Requires: %{nodejs_scl}-npm
+%if %{with_guacd}
+Requires: %{name}-guacd = %{version}
+%endif
+
+%description fireedge
+Browser based UI for OpenNebula application management.
+%endif
 
 ################################################################################
 # Package gate
@@ -632,12 +687,14 @@ OpenNebula provisioning tool
 # Package guacd
 ################################################################################
 
+%if %{with_guacd}
 %package guacd
+Release: %{guacamole_version}+_PKG_VERSION_%{?dist}
 Summary: Provides Guacamole server for Fireedge to be used in Sunstone (%{edition})
-Requires: %{name}-fireegde = %{version}
 
 %description guacd
 OpenNebula Guacamole server
+%endif
 
 
 ################################################################################
@@ -661,6 +718,12 @@ OpenNebula Guacamole server
 %if %{with_enterprise}
 %setup -T -D -a 11
 %endif
+%if %{with_fireedge}
+%setup -T -D -a 12
+%endif
+%if %{with_guacd}
+%setup -T -D -a 13
+%endif
 
 %patch0 -p1
 
@@ -671,12 +734,6 @@ OpenNebula Guacamole server
     cd ..
     tar xzvf %{SOURCE2}
     cp %{SOURCE3} %{SOURCE4} .
-)
-
-# Unzip guacamole server
-(
-    cd ..
-    unzip -qq %{SOURCE12}
 )
 
 %if %{with_rubygems}
@@ -696,21 +753,41 @@ pushd opennebula-rubygems-%{version}
 popd
 %endif
 
-# Compile Guacamole Deamon
-(
-    cd ..
-    cd guacamole-server*
+%if %{with_guacd}
+pushd guacamole-server-*
     autoreconf -i
-    ./configure --prefix=/usr/share/one/guacd --exec-prefix=/usr/share/one/guacd --with-freerdp-plugin-dir=/usr/share/one/guacd
+    ./configure \
+        --prefix=/usr/share/one/guacd \
+        --exec-prefix=/usr/share/one/guacd \
+        --with-freerdp-plugin-dir=/usr/share/one/guacd
     make
-)
+popd
+%endif
+
+%if %{with_fireedge}
+export CXXFLAGS="${CXXFLAGS} -I/opt/rh/%{nodejs_scl}/root/usr/include/node"
+scl enable %{nodejs_scl} -- npm config set nodedir /opt/rh/rh-nodejs12/root/usr/include/node
+scl enable %{nodejs_scl} -- npm config set offline true
+scl enable %{nodejs_scl} -- npm config set zmq_external true
+
+pushd src/fireedge
+    # backup original package-lock.json and update dependencies locations
+    # from remote https:// to local predownloaded files
+    cp package-lock.json package-lock.json.bak
+    sed -i -e 's/\(resolved": "\).*\//\1file:..\/..\/opennebula-fireedge-modules-%{version}\//' package-lock.json
+popd
+%endif
 
 # Compile OpenNebula
-# scons -j2 mysql=yes new_xmlrpc=yes
-%if %{with_enterprise}
-scl enable devtoolset-7 "../build_opennebula.sh systemd=yes gitversion='%{gitversion}' enterprise=yes"
-%else
-scl enable devtoolset-7 "../build_opennebula.sh systemd=yes gitversion='%{gitversion}'"
+scl enable devtoolset-7 -- scl enable %{nodejs_scl} -- \
+../build_opennebula.sh \
+    systemd=yes \
+    gitversion='%{gitversion}' \
+    enterprise=%{?arg_enterprise} \
+    fireedge=%{?arg_fireedge}
+
+%if %{with_fireedge}
+    mv -f src/fireedge/package-lock.json.bak src/fireedge/package-lock.json
 %endif
 
 pushd src/oca/java
@@ -724,12 +801,6 @@ popd
 %endif
 
 %install
-(
-    cd ..
-    cd guacamole-server*
-    %make_install
-)
-
 rm -rf src/sunstone/public/node_modules/ || :
 export DESTDIR=%{buildroot}
 ./install.sh
@@ -754,6 +825,13 @@ pushd one-ee-tools
     ./install-ee-tools.sh
     install -p -D -m 644 src/onedb/local/5.10.0_to_5.12.0.rbm  %{buildroot}/usr/lib/one/ruby/onedb/local/
     install -p -D -m 644 src/onedb/shared/5.10.0_to_5.12.0.rbm %{buildroot}/usr/lib/one/ruby/onedb/shared/
+popd
+%endif
+
+# Guacamole
+%if %{with_guacd}
+pushd guacamole-server-*
+    %make_install
 popd
 %endif
 
@@ -805,6 +883,18 @@ install -p -D -m 644 share/pkgs/logrotate/opennebula-novnc     %{buildroot}%{_sy
 install -p -D -m 644 share/pkgs/logrotate/opennebula-scheduler %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-scheduler
 install -p -D -m 644 share/pkgs/logrotate/opennebula-hem       %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-hem
 install -p -D -m 644 share/pkgs/logrotate/opennebula-sunstone  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-sunstone
+
+# FireEdge
+%if %{with_fireedge}
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-fireedge.service            %{buildroot}/lib/systemd/system/opennebula-fireedge.service
+install -p -D -m 644 share/pkgs/logrotate/opennebula-fireedge  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-fireedge
+%else
+# TODO: don't install with install.sh FireEdge
+rm -rf \
+    %{buildroot}/usr/lib/one/fireedge/ \
+    %{buildroot}%{_bindir}/fireedge-server \
+    %{buildroot}%{_sysconfdir}/one/fireedge-server.conf
+%endif
 
 # Java
 install -p -D -m 644 src/oca/java/jar/org.opennebula.client.jar %{buildroot}%{_javadir}/org.opennebula.client.jar
@@ -1211,6 +1301,31 @@ if [ $1 = 0 ]; then
 fi
 
 ################################################################################
+# fireedge - scripts
+################################################################################
+
+%if %{with_fireedge}
+%pre fireedge
+# Upgrade - Stop the service
+if [ $1 = 2 ]; then
+    /sbin/service opennebula-fireedge stop >/dev/null || :
+fi
+
+%post fireedge
+systemctl daemon-reload 2>/dev/null || :
+
+%preun fireedge
+if [ $1 = 0 ]; then
+    /sbin/service opennebula-fireedge stop >/dev/null  || :
+fi
+
+%postun fireedge
+if [ $1 = 0 ]; then
+    systemctl daemon-reload 2>/dev/null || :
+fi
+%endif
+
+################################################################################
 # gate scripts
 ################################################################################
 
@@ -1502,7 +1617,6 @@ sleep 10
 %{_bindir}/econe-stop-instances
 %{_bindir}/econe-terminate-instances
 %{_bindir}/econe-upload
-%{_bindir}/fireedge-server
 
 %{_mandir}/man1/econe-allocate-address.1*
 %{_mandir}/man1/econe-associate-address.1*
@@ -1534,7 +1648,6 @@ sleep 10
 %defattr(0640, root, oneadmin, 0750)
 %dir %{_sysconfdir}/one/ec2query_templates
 %dir %{_sysconfdir}/one/sunstone-views
-%config %{_sysconfdir}/one/fireedge-server.conf
 %config %{_sysconfdir}/one/sunstone-server.conf
 %config %{_sysconfdir}/one/sunstone-logos.yaml
 %config %{_sysconfdir}/one/ec2query_templates/*
@@ -1545,6 +1658,24 @@ sleep 10
 %defattr(0640, oneadmin, oneadmin, 0750)
 %dir %{_sharedstatedir}/one/sunstone
 %exclude %{_sharedstatedir}/one/sunstone/main.js
+
+################################################################################
+# fireedge - files
+################################################################################
+
+%if %{with_fireedge}
+%files fireedge
+%attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
+%config %{_sysconfdir}/logrotate.d/opennebula-fireedge
+%dir /usr/lib/one/fireedge
+/usr/lib/one/fireedge/*
+%{_bindir}/fireedge-server
+
+/lib/systemd/system/opennebula-fireedge.service
+
+%defattr(0640, root, oneadmin, 0750)
+%config %{_sysconfdir}/one/fireedge-server.conf
+%endif
 
 ################################################################################
 # gate - files
@@ -1751,12 +1882,14 @@ sleep 10
 %config %{_sharedstatedir}/one/remotes/etc/*
 
 ################################################################################
-# server - guacd
+# guacd - files
 ################################################################################
 
+%if %{with_guacd}
 %files guacd
 %dir /usr/share/one/guacd
 /usr/share/one/guacd/*
+%endif
 
 ################################################################################
 # main package - files
