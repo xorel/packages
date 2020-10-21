@@ -632,6 +632,7 @@ Requires: pciutils
 Requires: cronie
 Requires: augeas
 Requires: rubygem-sqlite3
+Requires: rdiff-backup
 # This package does not exist in CentOS 7
 Requires: %{name}-common = %{version}
 

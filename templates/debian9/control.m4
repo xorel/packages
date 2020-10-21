@@ -164,6 +164,7 @@ Depends: adduser,
          cron,
          augeas-tools,
          ruby-sqlite3,
+         rdiff,
          ${misc:Depends}
 Recommends: openssh-server | ssh-server
 Description: Services for OpenNebula KVM node (P_EDITION)
