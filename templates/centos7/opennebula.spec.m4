@@ -766,7 +766,7 @@ popd
 
 %if %{with_fireedge}
 export CXXFLAGS="${CXXFLAGS} -I/opt/rh/%{nodejs_scl}/root/usr/include/node"
-scl enable %{nodejs_scl} -- npm config set nodedir /opt/rh/rh-nodejs12/root/usr/include/node
+scl enable %{nodejs_scl} -- npm config set nodedir /opt/rh/%{nodejs_scl}/root/usr/include/node
 scl enable %{nodejs_scl} -- npm config set offline true
 scl enable %{nodejs_scl} -- npm config set zmq_external true
 
@@ -779,7 +779,11 @@ popd
 %endif
 
 # Compile OpenNebula
-scl enable devtoolset-7 -- scl enable %{nodejs_scl} -- \
+%if %{with_fireedge}
+    %define scl_enable_nodejs scl enable %{nodejs_scl} --
+%endif
+
+scl enable devtoolset-7 -- %{?scl_enable_nodejs} \
 ../build_opennebula.sh \
     systemd=yes \
     gitversion='%{gitversion}' \
