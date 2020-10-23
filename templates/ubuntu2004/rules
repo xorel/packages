@@ -81,6 +81,18 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 	rm -rf opennebula-rubygems-*/gems-dist/cache \
 		opennebula-rubygems-*/gems-dist/gems/*/ext
 endif
+ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
+	unzip guacamole-server-*.zip
+
+	cd guacamole-server-* && \
+		autoreconf -i && \
+		./configure \
+			--prefix=/usr/share/one/guacd \
+			--exec-prefix=/usr/share/one/guacd \
+			--with-freerdp-plugin-dir=/usr/share/one/guacd && \
+		make
+endif
+
 ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
 	# build doesn't have set HOME, also we can't write into /etc
 	echo 'cache=/tmp'        >> src/fireedge/.npmrc
@@ -133,6 +145,10 @@ endif
 ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
 	(cd one-ee-tools && \
 	DESTDIR=../dist ./install-ee-tools.sh)
+endif
+ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
+	cd guacamole-server-* && \
+		make install DESTDIR=$(shell readlink -f dist)
 endif
 ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
 	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.10.0_to_5.12.0.rbm \

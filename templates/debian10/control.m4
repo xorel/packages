@@ -53,6 +53,19 @@ ifdef(`_WITH_FIREEDGE_',`dnl
                g++,
                python3,
 ')dnl
+ifdef(`_WITHOUT_GUACD_',`',`dnl
+               unzip,
+               libtool,
+               autoconf,
+               libcairo2-dev,
+               libossp-uuid-dev,
+               freerdp2-dev,
+               libssh2-1-dev,
+               libpango1.0-dev,
+               libpulse-dev,
+               libwebp-dev,
+               libvorbis-dev,
+')dnl
                postgresql-server-dev-all,
                default-libmysqlclient-dev | libmysqlclient-dev
 Standards-Version: 3.9.3
@@ -122,6 +135,7 @@ Architecture: any
 Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          nodejs (>= 10),
+         ifdef(`_WITHOUT_GUACD_',`',`opennebula-guacd (= ${source:Version}),')dnl
          ${misc:Depends},
          ${shlibs:Depends}
 Conflicts: opennebula (<< ${source:Version})
@@ -386,6 +400,14 @@ Depends: opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
 Description: OpenNebula infrastructure provisioning (P_EDITION)
+
+ifdef(`_WITHOUT_GUACD_',`',`
+Package: opennebula-guacd
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: Provides Guacamole server for Fireedge to be used in Sunstone (P_EDITION)
+')
 
 ifdef(`_WITH_DOCKER_MACHINE_',`
 Package: docker-machine-opennebula

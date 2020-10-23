@@ -8,6 +8,7 @@
 %define with_addon_markets      0%{?_with_addon_markets:1}
 %define with_enterprise         0%{?_with_enterprise:1}
 %define with_fireedge           0%{?_with_fireedge:1}
+%define with_guacd              0%{!?_without_guacd:1}
 %define with_oca_java           0%{!?_without_oca_java:1}
 %define with_oca_java_prebuilt  0%{?_with_oca_java_prebuilt:1}
 %define with_oca_python2        0%{!?_without_oca_python2:1}
@@ -75,6 +76,9 @@
     %define arg_fireedge no
 %endif
 
+# Version of Guacamole server
+%define guacamole_version 1.2.0
+
 Name: opennebula
 Version: _VERSION_
 Summary: OpenNebula command line tools (%{edition})
@@ -111,6 +115,9 @@ Source11: opennebula-ee-tools-%{version}.tar.gz
 %endif
 %if %{with_fireedge}
 Source12: opennebula-fireedge-modules-%{version}.tar.gz
+%endif
+%if %{with_guacd}
+Source13: guacamole-server-%{guacamole_version}.zip
 %endif
 
 # Distribution specific KVM emulator paths to configure on front-end
@@ -180,6 +187,19 @@ BuildRequires: zeromq-devel
 BuildRequires: make
 BuildRequires: gcc-c++
 BuildRequires: python3
+%endif
+
+%if %{with_guacd}
+BuildRequires: libtool
+BuildRequires: autoconf
+BuildRequires: cairo-devel
+BuildRequires: uuid-devel
+BuildRequires: freerdp-devel
+BuildRequires: libssh2-devel
+BuildRequires: pango-devel
+BuildRequires: pulseaudio-libs-devel
+BuildRequires: libwebp-devel
+BuildRequires: libvorbis-devel
 %endif
 
 ################################################################################
@@ -451,6 +471,9 @@ Browser based UI for OpenNebula cloud management and usage.
 Summary: OpenNebula web interface FireEdge (%{edition})
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onescape = %{version}
+%if %{with_guacd}
+Requires: %{name}-guacd = %{version}
+%endif
 
 %description fireedge
 Browser based UI for OpenNebula application management.
@@ -706,6 +729,20 @@ Requires: %{name}-rubygems = %{version}
 OpenNebula provisioning tool
 
 ################################################################################
+# Package guacd
+################################################################################
+
+%if %{with_guacd}
+%package guacd
+Release: %{guacamole_version}+_PKG_VERSION_%{?dist}
+Summary: Provides Guacamole server for Fireedge to be used in Sunstone (%{edition})
+
+%description guacd
+OpenNebula Guacamole server
+%endif
+
+
+################################################################################
 # Build and install
 ################################################################################
 
@@ -732,6 +769,9 @@ mv java-oca-%{version}/jar/ src/oca/java/
 %endif
 %if %{with_fireedge}
 %setup -T -D -a 12
+%endif
+%if %{with_guacd}
+%setup -T -D -a 13
 %endif
 
 %if 0%{?rhel}
@@ -763,6 +803,17 @@ pushd opennebula-rubygems-%{version}
 
     # drop build artifacts
     rm -rf gems-dist/cache gems-dist/gems/*/ext
+popd
+%endif
+
+%if %{with_guacd}
+pushd guacamole-server-*
+    autoreconf -i
+    ./configure \
+        --prefix=/usr/share/one/guacd \
+        --exec-prefix=/usr/share/one/guacd \
+        --with-freerdp-plugin-dir=/usr/share/one/guacd
+    make
 popd
 %endif
 
@@ -830,6 +881,13 @@ pushd one-ee-tools
     ./install-ee-tools.sh
     install -p -D -m 644 src/onedb/local/5.10.0_to_5.12.0.rbm  %{buildroot}/usr/lib/one/ruby/onedb/local/
     install -p -D -m 644 src/onedb/shared/5.10.0_to_5.12.0.rbm %{buildroot}/usr/lib/one/ruby/onedb/shared/
+popd
+%endif
+
+# Guacamole
+%if %{with_guacd}
+pushd guacamole-server-*
+    %make_install
 popd
 %endif
 
@@ -1919,6 +1977,16 @@ sleep 10
 %exclude %{_sharedstatedir}/one/datastores/*
 %{_sharedstatedir}/one/remotes/*
 %config %{_sharedstatedir}/one/remotes/etc/*
+
+################################################################################
+# guacd - files
+################################################################################
+
+%if %{with_guacd}
+%files guacd
+%dir /usr/share/one/guacd
+/usr/share/one/guacd/*
+%endif
 
 ################################################################################
 # main package - files
