@@ -8,18 +8,32 @@ export LANG="en_US.UTF-8"
 DISTRO=$(basename "$0")
 DISTRO=${DISTRO%.*}
 
+# ad-hoc script to configure NodeSource's Node.js repository
+prebuild_cmd_nodejs() {
+    cat - <<EOF
+        set -e -x
+        apt-get -y install apt-transport-https gnupg curl ca-certificates
+        curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+        echo 'deb https://deb.nodesource.com/node_$1.x $2 main' >>/etc/apt/sources.list
+        apt-get update
+EOF
+}
+
 if [ "${DISTRO}" = 'debian9' ]; then
     CODENAME='stretch'
     GEMFILE_LOCK='Debian9'
+    PREBUILD_CMD=$(prebuild_cmd_nodejs "12" "${CODENAME}")
 elif [ "${DISTRO}" = 'debian10' ]; then
     CODENAME='buster'
     GEMFILE_LOCK='Debian10'
 elif [ "${DISTRO}" = 'ubuntu1604' ]; then
     CODENAME='xenial'
     GEMFILE_LOCK='Ubuntu1604'
+    PREBUILD_CMD=$(prebuild_cmd_nodejs "12" "${CODENAME}")
 elif [ "${DISTRO}" = 'ubuntu1804' ]; then
     CODENAME='bionic'
     GEMFILE_LOCK='Ubuntu1804'
+    PREBUILD_CMD=$(prebuild_cmd_nodejs "12" "${CODENAME}")
 elif [ "${DISTRO}" = 'ubuntu2004' ]; then
     CODENAME='focal'
     GEMFILE_LOCK='Ubuntu2004'
@@ -186,6 +200,15 @@ echo "${GIT_VERSION}" > debian/gitversion
 echo '***** Building source package' >&2
 dpkg-source --include-binaries -b .
 
+# custom commands to persist in build environment
+if [ -n "${PREBUILD_CMD}" ]; then
+    echo '***** Executing custom commands in build environment' >&2
+    echo "${PREBUILD_CMD}" | \
+        pbuilder-dist "${CODENAME}" amd64 \
+            login ${PB_HTTP_PROXY} \
+            --save-after-login
+fi
+
 # build binary package
 echo '***** Building binary package' >&2
 PBUILDER_DIR=$(mktemp -d)
@@ -193,6 +216,12 @@ pbuilder-dist "${CODENAME}" amd64 \
     build ${PB_HTTP_PROXY} \
     ../*dsc \
     --buildresult "${PBUILDER_DIR}"
+
+# clean build environment
+if [ -n "${PREBUILD_CMD}" ]; then
+    echo '***** Cleaning customized build environment' >&2
+    rm -f "~/pbuilder/${CODENAME}-base.tgz"
+fi
 
 mkdir "${BUILD_DIR}/source/"
 mv "${PBUILDER_DIR}"/*debian* "${PBUILDER_DIR}"/*orig*  "${PBUILDER_DIR}"/*dsc "${BUILD_DIR}/source/"

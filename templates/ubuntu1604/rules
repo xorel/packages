@@ -9,6 +9,15 @@ else
 	LIB_VIRT_GROUP = libvirt
 endif
 
+# Build arguments
+ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
+	ARGS_ENTERPRISE = yes
+	ARGS_BUILD_FE = -e
+else
+	ARGS_ENTERPRISE = no
+	ARGS_BUILD_FE =
+endif
+
 # distribution specific content
 DIR_SUDOERS  = 'debian'
 DIR_SERVICES = 'systemd'
@@ -49,7 +58,8 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 
 	cd opennebula-rubygems-* && \
 		CPATH=/usr/include/libxml2 \
-		CXXFLAGS="${CXXFLAGS/-fPIE/}" CFLAGS="${CFLAGS/-fPIE/}" \
+		CXXFLAGS="$(patsubst -fPIE,,$(CXXFLAGS))" \
+		CFLAGS="$(patsubst -fPIE,,$(CFLAGS))" \
 		GEM_PATH=$$PWD/gems-dist/ GEM_HOME=$$PWD/gems-dist/ \
 			gem install \
 				--local \
@@ -64,12 +74,52 @@ ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
 	rm -rf opennebula-rubygems-*/gems-dist/cache \
 		opennebula-rubygems-*/gems-dist/gems/*/ext
 endif
+ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
+	unzip guacamole-server-*.zip
+
+	cd guacamole-server-* && \
+		autoreconf -i && \
+		./configure \
+			--prefix=/usr/share/one/guacd \
+			--exec-prefix=/usr/share/one/guacd \
+			--with-freerdp-plugin-dir=/usr/share/one/guacd && \
+		make
+endif
+
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	# build doesn't have set HOME, also we can't write into /etc
+	echo 'nodedir=/usr/include/node' >> src/fireedge/.npmrc
+	echo 'cache=/tmp'        >> src/fireedge/.npmrc
+	echo 'offline=true'      >> src/fireedge/.npmrc
+	echo 'zmq_external=true' >> src/fireedge/.npmrc
+
+	mkdir opennebula-fireedge-modules
+	tar -xzvf opennebula-fireedge-modules*.tar.gz \
+		-C opennebula-fireedge-modules/ \
+		--strip-components=1
+
+	# backup original package-lock.json and update dependencies locations
+	# from remote https:// to local predownloaded files
+	# !!!! WE BUILD FIREEDGE HERE WITH CUSTOM BUILD PARAMETERS !!!!! >>>>>>>
+	cd src/fireedge && \
+		cp package-lock.json package-lock.json.bak && \
+		sed -i -e 's/\(resolved": "\).*\//\1file:..\/..\/opennebula-fireedge-modules\//' package-lock.json && \
+			CXXFLAGS="$(patsubst -fPIE,,$(CXXFLAGS)) -I/usr/include/node" \
+			LDFLAGS="$(patsubst -fPIE -pie,,$(LDFLAGS))" \
+				./build.sh ${ARGS_BUILD_FE}
+	# !!!! WE BUILD FIREEDGE HERE WITH CUSTOM BUILD PARAMETERS !!!!! <<<<<<<
+endif
 
 	#XMLRPC_DIR="debian/" debian/build_opennebula.sh
-ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
-	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)" enterprise=yes
-else
-	./build_opennebula.sh systemd=yes gitversion="$(shell cat debian/gitversion)"
+	./build_opennebula.sh \
+		systemd=yes \
+		gitversion="$(shell cat debian/gitversion)" \
+		enterprise="${ARGS_ENTERPRISE}" \
+		fireedge=no
+
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	mv -f src/fireedge/package-lock.json.bak src/fireedge/package-lock.json
+	unlink src/fireedge/.npmrc
 endif
 	(cd src/oca/java/; \
 	ln -s /usr/share/java/xmlrpc-common-3.1.jar lib/; \
@@ -99,6 +149,13 @@ endif
 ifneq (,$(filter opennebula-migration, $(shell dh_listpackages)))
 	(cd one-ee-tools && \
 	DESTDIR=../dist ./install-ee-tools.sh)
+endif
+ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
+	cd guacamole-server-* && \
+		make install DESTDIR=$(shell readlink -f dist)
+
+	dh_install -p opennebula-guacd share/pkgs/services/${DIR_SERVICES}/opennebula-guacd.service \
+		/lib/systemd/system/
 endif
 ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
 	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.10.0_to_5.12.0.rbm \
@@ -159,6 +216,12 @@ ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_install -p opennebula-sunstone share/pkgs/services/${DIR_SERVICES}/opennebula-novnc.service \
 		/lib/systemd/system/
 endif
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	dh_install -p opennebula-fireedge share/pkgs/logrotate/opennebula-fireedge /etc/logrotate.d/
+
+	dh_install -p opennebula-fireedge share/pkgs/services/${DIR_SERVICES}/opennebula-fireedge.service \
+		/lib/systemd/system/
+endif
 ifneq (,$(filter opennebula-gate, $(shell dh_listpackages)))
 	dh_install -p opennebula-gate share/pkgs/logrotate/opennebula-gate /etc/logrotate.d/
 
@@ -203,6 +266,9 @@ ifneq (,$(filter opennebula-sunstone, $(shell dh_listpackages)))
 	dh_installinit -p opennebula-sunstone --name=opennebula-sunstone --onlyscripts --no-start
 	dh_installinit -p opennebula-sunstone --name=opennebula-econe --onlyscripts --no-start
 	dh_installinit -p opennebula-sunstone --name=opennebula-novnc --onlyscripts --no-start
+endif
+ifneq (,$(filter opennebula-fireedge, $(shell dh_listpackages)))
+	dh_installinit -p opennebula-fireedge --name=opennebula-fireedge --onlyscripts --no-start
 endif
 ifneq (,$(filter opennebula-gate, $(shell dh_listpackages)))
 	dh_installinit -p opennebula-gate --name=opennebula-gate --onlyscripts --no-start

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+service opennebula-guacd stop 2>/dev/null || :
+
+#DEBHELPER#

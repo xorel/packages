@@ -43,6 +43,28 @@ Build-Depends: bash-completion,
                build-essential,
                libssl-dev,
                libaugeas-dev,
+ifdef(`_WITH_FIREEDGE_',`dnl
+               nodejs (>= 12),
+               npm,
+               libzmq5,
+               libzmq3-dev,
+               make,
+               g++,
+               python3,
+')dnl
+ifdef(`_WITHOUT_GUACD_',`',`dnl
+               unzip,
+               libtool,
+               autoconf,
+               libcairo2-dev,
+               libossp-uuid-dev,
+               libfreerdp-dev,
+               libssh2-1-dev,
+               libpango1.0-dev,
+               libpulse-dev,
+               libwebp-dev,
+               libvorbis-dev,
+')dnl
                postgresql-server-dev-all,
                default-libmysqlclient-dev | libmysqlclient-dev
 Standards-Version: 3.9.3
@@ -105,6 +127,20 @@ Depends: opennebula-common (= ${source:Version}),
 Conflicts: opennebula (<< ${source:Version})
 Description: OpenNebula web interface Sunstone (P_EDITION)
  Browser based UI for OpenNebula cloud management and usage.
+
+ifdef(`_WITH_FIREEDGE_',`
+Package: opennebula-fireedge
+Architecture: any
+Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Depends: opennebula-common (= ${source:Version}),
+         nodejs (>= 12),
+         ifdef(`_WITHOUT_GUACD_',`',`opennebula-guacd (= ${source:Version}),')dnl
+         ${misc:Depends},
+         ${shlibs:Depends}
+Conflicts: opennebula (<< ${source:Version})
+Description: OpenNebula web interface FireEdge (P_EDITION)
+ Browser based UI for OpenNebula application management.
+')
 
 Package: opennebula-gate
 Architecture: all
@@ -336,6 +372,14 @@ Depends: opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
 Description: OpenNebula infrastructure provisioning (P_EDITION)
+
+ifdef(`_WITHOUT_GUACD_',`',`
+Package: opennebula-guacd
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Description: Provides Guacamole server for Fireedge to be used in Sunstone (P_EDITION)
+')
 
 ifdef(`_WITH_DOCKER_MACHINE_',`
 Package: docker-machine-opennebula

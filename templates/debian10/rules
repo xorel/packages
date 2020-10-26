@@ -149,6 +149,9 @@ endif
 ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
 	cd guacamole-server-* && \
 		make install DESTDIR=$(shell readlink -f dist)
+
+	dh_install -p opennebula-guacd share/pkgs/services/${DIR_SERVICES}/opennebula-guacd.service \
+		/lib/systemd/system/
 endif
 ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
 	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.10.0_to_5.12.0.rbm \

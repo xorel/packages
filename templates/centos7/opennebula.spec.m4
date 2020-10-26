@@ -837,6 +837,8 @@ popd
 pushd guacamole-server-*
     %make_install
 popd
+
+install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-guacd.service %{buildroot}/lib/systemd/system/opennebula-guacd.service
 %endif
 
 %if %{with_enterprise}
@@ -892,6 +894,10 @@ install -p -D -m 644 share/pkgs/logrotate/opennebula-sunstone  %{buildroot}%{_sy
 %if %{with_fireedge}
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-fireedge.service            %{buildroot}/lib/systemd/system/opennebula-fireedge.service
 install -p -D -m 644 share/pkgs/logrotate/opennebula-fireedge  %{buildroot}%{_sysconfdir}/logrotate.d/opennebula-fireedge
+
+# patch FE service script to do SCL activation
+sed -i -e 's/^\(ExecStart=\)/\1\/usr\/bin\/scl enable %{nodejs_scl} -- /' \
+    %{buildroot}/lib/systemd/system/opennebula-fireedge.service
 %else
 # TODO: don't install with install.sh FireEdge
 rm -rf \
@@ -1324,6 +1330,31 @@ if [ $1 = 0 ]; then
 fi
 
 %postun fireedge
+if [ $1 = 0 ]; then
+    systemctl daemon-reload 2>/dev/null || :
+fi
+%endif
+
+################################################################################
+# guacd - scripts
+################################################################################
+
+%if %{with_guacd}
+%pre guacd
+# Upgrade - Stop the service
+if [ $1 = 2 ]; then
+    /sbin/service opennebula-guacd stop >/dev/null || :
+fi
+
+%post guacd
+systemctl daemon-reload 2>/dev/null || :
+
+%preun guacd
+if [ $1 = 0 ]; then
+    /sbin/service opennebula-guacd stop >/dev/null  || :
+fi
+
+%postun guacd
 if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 fi
@@ -1893,6 +1924,7 @@ sleep 10
 %files guacd
 %dir /usr/share/one/guacd
 /usr/share/one/guacd/*
+/lib/systemd/system/opennebula-guacd.service
 %endif
 
 ################################################################################
