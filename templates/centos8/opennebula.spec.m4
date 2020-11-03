@@ -29,7 +29,7 @@
     %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems\|\/usr\/lib\/one\/sunstone\/public\/bower_components\/no-vnc\/node_modules\/uri-js\/dist\/esnext|\/usr\/lib/one\/sunstone\/guac\/node_modules\/uri-js\/dist\/esnext|\/usr\/lib\/one\/fireedge\/node_modules\/uri-js\/dist\/esnext)/
 
     # don't generate automatic requirements from bower components
-    %global __requires_exclude_from ^\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*$
+    %global __requires_exclude_from ^(\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*|\/usr\/lib\/python.*\/site-packages\/pyone-.*\.egg-info.*)$
 %endif
 
 %if 0%{?rhel} == 8
@@ -42,7 +42,7 @@
     %global __brp_mangle_shebangs_exclude_from ^(\/var\/lib\/one\/remotes\|\/usr\/share\/one\/gems-dist\/gems)/
 
     # don't generate automatic requirements from bower components
-    %global __requires_exclude_from ^\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*$
+    %global __requires_exclude_from ^(\/usr\/lib\/one\/sunstone\/public\/bower_components\/.*|\/usr\/lib\/python.*\/site-packages\/pyone-.*\.egg-info.*)$
 %endif
 
 %if 0%{?rhel} == 7
