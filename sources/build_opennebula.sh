@@ -30,9 +30,15 @@ if [ -f "${XMLRPC_DIR}xmlrpc-c.tar.gz" ]; then
 )
 fi
 
+# build platform detection workaround
+case $(uname -m) in
+    aarch*) XMLRPC_BUILD=arm ;;
+    *)      XMLRPC_BUILD=''  ;;
+esac
+
 cd ../xmlrpc-c
 patch -p1 < "${BUILD_DIR}/../xml_parse_huge.patch"
-./configure --prefix="${PWD}/install" --enable-libxml2-backend
+./configure --prefix="${PWD}/install" --enable-libxml2-backend --build="${XMLRPC_BUILD}"
 
 # This is a dirty workaround how to skip building shared libraries
 # and avoid incompatible PIE compile option.
