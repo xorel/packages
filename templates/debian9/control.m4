@@ -119,6 +119,7 @@ Architecture: all
 Pre-Depends: opennebula-common-onescape (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
+         opennebula (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          python,

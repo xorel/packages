@@ -398,6 +398,7 @@ BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onescape = %{version}
 Requires: %{name}-ruby = %{version}
+Requires: %{name}-server = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
