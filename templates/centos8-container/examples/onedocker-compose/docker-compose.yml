@@ -38,7 +38,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -95,7 +95,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -129,7 +129,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -156,7 +156,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -189,7 +189,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -225,7 +225,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -263,7 +263,7 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
         delay: 10s
       replicas: 1
 
@@ -322,7 +322,46 @@ services:
       start_period: "2m"
     deploy:
       restart_policy:
-        condition: always
+        condition: any
+        delay: 10s
+      replicas: 1
+
+  opennebula-fireedge:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "fireedge"
+      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
+      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
+      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
+      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
+      OPENNEBULA_FIREEDGE_HTTPPORT: "${OPENNEBULA_FIREEDGE_HTTPPORT:-9869}"
+    depends_on:
+      - opennebula-frontend
+    ports:
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT:-2616}:${OPENNEBULA_SUNSTONE_HTTPPORT:-2616}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_FIREEDGE_PUBLISHED_VNCPORT:-4822}:4822"
+    volumes:
+      - oneadmin_auth_data:/oneadmin/auth_data
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
+    deploy:
+      restart_policy:
+        condition: any
         delay: 10s
       replicas: 1
 

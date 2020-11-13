@@ -8,7 +8,7 @@ FROM centos:${CENTOS_VERSION}
 ARG IMAGE_VERSION=1.0
 ARG OPENNEBULA_LICENSE
 ARG CENTOS_VERSION
-ARG OPENNEBULA_VERSION="5.12"
+ARG OPENNEBULA_VERSION="5.13"
 ARG OPENNEBULA_URL_REPO="https://downloads.opennebula.io/repo/${OPENNEBULA_VERSION}/CentOS/\$releasever/\$basearch"
 ARG OPENNEBULA_URL_GPGKEY="https://downloads.opennebula.io/repo/repo.key"
 # TODO: ARG DOCKER_VERSION=19.03
@@ -124,6 +124,8 @@ RUN dnf -y install \
         opennebula-flow \
         opennebula-gate \
         opennebula-sunstone \
+        opennebula-fireedge \
+        opennebula-guacd \
         file \
         e2fsprogs \
         nc \
@@ -142,18 +144,20 @@ RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
 # create supervisord logdir
 RUN mkdir -p /var/log/supervisor/services
 
-# TODO: remove this when supervisord becomes part of one repo
-# copy supervised service files
-COPY supervisord /usr/share/one/supervisord
-RUN chown -R root:root /usr/share/one/supervisord
-RUN chmod 0755 /usr/share/one/supervisord
-RUN chmod 0755 /usr/share/one/supervisord/service
-RUN chmod 0755 /usr/share/one/supervisord/supervisord.d
-RUN chmod 0644 /usr/share/one/supervisord/supervisord.conf
-RUN chmod 0600 /usr/share/one/supervisord/supervisord.d/*.ini
-RUN chmod 0755 /usr/share/one/supervisord/service/*.sh
-RUN chmod 0755 /usr/share/one/supervisord/service/lib
-RUN chmod 0755 /usr/share/one/supervisord/service/lib/*.sh
+# fix permissions of supervisord files
+RUN chown -R root:root /usr/share/one/supervisor
+RUN chmod 0755 /usr/share/one/supervisor
+RUN chmod 0755 /usr/share/one/supervisor/supervisord.d
+RUN chmod 0600 /usr/share/one/supervisor/supervisord.d/*.ini
+RUN chmod 0755 /usr/share/one/supervisor/scripts
+RUN chmod 0755 /usr/share/one/supervisor/scripts/*.sh
+RUN chmod 0755 /usr/share/one/supervisor/scripts/lib
+RUN chmod 0755 /usr/share/one/supervisor/scripts/lib/*.sh
+
+# copy supervisord config
+COPY conf/supervisord.conf /usr/share/one/supervisor/supervisord.conf
+RUN chown root:root /usr/share/one/supervisor/supervisord.conf
+RUN chmod 0644 /usr/share/one/supervisor/supervisord.conf
 
 # cleanup the oneadmin's ssh
 RUN for f in authorized_keys id_rsa id_rsa.pub ; do rm -f "/var/lib/one/.ssh/${f}" ; done
@@ -286,6 +290,12 @@ EXPOSE 5030/tcp
 # memcached:
 EXPOSE 11211/tcp
 
-# vnc:
+# novnc:
 EXPOSE 29876/tcp
+
+# fireedge:
+EXPOSE 2616/tcp
+
+# guacd (vnc):
+EXPOSE 4822/tcp
 

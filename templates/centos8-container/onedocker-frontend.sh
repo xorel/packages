@@ -32,6 +32,8 @@ export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_
 export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
 export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_MEMCACHED_APIPORT="${OPENNEBULA_MEMCACHED_APIPORT:-11211}"
+export OPENNEBULA_FIREEDGE_HTTPPORT="${OPENNEBULA_FIREEDGE_HTTPPORT:-2616}"
+export OPENNEBULA_FIREEDGE_VNCPORT="${OPENNEBULA_FIREEDGE_VNCPORT:-4822}"
 export OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-yes}"
 # NOTE: sunstone with apache requires memcached - so that is why this default
 export OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-${OPENNEBULA_SUNSTONE_HTTPD}}"
@@ -574,7 +576,7 @@ configure_sunstone()
 
         # enable HTTPS VirtualHost
         if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
-            mv /etc/httpd/conf.d/opennebula-https.conf-disabled \
+            cp -a /etc/httpd/conf.d/opennebula-https.conf-disabled \
                 /etc/httpd/conf.d/opennebula-https.conf
         elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
             err "ONLY HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
@@ -591,7 +593,7 @@ configure_sunstone()
                 OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
             fi
 
-            mv /etc/httpd/conf.d/opennebula-http.conf-disabled \
+            cp -a /etc/httpd/conf.d/opennebula-http.conf-disabled \
                 /etc/httpd/conf.d/opennebula-http.conf
         fi
     elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
@@ -612,6 +614,51 @@ configure_sunstone()
         err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_MEMCACHED' IS FALSE - ABORT"
         exit 1
     fi
+}
+
+configure_fireedge()
+{
+    cat > /etc/one/fireedge-server.conf <<EOF
+################################################################################
+# Server Configuration
+################################################################################
+
+# System log (Morgan) prod or dev
+LOG: prod
+
+# Enable cors (cross-origin resource sharing)
+CORS: true
+
+# Fireedge server port
+PORT: ${OPENNEBULA_FIREEDGE_HTTPPORT}
+
+# OpenNebula Zones: use it if you have oned and fireedge on different servers
+DEFAULT_ZONE:
+  ID: '0'
+  NAME: 'OpenNebula'
+  RPC: 'http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2'
+
+# Flow Server: use it if you have flow-server and fireedge on different servers
+ONE_FLOW_SERVER:
+  PROTOCOL: 'http'
+  HOST: '${OPENNEBULA_ONEFLOW_HOSTNAME}'
+  POST: ${OPENNEBULA_ONEFLOW_APIPORT}
+
+# JWT life time (days)
+LIMIT_TOKEN:
+  MIN: 14
+  MAX: 30
+
+# VMRC
+#VMRC:
+#  TARGET: 'http://opennebula.io'
+
+# Guacamole: use it if you have the Guacd in other server or port
+GUACD:
+  PORT: ${OPENNEBULA_FIREEDGE_VNCPORT}
+  HOST: '127.0.0.1'
+
+EOF
 }
 
 configure_scheduler()
@@ -694,7 +741,7 @@ initialize_supervisord_conf()
     fi
 
     # otherwise create an initial stub config
-    cp -a /usr/share/one/supervisord/supervisord.conf /etc/supervisord.conf
+    cp -a /usr/share/one/supervisor/supervisord.conf /etc/supervisord.conf
 }
 
 # arg: <service name>
@@ -707,7 +754,7 @@ add_supervised_service()
     fi
 
     msg "ADD SUPERVISED SERVICE: /etc/supervisord.d/${1}.ini"
-    cp -a "/usr/share/one/supervisord/supervisord.d/${1}.ini" /etc/supervisord.d/
+    cp -a "/usr/share/one/supervisor/supervisord.d/${1}.ini" /etc/supervisord.d/
 }
 
 common_configuration()
@@ -821,6 +868,18 @@ sunstone()
     add_supervised_service opennebula-novnc
 }
 
+fireedge()
+{
+    msg "CONFIGURE OPENNEBULA FIREEDGE"
+    configure_fireedge
+
+    msg "SETUP SERVICE: OPENNEBULA FIREEDGE"
+    add_supervised_service opennebula-fireedge
+
+    msg "SETUP SERVICE: OPENNEBULA VNC (guacd)"
+    add_supervised_service opennebula-guacd
+}
+
 memcached()
 {
     msg "SETUP SERVICE: MEMCACHED"
@@ -927,6 +986,10 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     sunstone)
         msg "CONFIGURE FRONTEND SERVICE: SUNSTONE"
         sunstone
+        ;;
+    fireedge)
+        msg "CONFIGURE FRONTEND SERVICE: FIREEDGE"
+        fireedge
         ;;
     scheduler)
         msg "CONFIGURE FRONTEND SERVICE: SCHEDULER"
