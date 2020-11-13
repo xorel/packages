@@ -38,6 +38,7 @@ LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Fontend servic
 OPENNEBULA_FRONTEND_SSH_HOSTNAME=Host to which node will ssh into, \
 OPENNEBULA_ONED_HOSTNAME=Host of the oned API server, \
 OPENNEBULA_ONED_APIPORT=Port of the oned server, \
+OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR=Path to the hypervisor on the node, \
 OPENNEBULA_ONEFLOW_HOSTNAME=Host of the oneflow server, \
 OPENNEBULA_ONEFLOW_APIPORT=Port of the oneflow server, \
 OPENNEBULA_ONEGATE_HOSTNAME=Host of the onegate server, \
@@ -54,6 +55,8 @@ OPENNEBULA_SUNSTONE_HTTPS_ENABLED=yes/no if HTTPS should be enabled at all, \
 OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT=Published HTTP port on the host part, \
 OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT=Published HTTPS port on the host part, \
 OPENNEBULA_SUNSTONE_VNCPORT=Port of the VNC server, \
+OPENNEBULA_FIREEDGE_HTTPPORT=HTTP port for the fireedge server, \
+OPENNEBULA_FIREEDGE_VNCPORT=Port of the guacd VNC server, \
 OPENNEBULA_TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
 OPENNEBULA_TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
 OPENNEBULA_TLS_CERT_BASE64=Custom certificate in base64 format, \
@@ -113,6 +116,7 @@ RUN dnf -y install \
         mariadb \
         mariadb-server \
         expect \
+        augeas \
         docker-ce-cli \
         memcached \
         httpd \

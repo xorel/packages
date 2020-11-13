@@ -26,6 +26,7 @@ export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
 export OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-opennebula-frontend}"
 export OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
+export OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR
 export OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
 export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
@@ -53,7 +54,8 @@ export OPENNEBULA_TLS_KEY_BASE64
 export OPENNEBULA_TLS_CERT
 export OPENNEBULA_TLS_KEY
 # TODO: oneadmin is hardcoded on the installation - a change here would only broke things
-export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
+#export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
+export ONEADMIN_USERNAME="oneadmin"
 export ONEADMIN_PASSWORD
 export ONEADMIN_SSH_PRIVKEY
 export ONEADMIN_SSH_PUBKEY
@@ -180,12 +182,26 @@ link_oneadmin_ssh()
     if ! [ -L /var/lib/one/.ssh ] ; then
         rm -rf /var/lib/one/.ssh
     elif [ "$(readlink /var/lib/one/.ssh)" != /oneadmin/ssh_data/ssh ] ; then
-        unlink /var/lib/one/.one
+        unlink /var/lib/one/.ssh
     fi
 
     # symlink oneadmin's ssh config dir into the volume
     if ! [ -L /var/lib/one/.ssh ] ; then
         ln -s /oneadmin/ssh_data/ssh /var/lib/one/.ssh
+    fi
+}
+
+switch_to_pub_ssh_data()
+{
+    # NOTE: this expects that it is ran AFTER link_oneadmin_ssh
+
+    if [ "$(readlink /var/lib/one/.ssh)" != /oneadmin/ssh_pub_data/ssh ] ; then
+        unlink /var/lib/one/.ssh
+    fi
+
+    # symlink oneadmin's ssh config dir into the pub_ssh_data volume
+    if ! [ -L /var/lib/one/.ssh ] ; then
+        ln -s /oneadmin/ssh_pub_data/ssh /var/lib/one/.ssh
     fi
 }
 
@@ -291,42 +307,6 @@ prepare_ssh()
     fi
     if ! [ -f /oneadmin/ssh_pub_data/ssh/config ] ; then
         cp -a /oneadmin/ssh_data/ssh/config /oneadmin/ssh_pub_data/ssh/
-    fi
-
-    # TODO: the point of this is to *NOT* have ssh private key here BUT as
-    # of now it does not work except when sharing network namespace...
-    #
-    # Oned fails on deploy because of this command if ssh container does
-    # not have access to private ssh key:
-    #     scp -r opennebula-frontend-ssh:/var/... node:/var/...
-    # in /var/lib/one/remotes/tm/ssh/clone
-    #
-    # An attempt of simply doing:
-    #     echo 127.0.0.1 "$OPENNEBULA_FRONTEND_SSH_HOSTNAME" \
-    #       >> /etc/hosts
-    #
-    # Will not work if sshd is running in separate container and therefore
-    # nothing is listening on ssh port in oned container...
-    #
-    # This is the only workaround for this problem which occurs in all
-    # other kinds deployments except when using podman (where all
-    # containers connect over localhost and sharing network namespace...)
-    _privkey=$(basename "${_private_key_path}")
-    if ! [ -f /oneadmin/ssh_pub_data/ssh/${_privkey} ] ; then
-        case "$CONTAINER_DEPLOYMENT_TYPE" in
-            shared_network_namespace)
-                # this works only when network namespace is shared and all
-                # containers are binding their ports to localhost
-                echo 127.0.0.1 "$OPENNEBULA_FRONTEND_SSH_HOSTNAME" \
-                    >> /etc/hosts
-                ;;
-            *)
-                # this absolutely defeats the purpose of having separate sshd
-                # container but until opennebula drivers are fixed it is the
-                # only fix...
-                cp -a "${_private_key_path}" /oneadmin/ssh_pub_data/ssh/
-                ;;
-        esac
     fi
 }
 
@@ -463,6 +443,11 @@ configure_oned()
         -e "s/^[[:space:]#]*HOSTNAME[[:space:]]*=.*/HOSTNAME = \"${OPENNEBULA_FRONTEND_SSH_HOSTNAME}\"/" \
         -e "s/^[[:space:]#]*PORT[[:space:]]*=.*/PORT = \"${OPENNEBULA_ONED_APIPORT}\"/" \
         /etc/one/oned.conf
+
+    # setup hypervisor specifics
+    if [ -n "${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}" ] ; then
+        augtool "set /files/etc/one/vmm_exec/vmm_exec_kvm.conf/EMULATOR '${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}'"
+    fi
 
     # comment-out all DB directives from oned configuration
     #
@@ -785,9 +770,9 @@ sshd()
     rm -f /etc/nologin /run/nologin
 
     msg "CREATE ONEADMIN's SSH DIRECTORY"
-    mkdir -p /oneadmin/ssh_data/ssh
-    chmod 0700 /oneadmin/ssh_data/ssh
-    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_data/ssh
+    mkdir -p /oneadmin/ssh_pub_data/ssh
+    chmod 0700 /oneadmin/ssh_pub_data/ssh
+    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_pub_data/ssh
 
     msg "SETUP SERVICE: SSHD"
     add_supervised_service sshd
@@ -806,6 +791,11 @@ mysqld()
             MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
         fi
     fi
+
+    # ensure that the mysql directory is owned by mysql user and has correct
+    # permissions
+    chown -R mysql:mysql /var/lib/mysql
+    chmod 755 /var/lib/mysql
 
     msg "SETUP SERVICE: MYSQLD"
     add_supervised_service mysqld
@@ -965,6 +955,8 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         onehem
         sunstone
         memcached
+        # TODO: enable when fireedge is finished
+        #fireedge
         ;;
     oned)
         msg "CONFIGURE FRONTEND SERVICE: ONED"
@@ -974,6 +966,7 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
         sshd
+        switch_to_pub_ssh_data
         ;;
     mysqld)
         msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
