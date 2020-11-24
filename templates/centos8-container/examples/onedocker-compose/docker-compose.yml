@@ -18,7 +18,7 @@ services:
     env_file:
       - ".env"
     #image: mariadb:10
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "mysqld"
@@ -45,7 +45,7 @@ services:
   opennebula-frontend:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     #privileged: true
     restart: always
@@ -102,7 +102,7 @@ services:
   opennebula-frontend-ssh:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -136,7 +136,7 @@ services:
   opennebula-memcached:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -163,7 +163,7 @@ services:
   opennebula-scheduler:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -196,7 +196,7 @@ services:
   opennebula-flow:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -232,7 +232,7 @@ services:
   opennebula-gate:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -270,7 +270,7 @@ services:
   opennebula-sunstone:
     env_file:
       - ".env"
-    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     restart: always
     environment:
@@ -330,7 +330,7 @@ services:
 #  opennebula-fireedge:
 #    env_file:
 #      - ".env"
-#    image: "${OPENNEBULA_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_IMAGE_TAG:-latest}"
+#    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
 #    init: true
 #    restart: always
 #    environment:
