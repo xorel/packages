@@ -83,7 +83,7 @@ EOF
 
 # install
 elif [ "$1" = 'install' ]; then
-    VERSION=$(dpkg-query --show --showformat='${Version}' opennebula-common-onescape 2>/dev/null)
+    VERSION=$(dpkg-query --show --showformat='${Version}' opennebula-common-onecfg 2>/dev/null)
     VERSION=${VERSION%%-*}
 
     if [ -n "${VERSION}" ]; then

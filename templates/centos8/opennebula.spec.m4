@@ -216,7 +216,7 @@ Requires: bash-completion
 
 Obsoletes: %{name}-addon-tools
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -237,7 +237,7 @@ CLI tools of OpenNebula.
 Summary: OpenNebula Server and Scheduler (%{edition})
 Group: System
 Requires: %{name} = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: sqlite
 Requires: openssh-server
 Requires: genisoimage
@@ -263,6 +263,7 @@ Obsoletes: %{name}-addon-markets
 Obsoletes: %{name}-ozones
 %if %{with_enterprise}
 Requires: %{name}-migration = %{version}
+Requires: %{name}-ee-tools = %{version}
 %else
 Obsoletes: %{name}-migration
 %endif
@@ -278,7 +279,7 @@ OpenNebula Server and Scheduler daemons.
 Summary: Common OpenNebula package shared by various components (%{edition})
 Group: System
 BuildArch: noarch
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: shadow-utils
 Requires: coreutils
 Requires: sudo
@@ -288,16 +289,17 @@ Requires: glibc-common
 Common package shared by various OpenNebula components.
 
 ################################################################################
-# Package common-onescape
+# Package common-onecfg
 ################################################################################
 
-%package common-onescape
-Summary: Common OpenNebula package with helpers for OneScape (%{edition})
+%package common-onecfg
+Summary: Common OpenNebula package with helpers for onecfg (%{edition})
 Group: System
 BuildArch: noarch
+Obsoletes: %{name}-common-onescape
 
-%description common-onescape
-Helpers for OpenNebula OneScape project
+%description common-onecfg
+Helpers for OpenNebula onecfg
 
 ################################################################################
 # Package ruby
@@ -448,7 +450,7 @@ Python 3 bindings for OpenNebula Cloud API (OCA).
 Summary: OpenNebula web interface Sunstone (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-ruby = %{version}
 Requires: %{name}-server = %{version}
 %if %{with_rubygems}
@@ -474,7 +476,7 @@ Browser based UI for OpenNebula cloud management and usage.
 %package fireedge
 Summary: OpenNebula web interface FireEdge (%{edition})
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 %if %{with_guacd}
 Requires: %{name}-guacd = %{version}
 %endif
@@ -491,7 +493,7 @@ Browser based UI for OpenNebula application management.
 Summary: OpenNebula Gate server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -508,7 +510,7 @@ Server for information exchange between Virtual Machines and OpenNebula.
 Summary: OpenNebula Flow server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
@@ -580,6 +582,19 @@ https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 ################################################################################
 
 %if %{with_enterprise}
+%package ee-tools
+License: OpenNebula Software License
+Summary: Enterprise Tools for OpenNebula
+BuildArch: noarch
+Requires: %{name} = %{version}
+Requires: %{name}-server = %{version}
+
+%description ee-tools
+Enterprise Tools for OpenNebula
+
+IMPORTANT: This package is distributed under "OpenNebula Software License".
+See /usr/share/doc/one/LICENSE.onsla provided by opennebula-common package.
+
 %package migration
 License: OpenNebula Software License
 Summary: Migration tools for OpenNebula Enterprise Edition
@@ -722,7 +737,7 @@ Summary: OpenNebula infrastructure provisioning (%{edition})
 BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-common = %{version}
-Requires: %{name}-common-onescape = %{version}
+Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-server = %{version}
 Requires: %{name}-ruby = %{version}
 %if %{with_rubygems}
@@ -1060,10 +1075,10 @@ fi
 systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula-common.conf || :
 
 ################################################################################
-# common-onescape - scripts
+# common-onecfg - scripts
 ################################################################################
 
-%pre common-onescape
+%pre common-onecfg
 ### Backup configuration ###
 
 # better fail silently than break installation
@@ -1598,10 +1613,10 @@ sleep 10
 %dir %{_localstatedir}/run/one
 
 ################################################################################
-# common-onescape - files
+# common-onecfg - files
 ################################################################################
 
-%files common-onescape
+%files common-onecfg
 
 ################################################################################
 # node-kvm - files
@@ -1890,6 +1905,15 @@ sleep 10
 ################################################################################
 
 %if %{with_enterprise}
+%files ee-tools
+%dir /usr/lib/one/onecfg/lib/ee
+/usr/lib/one/onecfg/lib/ee/*
+/usr/lib/one/onecfg/lib/ee.rb
+%dir /usr/share/one/onecfg/migrators
+/usr/share/one/onecfg/migrators/*
+%{_bindir}/onesupport
+%{_bindir}/onesupport_vcenter_privs
+
 %files migration
 /usr/lib/one/ruby/onedb/local/*.rb
 /usr/lib/one/ruby/onedb/shared/*.rb
@@ -1929,6 +1953,7 @@ sleep 10
 %{_bindir}/oned
 %{_bindir}/onedb
 %{_bindir}/onehem-server
+%{_bindir}/onecfg
 
 %dir %{_datadir}/one/examples
 %{_datadir}/one/examples/*
@@ -1978,8 +2003,23 @@ sleep 10
 /usr/lib/one/ruby/PublicCloudDriver.rb
 %dir /usr/lib/one/sh
 /usr/lib/one/sh/*
+%dir /usr/lib/one/onecfg/lib
+/usr/lib/one/onecfg/lib/common.rb
+/usr/lib/one/onecfg/lib/config.rb
+/usr/lib/one/onecfg/lib/exception.rb
+/usr/lib/one/onecfg/lib/onecfg.rb
+/usr/lib/one/onecfg/lib/settings.rb
+/usr/lib/one/onecfg/lib/version.rb
+%dir /usr/lib/one/onecfg/lib/common
+/usr/lib/one/onecfg/lib/common/*
+%dir /usr/lib/one/onecfg/lib/config
+/usr/lib/one/onecfg/lib/config/*
 %dir /usr/share/one/conf
 /usr/share/one/conf/*
+%dir /usr/share/one/onecfg/augeas
+/usr/share/one/onecfg/augeas/*
+%dir /usr/share/one/onecfg/etc
+/usr/share/one/onecfg/etc/*
 
 %{_mandir}/man1/onedb.1*
 %doc LICENSE LICENSE.onsla LICENSE.onsla-nc NOTICE

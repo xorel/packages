@@ -74,13 +74,14 @@ Vcs-Browser: http://git.debian.org/?p=pkg-opennebula/opennebula.git
 
 Package: opennebula
 Architecture: any
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: apg,
          genisoimage,
          opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_ENTERPRISE_',`opennebula-migration (= ${source:Version}),')dnl
+         ifdef(`_WITH_ENTERPRISE_',`opennebula-ee-tools (= ${source:Version}),')dnl
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          wget,
          curl,
@@ -121,7 +122,7 @@ Description: Debug symbols for package opennebula (P_EDITION)
 
 Package: opennebula-sunstone
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          opennebula (= ${source:Version}),
@@ -137,7 +138,7 @@ Description: OpenNebula web interface Sunstone (P_EDITION)
 ifdef(`_WITH_FIREEDGE_',`
 Package: opennebula-fireedge
 Architecture: any
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          nodejs (>= 10),
          ifdef(`_WITHOUT_GUACD_',`',`opennebula-guacd (= ${source:Version}),')dnl
@@ -150,7 +151,7 @@ Description: OpenNebula web interface FireEdge (P_EDITION)
 
 Package: opennebula-gate
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -161,7 +162,7 @@ Description: OpenNebula Gate server (P_EDITION)
 
 Package: opennebula-flow
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -173,7 +174,7 @@ Description:  OpenNebula Flow server (P_EDITION)
 
 Package: opennebula-common
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: adduser,
          openssh-client,
          ${misc:Depends}
@@ -186,10 +187,11 @@ Breaks: opennebula (<< 5.11.90),
         opennebula-node-firecracker (<< 5.11.90)
 Description: Common OpenNebula package shared by various components (P_EDITION)
 
-Package: opennebula-common-onescape
+Package: opennebula-common-onecfg
 Architecture: all
 Depends: ${misc:Depends}
-Description: Helpers for OpenNebula OneScape project (P_EDITION)
+Description: Helpers for OpenNebula onecfg (P_EDITION)
+Conflicts: opennebula-common-onescape
 
 Package: opennebula-node
 Architecture: all
@@ -355,7 +357,7 @@ Description: Ruby dependencies for OpenNebula (P_EDITION)
 
 Package: opennebula-tools
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          ruby-opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -385,7 +387,7 @@ Description: Documentation for Java bindings for OpenNebula Cloud API, OCA (P_ED
 
 Package: opennebula-provision
 Architecture: all
-Pre-Depends: opennebula-common-onescape (= ${source:Version})
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula (= ${source:Version}),
          opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
@@ -440,6 +442,15 @@ Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org (P_E
 ')
 
 ifdef(`_WITH_ENTERPRISE_',`
+Package: opennebula-ee-tools
+Architecture: all
+Depends: opennebula (= ${source:Version}),
+         ${misc:Depends}
+Description: Enterprise Tools for OpenNebula
+ .
+ IMPORTANT: This package is distributed under "OpenNebula Software License".
+ See /usr/share/doc/one/LICENSE.onsla.gz provided by opennebula-common package.
+
 Package: opennebula-migration
 Architecture: all
 Depends: opennebula (= ${source:Version}),
