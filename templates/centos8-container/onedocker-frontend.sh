@@ -27,10 +27,13 @@ export OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-ope
 export OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
 export OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR
+export OPENNEBULA_ONED_TLSPROXY_APIPORT
 export OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
+export OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT
 export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
+export OPENNEBULA_ONEGATE_TLSPROXY_APIPORT
 export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_MEMCACHED_APIPORT="${OPENNEBULA_MEMCACHED_APIPORT:-11211}"
 export OPENNEBULA_FIREEDGE_HTTPPORT="${OPENNEBULA_FIREEDGE_HTTPPORT:-2616}"
@@ -47,6 +50,7 @@ export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_
 export OPENNEBULA_SUNSTONE_HTTP_REDIRECT="${OPENNEBULA_SUNSTONE_HTTP_REDIRECT:-no}"
 export OPENNEBULA_SUNSTONE_HTTPS_ONLY="${OPENNEBULA_SUNSTONE_HTTPS_ONLY:-no}"
 export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-yes}"
+export OPENNEBULA_TLS_PROXY_ENABLED="${OPENNEBULA_TLS_PROXY_ENABLED:-no}"
 export OPENNEBULA_TLS_DOMAIN_LIST="${OPENNEBULA_TLS_DOMAIN_LIST:-*}"
 export OPENNEBULA_TLS_VALID_DAYS="${OPENNEBULA_TLS_VALID_DAYS:-365}"
 export OPENNEBULA_TLS_CERT_BASE64
@@ -110,6 +114,23 @@ is_true()
 
     return 1
 )
+
+# Feed augtool commands on stdin of this function:
+#
+# this will make augtool little faster by using only needed lenses and executing
+# commands in one run
+# args: <absolute-path-to-the-edited-file>
+augtool_helper()
+{
+    augtool --noload --interactive <<EOF
+rm /augeas/load/*["${1}"!~glob(incl) or "${1}"=~glob(excl)]
+load
+set /augeas/context /files${1}
+$(cat)
+save
+quit
+EOF
+}
 
 # IMPORTANT!
 #
@@ -436,76 +457,84 @@ prepare_onedata()
     chmod 0750 /data/datastores
 }
 
+configure_tlsproxy()
+(
+    _name=
+    _accept_port=
+    _connect_port=
+
+    case "$1" in
+        oned)
+            _name="$1"
+            _accept_port="${OPENNEBULA_ONED_TLSPROXY_APIPORT}"
+            _connect_port="${OPENNEBULA_ONED_APIPORT}"
+            ;;
+        onegate)
+            _name="$1"
+            _accept_port="${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT}"
+            _connect_port="${OPENNEBULA_ONEGATE_APIPORT}"
+            ;;
+        oneflow)
+            _name="$1"
+            _accept_port="${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT}"
+            _connect_port="${OPENNEBULA_ONEFLOW_APIPORT}"
+            ;;
+        *)
+            err "UNKNOWN TLS PROXY SERVICE '${1}' - ABORT"
+            exit 1
+            ;;
+    esac
+
+    if [ -f /cert_data/one.crt ] && [ -f /cert_data/one.key ] ; then
+        cat > "/etc/stunnel/conf.d/${_name}.conf" <<EOF
+[${_name}]
+accept = ${_accept_port}
+connect = ${_connect_port}
+cert = /cert_data/one.crt
+key = /cert_data/one.key
+EOF
+    else
+        err "TLS PROXY REQUESTED BUT NO CERTS PROVIDED - ABORT"
+        exit 1
+    fi
+)
+
 configure_oned()
 {
     # setup hostname and port
-    sed -i \
-        -e "s/^[[:space:]#]*HOSTNAME[[:space:]]*=.*/HOSTNAME = \"${OPENNEBULA_FRONTEND_SSH_HOSTNAME}\"/" \
-        -e "s/^[[:space:]#]*PORT[[:space:]]*=.*/PORT = \"${OPENNEBULA_ONED_APIPORT}\"/" \
-        /etc/one/oned.conf
+    augtool_helper /etc/one/oned.conf <<EOF
+set HOSTNAME '"${OPENNEBULA_FRONTEND_SSH_HOSTNAME}"'
+set PORT '"${OPENNEBULA_ONED_APIPORT}"'
+EOF
 
     # setup hypervisor specifics
     if [ -n "${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}" ] ; then
-        augtool "set /files/etc/one/vmm_exec/vmm_exec_kvm.conf/EMULATOR '${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}'"
+        augtool_helper /etc/one/vmm_exec/vmm_exec_kvm.conf <<EOF
+set EMULATOR '"${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}"'
+EOF
     fi
 
-    # comment-out all DB directives from oned configuration
-    #
-    # NOTE:
-    #   debian/ubuntu uses mawk (1.3.3 Nov 1996) which does not support char.
-    #   classes or EREs...
-    </etc/one/oned.conf >/etc/one/oned.conf~tmp awk '
-    BEGIN {
-        state="nil";
-    }
-    {
-        if (state == "nil") {
-            if ($0 ~ /^[ ]*DB[ ]*=[ ]*\[/) {
-                state = "left-bracket";
-                print "# " $0;
-            } else if ($0 ~ /^[ ]*DB[ ]*=/) {
-                state = "db";
-                print "# " $0;
-            } else
-                print;
-        } else if (state == "db") {
-            if ($0 ~ /^[ ]*\[/) {
-                state = "left-bracket";
-                print "# " $0;
-            } else
-                print "# " $0;
-        } else if (state == "left-bracket") {
-            if ($0 ~ /[ ]*]/) {
-                state = "nil";
-                print "# " $0;
-            } else
-                print "# " $0;
-        }
-    }
-    '
-    cat /etc/one/oned.conf~tmp > /etc/one/oned.conf
-    rm -f /etc/one/oned.conf~tmp
-
     # add new DB connections based on the passed env. variables
-    cat >> /etc/one/oned.conf <<EOF
-
-#*******************************************************************************
-# Custom onedocker configuration
-#*******************************************************************************
-# This part was dynamically created by the ONE Docker container:
-#   opennebula-frontend
-#*******************************************************************************
-
-DB = [ backend = "mysql",
-       server  = "${MYSQL_HOST}",
-       port    = ${MYSQL_PORT},
-       user    = "${MYSQL_USER}",
-       passwd  = "${MYSQL_PASSWORD}",
-       db_name = "${MYSQL_DATABASE}" ]
-
-ONEGATE_ENDPOINT = "http://${OPENNEBULA_ONEGATE_HOSTNAME}:${OPENNEBULA_ONEGATE_APIPORT}"
-
+    augtool_helper /etc/one/oned.conf <<EOF
+rm DB
+set DB/BACKEND '"mysql"'
+set DB/SERVER  '"${MYSQL_HOST}"'
+set DB/PORT    '${MYSQL_PORT}'
+set DB/USER    '"${MYSQL_USER}"'
+set DB/PASSWD  '"${MYSQL_PASSWORD}"'
+set DB/DB_NAME '"${MYSQL_DATABASE}"'
 EOF
+
+    # add onegate endpoint
+    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
+        augtool_helper /etc/one/oned.conf <<EOF
+set ONEGATE_ENDPOINT '"https://${OPENNEBULA_ONEGATE_HOSTNAME}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT}"'
+EOF
+    else
+        augtool_helper /etc/one/oned.conf <<EOF
+set ONEGATE_ENDPOINT '"http://${OPENNEBULA_ONEGATE_HOSTNAME}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT}"'
+EOF
+    fi
 }
 
 configure_sunstone()
@@ -648,9 +677,9 @@ EOF
 
 configure_scheduler()
 {
-    sed -i \
-        -e "s#^ONE_XMLRPC[[:space:]]*=.*#ONE_XMLRPC = \"http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2\"#" \
-        /etc/one/sched.conf
+    augtool_helper /etc/one/sched.conf <<EOF
+set ONE_XMLRPC '"http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2"'
+EOF
 }
 
 configure_oneflow()
@@ -820,6 +849,16 @@ oned()
     msg "CONFIGURE DATA"
     prepare_onedata
 
+    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
+        msg "PREPARE CERTIFICATE"
+        prepare_cert
+    fi
+
+    if [ -n "${OPENNEBULA_ONED_TLSPROXY_APIPORT}" ] ; then
+        msg "CONFIGURE TLS PROXY (oned)"
+        configure_tlsproxy oned
+    fi
+
     msg "CONFIGURE ONED (oned.conf)"
     configure_oned
 
@@ -890,6 +929,11 @@ oneflow()
     msg "CONFIGURE OPENNEBULA FLOW"
     configure_oneflow
 
+    if [ -n "${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT}" ] ; then
+        msg "CONFIGURE TLS PROXY (oneflow)"
+        configure_tlsproxy oneflow
+    fi
+
     msg "SETUP SERVICE: OPENNEBULA FLOW"
     add_supervised_service opennebula-flow
 }
@@ -898,6 +942,11 @@ onegate()
 {
     msg "CONFIGURE OPENNEBULA GATE"
     configure_onegate
+
+    if [ -n "${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT}" ] ; then
+        msg "CONFIGURE TLS PROXY (onegate)"
+        configure_tlsproxy onegate
+    fi
 
     msg "SETUP SERVICE: OPENNEBULA GATE"
     add_supervised_service opennebula-gate
@@ -911,6 +960,15 @@ onehem()
 
     msg "SETUP SERVICE: OPENNEBULA HEM"
     add_supervised_service opennebula-hem
+}
+
+tlsproxy()
+{
+    # prepare TLS proxy service
+    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
+        msg "SETUP SERVICE: STUNNEL"
+        add_supervised_service stunnel
+    fi
 }
 
 ###############################################################################
@@ -949,19 +1007,21 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         sshd
         mysqld
         oned
+        tlsproxy
         scheduler
         oneflow
         onegate
         onehem
         sunstone
         memcached
-        # TODO: enable when fireedge is finished
+        # TODO: return to this when fireedge is finished
         #fireedge
         ;;
     oned)
         msg "CONFIGURE FRONTEND SERVICE: ONED"
         oned
         onehem
+        tlsproxy
         ;;
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
@@ -991,10 +1051,12 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     oneflow)
         msg "CONFIGURE FRONTEND SERVICE: ONEFLOW"
         oneflow
+        tlsproxy
         ;;
     onegate)
         msg "CONFIGURE FRONTEND SERVICE: ONEGATE"
         onegate
+        tlsproxy
         ;;
     *)
         err "UNKNOWN FRONTEND SERVICE: ${OPENNEBULA_FRONTEND_SERVICE}"

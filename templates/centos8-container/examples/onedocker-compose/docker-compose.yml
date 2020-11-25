@@ -22,10 +22,6 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "mysqld"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
       - opennebula_db:/var/lib/mysql
     networks:
@@ -51,30 +47,20 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "oned"
-      OPENNEBULA_FRONTEND_SSH_HOSTNAME: "${OPENNEBULA_FRONTEND_SSH_HOSTNAME}"
-      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
-      OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR: "${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}"
-      OPENNEBULA_ONEGATE_HOSTNAME: "${OPENNEBULA_ONEGATE_HOSTNAME}"
-      ONEADMIN_PASSWORD: "${ONEADMIN_PASSWORD}"
       ONEADMIN_SSH_PRIVKEY: "/ssh/id_rsa"
       ONEADMIN_SSH_PUBKEY: "/ssh/id_rsa.pub"
-      MYSQL_HOST: "${MYSQL_HOST:-opennebula-mysql}"
-      MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
-      MYSQL_USER: "${MYSQL_USER}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     depends_on:
       - opennebula-mysql
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONED_PUBLISHED_APIPORT:-2633}:${OPENNEBULA_ONED_APIPORT:-2633}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONED_PUBLISHED_APIPORT:-2633}:${OPENNEBULA_ONED_TLSPROXY_APIPORT:-2633}"
     volumes:
+      - opennebula_certs:/cert_data
       - opennebula_data:/data
       - opennebula_sharedtmp:/var/tmp/sunstone
       - oneadmin_auth_data:/oneadmin/auth_data
       - oneadmin_ssh_priv_data:/oneadmin/ssh_data
       - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
+      - ./certs:/certs:ro
       - ./ssh:/ssh:ro
       # enable docker.sock if you want the DockerHub marketplace to work...
       #- /var/run/docker.sock:/var/run/docker.sock
@@ -168,8 +154,6 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "scheduler"
-      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
     depends_on:
       - opennebula-frontend
     volumes:
@@ -201,15 +185,13 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "oneflow"
-      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
-      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
     depends_on:
       - opennebula-frontend
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEFLOW_PUBLISHED_APIPORT:-2474}:${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEFLOW_PUBLISHED_APIPORT:-2474}:${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT:-2474}"
     volumes:
       - oneadmin_auth_data:/oneadmin/auth_data
+      - opennebula_certs:/cert_data:ro
     tmpfs:
       - /run
       - /run/lock
@@ -237,17 +219,13 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "onegate"
-      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
-      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
-      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
-      OPENNEBULA_ONEGATE_APIPORT: "${OPENNEBULA_ONEGATE_APIPORT}"
     depends_on:
       - opennebula-frontend
     ports:
-      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT:-5030}:${OPENNEBULA_ONEGATE_APIPORT:-5030}"
+      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT:-5030}:${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT:-5030}"
     volumes:
       - oneadmin_auth_data:/oneadmin/auth_data
+      - opennebula_certs:/cert_data:ro
     tmpfs:
       - /run
       - /run/lock
@@ -275,27 +253,6 @@ services:
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "sunstone"
-      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
-      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
-      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
-      OPENNEBULA_MEMCACHED_HOSTNAME: "${OPENNEBULA_MEMCACHED_HOSTNAME:-opennebula-memcached}"
-      OPENNEBULA_SUNSTONE_HTTPD: "${OPENNEBULA_SUNSTONE_HTTPD}"
-      OPENNEBULA_SUNSTONE_MEMCACHED: "${OPENNEBULA_SUNSTONE_MEMCACHED}"
-      OPENNEBULA_SUNSTONE_HTTPPORT: "${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
-      OPENNEBULA_SUNSTONE_HTTPSPORT: "${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
-      # TODO: this is not ideal - but I need to match and/or redirect these ports...
-      OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT: "${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}"
-      OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT: "${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-4443}"
-      OPENNEBULA_SUNSTONE_HTTP_REDIRECT: "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}"
-      OPENNEBULA_SUNSTONE_HTTPS_ONLY: "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}"
-      OPENNEBULA_SUNSTONE_HTTPS_ENABLED: "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}"
-      OPENNEBULA_TLS_DOMAIN_LIST: "${OPENNEBULA_TLS_DOMAIN_LIST}"
-      OPENNEBULA_TLS_CERT_BASE64: "${OPENNEBULA_TLS_CERT_BASE64}"
-      OPENNEBULA_TLS_KEY_BASE64: "${OPENNEBULA_TLS_KEY_BASE64}"
-      OPENNEBULA_TLS_CERT: "/certs/opennebula.crt"
-      OPENNEBULA_TLS_KEY: "/certs/opennebula.key"
-      OPENNEBULA_TLS_VALID_DAYS: "${OPENNEBULA_TLS_VALID_DAYS}"
     depends_on:
       - opennebula-frontend
     ports:
@@ -326,7 +283,7 @@ services:
         delay: 10s
       replicas: 1
 
-# TODO: enable when fireedge is finished
+# TODO: return to this when fireedge is finished
 #  opennebula-fireedge:
 #    env_file:
 #      - ".env"
@@ -335,11 +292,6 @@ services:
 #    restart: always
 #    environment:
 #      OPENNEBULA_FRONTEND_SERVICE: "fireedge"
-#      OPENNEBULA_ONED_HOSTNAME: "${OPENNEBULA_ONED_HOSTNAME}"
-#      OPENNEBULA_ONED_APIPORT: "${OPENNEBULA_ONED_APIPORT}"
-#      OPENNEBULA_ONEFLOW_HOSTNAME: "${OPENNEBULA_ONEFLOW_HOSTNAME}"
-#      OPENNEBULA_ONEFLOW_APIPORT: "${OPENNEBULA_ONEFLOW_APIPORT}"
-#      OPENNEBULA_FIREEDGE_HTTPPORT: "${OPENNEBULA_FIREEDGE_HTTPPORT:-9869}"
 #    depends_on:
 #      - opennebula-frontend
 #    ports:

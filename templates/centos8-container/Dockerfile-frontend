@@ -123,6 +123,7 @@ RUN dnf -y install \
         mod_ssl \
         passenger \
         mod_passenger \
+        stunnel \
         opennebula-server \
         opennebula-ruby \
         opennebula-flow \
@@ -147,6 +148,10 @@ RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
 
 # create supervisord logdir
 RUN mkdir -p /var/log/supervisor/services
+
+# TODO: remove
+COPY stunnel.ini /usr/share/one/supervisor/supervisord.d/stunnel.ini
+COPY stunnel.sh /usr/share/one/supervisor/scripts/stunnel.sh
 
 # fix permissions of supervisord files
 RUN chown -R root:root /usr/share/one/supervisor
@@ -208,6 +213,12 @@ RUN chmod 644 /etc/sysconfig/memcached
 # TODO: is this needed?
 RUN ln -s /usr/share/ruby/vendor_ruby/phusion_passenger \
         /usr/share/passenger/phusion_passenger
+
+# stunnel config
+RUN rm -rf /etc/stunnel/* && mkdir -p /etc/stunnel/conf.d
+COPY conf/stunnel.conf /etc/stunnel/stunnel.conf
+RUN chown -R root:root /etc/stunnel
+RUN chmod 0644 /etc/stunnel/stunnel.conf
 
 # permission settings according to:
 # https://docs.opennebula.io/stable/deployment/sunstone_setup/suns_advance.html
