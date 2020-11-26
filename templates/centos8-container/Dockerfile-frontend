@@ -149,10 +149,6 @@ RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
 # create supervisord logdir
 RUN mkdir -p /var/log/supervisor/services
 
-# TODO: remove
-COPY stunnel.ini /usr/share/one/supervisor/supervisord.d/stunnel.ini
-COPY stunnel.sh /usr/share/one/supervisor/scripts/stunnel.sh
-
 # fix permissions of supervisord files
 RUN chown -R root:root /usr/share/one/supervisor
 RUN chmod 0755 /usr/share/one/supervisor
