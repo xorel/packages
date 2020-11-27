@@ -66,6 +66,7 @@ dist/usr/share/one/start-scripts/*  /usr/share/one/start-scripts/
 dist/usr/share/one/schemas/*        /usr/share/one/schemas/
 dist/usr/share/one/conf/*           /usr/share/one/conf/
 dist/usr/share/one/context/*        /usr/share/one/context/
+dist/usr/share/one/dockerhub/*      /usr/share/one/dockerhub/
 dist/usr/share/one/onecfg/augeas/*  /usr/share/one/onecfg/augeas/
 dist/usr/share/one/onecfg/etc/*     /usr/share/one/onecfg/etc/
 
