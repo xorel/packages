@@ -38,25 +38,29 @@ LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Fontend servic
 OPENNEBULA_FRONTEND_SSH_HOSTNAME=Host to which node will ssh into, \
 OPENNEBULA_ONED_HOSTNAME=Host of the oned API server, \
 OPENNEBULA_ONED_APIPORT=Port of the oned server, \
+OPENNEBULA_ONED_TLSPROXY_APIPORT=Secure port of the oned server (if TLS proxy is enabled), \
 OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR=Path to the hypervisor on the node, \
 OPENNEBULA_ONEFLOW_HOSTNAME=Host of the oneflow server, \
 OPENNEBULA_ONEFLOW_APIPORT=Port of the oneflow server, \
+OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT=Secure port of the oneflow server (if TLS proxy is enabled), \
 OPENNEBULA_ONEGATE_HOSTNAME=Host of the onegate server, \
 OPENNEBULA_ONEGATE_APIPORT=Port of the onegate server, \
+OPENNEBULA_ONEGATE_TLSPROXY_APIPORT=Secure port of the onegate server (if TLS proxy is enabled), \
 OPENNEBULA_MEMCACHED_HOSTNAME=Host of the memcached server, \
 OPENNEBULA_MEMCACHED_APIPORT=Port of the memcached server, \
-OPENNEBULA_SUNSTONE_HTTPD=yes/no if sunstone should use the apache webserver, \
-OPENNEBULA_SUNSTONE_MEMCACHED=yes/no if sunstone should use the memcached, \
+OPENNEBULA_GUACD_HOSTNAME=Host of the guacd server, \
+OPENNEBULA_GUACD_APIPORT=Port of the guacd server, \
 OPENNEBULA_SUNSTONE_HTTPPORT=HTTP port for the sunstone server, \
 OPENNEBULA_SUNSTONE_HTTPSPORT=HTTPS port for the sunstone server, \
-OPENNEBULA_SUNSTONE_HTTP_REDIRECT=yes/no if HTTP traffic should be redirected to HTTPS, \
-OPENNEBULA_SUNSTONE_HTTPS_ONLY=yes/no if only HTTPS should be used, \
 OPENNEBULA_SUNSTONE_HTTPS_ENABLED=yes/no if HTTPS should be enabled at all, \
 OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT=Published HTTP port on the host part, \
 OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT=Published HTTPS port on the host part, \
 OPENNEBULA_SUNSTONE_VNCPORT=Port of the VNC server, \
+OPENNEBULA_FIREEDGE_HOSTNAME=Host of the fireedge server, \
 OPENNEBULA_FIREEDGE_HTTPPORT=HTTP port for the fireedge server, \
-OPENNEBULA_FIREEDGE_VNCPORT=Port of the guacd VNC server, \
+OPENNEBULA_FIREEDGE_PUBLISH_ADDR=External host address of the fireedge server, \
+OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT=Published HTTP port of the fireedge server, \
+OPENNEBULA_TLS_PROXY_ENABLED=yes/no if TLS proxy (stunnel) should be running, \
 OPENNEBULA_TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
 OPENNEBULA_TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
 OPENNEBULA_TLS_CERT_BASE64=Custom certificate in base64 format, \
@@ -117,7 +121,9 @@ RUN dnf -y install \
         mariadb-server \
         expect \
         augeas \
+        docker-ce \
         docker-ce-cli \
+        containerd.io \
         memcached \
         httpd \
         mod_ssl \
@@ -309,4 +315,8 @@ EXPOSE 2616/tcp
 
 # guacd (vnc):
 EXPOSE 4822/tcp
+
+# docker daemon
+EXPOSE 2375/tcp
+EXPOSE 2376/tcp
 

@@ -22,34 +22,62 @@ set -e
 # image params
 #
 
+# frontend
+
 export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
 export OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-opennebula-frontend}"
+
+# oned
+
 export OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
 export OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR
 export OPENNEBULA_ONED_TLSPROXY_APIPORT
+
+# oneflow
+
 export OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
 export OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT
+
+# onegate
+
 export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
 export OPENNEBULA_ONEGATE_TLSPROXY_APIPORT
+
+# memcached
+
 export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_MEMCACHED_APIPORT="${OPENNEBULA_MEMCACHED_APIPORT:-11211}"
+
+# guacd
+
+export OPENNEBULA_GUACD_HOSTNAME="${OPENNEBULA_GUACD_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_GUACD_APIPORT="${OPENNEBULA_GUACD_APIPORT:-4822}"
+
+# fireedge
+
+export OPENNEBULA_FIREEDGE_HOSTNAME="${OPENNEBULA_FIREEDGE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export OPENNEBULA_FIREEDGE_HTTPPORT="${OPENNEBULA_FIREEDGE_HTTPPORT:-2616}"
-export OPENNEBULA_FIREEDGE_VNCPORT="${OPENNEBULA_FIREEDGE_VNCPORT:-4822}"
-export OPENNEBULA_SUNSTONE_HTTPD="${OPENNEBULA_SUNSTONE_HTTPD:-yes}"
-# NOTE: sunstone with apache requires memcached - so that is why this default
-export OPENNEBULA_SUNSTONE_MEMCACHED="${OPENNEBULA_SUNSTONE_MEMCACHED:-${OPENNEBULA_SUNSTONE_HTTPD}}"
+# NOTE: these are needed for sunstone to provide user-facing URL to fireedge
+export OPENNEBULA_FIREEDGE_PUBLISH_ADDR="${OPENNEBULA_FIREEDGE_PUBLISH_ADDR:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT="${OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT:-2616}"
+
+# sunstone
+
 export OPENNEBULA_SUNSTONE_HTTPPORT="${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
 export OPENNEBULA_SUNSTONE_HTTPSPORT="${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
 export OPENNEBULA_SUNSTONE_VNCPORT="${OPENNEBULA_SUNSTONE_VNCPORT:-29876}"
 # TODO: this is not ideal - but I need to match and/or redirect these ports...
 export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}"
 export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-443}"
-export OPENNEBULA_SUNSTONE_HTTP_REDIRECT="${OPENNEBULA_SUNSTONE_HTTP_REDIRECT:-no}"
-export OPENNEBULA_SUNSTONE_HTTPS_ONLY="${OPENNEBULA_SUNSTONE_HTTPS_ONLY:-no}"
+# NOTE: HTTP redirection is no longer optional (it will be set to yes when HTTPS is enabled)
+export OPENNEBULA_SUNSTONE_HTTP_REDIRECT=no
 export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-yes}"
+
+# TLS
+
 export OPENNEBULA_TLS_PROXY_ENABLED="${OPENNEBULA_TLS_PROXY_ENABLED:-no}"
 export OPENNEBULA_TLS_DOMAIN_LIST="${OPENNEBULA_TLS_DOMAIN_LIST:-*}"
 export OPENNEBULA_TLS_VALID_DAYS="${OPENNEBULA_TLS_VALID_DAYS:-365}"
@@ -57,12 +85,28 @@ export OPENNEBULA_TLS_CERT_BASE64
 export OPENNEBULA_TLS_KEY_BASE64
 export OPENNEBULA_TLS_CERT
 export OPENNEBULA_TLS_KEY
+
+# docker
+
+# docker needs to run in privileged container - therefore disabled by default
+export OPENNEBULA_DOCKER_ENABLED="${OPENNEBULA_DOCKER_ENABLED:-no}"
+export OPENNEBULA_DOCKER_HOSTNAME="${OPENNEBULA_DOCKER_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export OPENNEBULA_DOCKER_APIPORT="${OPENNEBULA_DOCKER_APIPORT:-2375}"
+export OPENNEBULA_DOCKER_SOCKET="${OPENNEBULA_DOCKER_SOCKET:-/var/run/docker.sock}"
+export OPENNEBULA_DOCKER_APIPORT="${OPENNEBULA_DOCKER_APIPORT:-2375}"
+export OPENNEBULA_DOCKER_TCPHOST_ENABLED="${OPENNEBULA_DOCKER_TCPHOST_ENABLED:-no}"
+
+# oneadmin
+
 # TODO: oneadmin is hardcoded on the installation - a change here would only broke things
 #export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
 export ONEADMIN_USERNAME="oneadmin"
 export ONEADMIN_PASSWORD
 export ONEADMIN_SSH_PRIVKEY
 export ONEADMIN_SSH_PUBKEY
+
+# mysql
+
 export MYSQL_HOST="${MYSQL_HOST:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
 export MYSQL_PORT="${MYSQL_PORT:-3306}"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-opennebula}"
@@ -539,6 +583,21 @@ EOF
 
 configure_sunstone()
 {
+    #
+    # sanity checks
+    #
+
+    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        if ! [ -f /cert_data/one.crt ] || ! [ -f /cert_data/one.key ] ; then
+            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
+            exit 1
+        fi
+    fi
+
+    #
+    # configuration
+    #
+
     sed -i \
         -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
         -e "s#^:oneflow_server:.*#:oneflow_server: http://${OPENNEBULA_ONEFLOW_HOSTNAME}:${OPENNEBULA_ONEFLOW_APIPORT}#" \
@@ -547,24 +606,27 @@ configure_sunstone()
         -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
         /etc/one/sunstone-server.conf
 
+    # this will decide where sunstone will point client to fireedge
+    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        sed -i \
+            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: https://${OPENNEBULA_FIREEDGE_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT}/fireedge#" \
+            /etc/one/sunstone-server.conf
+    else
+        sed -i \
+            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: http://${OPENNEBULA_FIREEDGE_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT}/fireedge#" \
+            /etc/one/sunstone-server.conf
+    fi
+
     # enable vnc over ssl when https is required and certs provided
     if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
-        if [ -f /cert_data/one.crt ] && [ -f /cert_data/one.key ] ; then
-            if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
-                _wss="only"
-            else
-                _wss="yes"
-            fi
+        # value can be: no, yes, only
+        _wss="only"
 
-            sed -i \
-                -e "s#^:vnc_proxy_support_wss:.*#:vnc_proxy_support_wss: ${_wss}#" \
-                -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /cert_data/one.crt#" \
-                -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /cert_data/one.key#" \
-                /etc/one/sunstone-server.conf
-        else
-            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
-            exit 1
-        fi
+        sed -i \
+            -e "s#^:vnc_proxy_support_wss:.*#:vnc_proxy_support_wss: ${_wss}#" \
+            -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /cert_data/one.crt#" \
+            -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /cert_data/one.key#" \
+            /etc/one/sunstone-server.conf
     fi
 
     # shared tmpdir with oned
@@ -577,57 +639,46 @@ configure_sunstone()
     sed -i 's/^\([[:space:]]*webauthn_avail[[:space:]]*\)=.*/\1= false/' \
         /usr/lib/one/sunstone/sunstone-server.rb
 
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPD}" ; then
-        mkdir -p /run/passenger
-        chown oneadmin:oneadmin /run/passenger
-        chmod 0755 /run/passenger
+    # setup apache if requested
+    mkdir -p /run/passenger
+    chown oneadmin:oneadmin /run/passenger
+    chmod 0755 /run/passenger
 
-        systemd-tmpfiles --create /lib/tmpfiles.d/passenger.conf
+    systemd-tmpfiles --create /lib/tmpfiles.d/passenger.conf
 
-        mkdir -p /run/httpd
-        chown root:apache /run/httpd
-        chmod 0710 /run/httpd
+    mkdir -p /run/httpd
+    chown root:apache /run/httpd
+    chmod 0710 /run/httpd
 
-        # enable HTTPS VirtualHost
-        if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
-            cp -a /etc/httpd/conf.d/opennebula-https.conf-disabled \
-                /etc/httpd/conf.d/opennebula-https.conf
-        elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
-            err "ONLY HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
-            exit 1
-        elif is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
-            err "HTTP REDIRECT REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
-            exit 1
-        fi
+    # enable HTTP VirtualHost
+    #
+    # NOTE: due to other dependencies HTTP must be always enabled and if
+    # HTTPS is enabled then HTTP redirection is mandatory
+    cp -a /etc/httpd/conf.d/opennebula-http.conf-disabled \
+        /etc/httpd/conf.d/opennebula-http.conf
 
-        # enable HTTP VirtualHost
-        if ! is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
-            # the if conditional in the httpd conf will expect yes or true
-            if is_true "${OPENNEBULA_SUNSTONE_HTTP_REDIRECT}" ; then
-                OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
-            fi
+    # enable HTTPS VirtualHost
+    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+        # the if conditional in the httpd conf will expect yes or true
+        OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
 
-            cp -a /etc/httpd/conf.d/opennebula-http.conf-disabled \
-                /etc/httpd/conf.d/opennebula-http.conf
-        fi
-    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
-        err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPD' IS FALSE - ABORT"
-        exit 1
-    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ONLY}" ; then
-        err "ONLY HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_HTTPS_ENABLED' IS FALSE - ABORT"
-        exit 1
+        cp -a /etc/httpd/conf.d/opennebula-https.conf-disabled \
+            /etc/httpd/conf.d/opennebula-https.conf
     fi
 
-    if is_true "${OPENNEBULA_SUNSTONE_MEMCACHED}" ; then
-        sed -i \
-            -e "s#^:sessions:.*#:sessions: 'memcache'#" \
-            -e "s#^:memcache_host:.*#:memcache_host: ${OPENNEBULA_MEMCACHED_HOSTNAME}#" \
-            -e "s#^:memcache_port:.*#:memcache_port: ${OPENNEBULA_MEMCACHED_APIPORT}#" \
-            /etc/one/sunstone-server.conf
-    elif is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
-        err "HTTPS REQUESTED BUT 'OPENNEBULA_SUNSTONE_MEMCACHED' IS FALSE - ABORT"
-        exit 1
-    fi
+    # configure memcached
+    sed -i \
+        -e "s#^:sessions:.*#:sessions: 'memcache'#" \
+        -e "s#^:memcache_host:.*#:memcache_host: ${OPENNEBULA_MEMCACHED_HOSTNAME}#" \
+        -e "s#^:memcache_port:.*#:memcache_port: ${OPENNEBULA_MEMCACHED_APIPORT}#" \
+        /etc/one/sunstone-server.conf
+}
+
+configure_memcached()
+{
+    augtool_helper /etc/sysconfig/memcached <<EOF
+set PORT '"${OPENNEBULA_MEMCACHED_APIPORT}"'
+EOF
 }
 
 configure_fireedge()
@@ -669,8 +720,8 @@ LIMIT_TOKEN:
 
 # Guacamole: use it if you have the Guacd in other server or port
 GUACD:
-  PORT: ${OPENNEBULA_FIREEDGE_VNCPORT}
-  HOST: '127.0.0.1'
+  PORT: ${OPENNEBULA_GUACD_APIPORT}
+  HOST: '${OPENNEBULA_GUACD_HOSTNAME}'
 
 EOF
 }
@@ -710,6 +761,25 @@ configure_onegate()
 #        -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
 #}
 
+configure_docker()
+(
+    # setup docker socket which will be used in all cases
+    _docker_hosts="--host=unix://${OPENNEBULA_DOCKER_SOCKET}"
+
+    if is_true "${OPENNEBULA_DOCKER_TCPHOST_ENABLED}" ; then
+        # just add space if needed
+        _docker_hosts="${_docker_hosts}${_docker_hosts:+ }"
+
+        # expose docker daemon via TCP
+        _docker_hosts="${_docker_hosts}--host=tcp://${OPENNEBULA_DOCKER_HOSTNAME}:${OPENNEBULA_DOCKER_APIPORT}"
+    fi
+
+    cat > /etc/sysconfig/dockerd <<EOF
+DOCKERD_SOCK="${OPENNEBULA_DOCKER_SOCKET}"
+DOCKER_HOSTS="${_docker_hosts}"
+EOF
+)
+
 sanity_check()
 {
     if [ -z "$MYSQL_PASSWORD" ] ; then
@@ -723,15 +793,15 @@ sanity_check()
     fi
 }
 
-fix_docker()
+fix_docker_socket()
 {
-    if ! [ -e /var/run/docker.sock ] ; then
-        err "NO DOCKER SOCKET (/var/run/docker.sock): SKIP"
+    if ! [ -e "${OPENNEBULA_DOCKER_SOCKET}" ] ; then
+        err "NO DOCKER SOCKET (${OPENNEBULA_DOCKER_SOCKET}): SKIP"
         return 0
     fi
 
     # save the gid of the docker.sock
-    _docker_gid=$(stat -c %g /var/run/docker.sock)
+    _docker_gid=$(stat -c %g "${OPENNEBULA_DOCKER_SOCKET}")
 
     if getent group | grep -q '^docker:' ; then
         # we reassign the docker's GID to that of the actual docker.sock
@@ -744,6 +814,27 @@ fix_docker()
     # and we add oneadmin to the docker group
     gpasswd -a oneadmin docker
 }
+
+fix_docker_command()
+(
+    if is_true "${OPENNEBULA_DOCKER_TCPHOST_ENABLED}" ; then
+        _docker_host="tcp://${OPENNEBULA_DOCKER_HOSTNAME}:${OPENNEBULA_DOCKER_APIPORT}"
+    else
+        _docker_host="unix://${OPENNEBULA_DOCKER_SOCKET}"
+    fi
+
+    cat > /usr/local/bin/docker <<EOF
+#!/bin/sh
+
+DOCKER_HOST="\${DOCKER_HOST:-${_docker_host}}"
+export DOCKER_HOST
+
+exec /usr/bin/docker "\$@"
+EOF
+
+    chown root: /usr/local/bin/docker
+    chmod 0755 /usr/local/bin/docker
+)
 
 initialize_supervisord_conf()
 {
@@ -771,8 +862,41 @@ add_supervised_service()
     cp -a "/usr/share/one/supervisor/supervisord.d/${1}.ini" /etc/supervisord.d/
 }
 
+# NOTE: you may leave it or remove it once podman-compose stops duplicating
+# lines in /etc/hosts
+fix_hosts_file()
+{
+    # workaround for podman-compose which multiplicates lines in /etc/hosts by
+    # as many as there are containers in the docker-compose file...
+    #
+    # this results in an invalid /etc/hosts file and dockerd fails to process
+    # such file
+
+    cat /etc/hosts | awk '
+    BEGIN {
+        linecount = 0;
+    }
+    {
+        if (seen[$0] != "yes") {
+            seen[$0] = "yes";
+            lines[++linecount] = $0;
+        }
+    }
+    END {
+        for (i = 1; i <= linecount; ++i)
+            print lines[i];
+    }
+    ' > /etc/hosts.tmp
+
+    cat /etc/hosts.tmp > /etc/hosts
+    rm -f /etc/hosts.tmp
+}
+
 common_configuration()
 {
+    msg "FIX HOSTS FILE (/etc/hosts)"
+    fix_hosts_file
+
     msg "CREATE ONEADMIN's TMPFILES"
     create_oneadmin_tmpfiles
 
@@ -832,13 +956,35 @@ mysqld()
     add_supervised_service mysqld-configure
 }
 
+docker()
+{
+    if is_true "${OPENNEBULA_DOCKER_ENABLED}" ; then
+        msg "CONFIGURE: DOCKER"
+        configure_docker
+
+        msg "FIX DOCKER COMMAND"
+        fix_docker_command
+
+        msg "SETUP SERVICE: CONTAINERD"
+        add_supervised_service containerd
+
+        msg "SETUP SERVICE: DOCKER"
+        add_supervised_service docker
+    fi
+}
+
 oned()
 {
     msg "SANITY CHECK"
     sanity_check
 
-    msg "FIX DOCKER"
-    fix_docker
+    msg "FIX DOCKER SOCKET"
+    fix_docker_socket
+
+    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "oned" ] ; then
+        msg "FIX DOCKER COMMAND"
+        fix_docker_command
+    fi
 
     msg "PREPARE ONEADMIN's ONE_AUTH"
     prepare_oneadmin_data
@@ -855,11 +1001,11 @@ oned()
     fi
 
     if [ -n "${OPENNEBULA_ONED_TLSPROXY_APIPORT}" ] ; then
-        msg "CONFIGURE TLS PROXY (oned)"
+        msg "CONFIGURE: TLS PROXY (oned)"
         configure_tlsproxy oned
     fi
 
-    msg "CONFIGURE ONED (oned.conf)"
+    msg "CONFIGURE: OPENNEBULA ONED"
     configure_oned
 
     msg "SETUP SERVICE: OPENNEBULA ONED"
@@ -883,41 +1029,43 @@ sunstone()
         prepare_cert
     fi
 
-    msg "CONFIGURE OPENNEBULA SUNSTONE"
+    msg "CONFIGURE: OPENNEBULA SUNSTONE"
     configure_sunstone
 
     msg "SETUP SERVICE: OPENNEBULA SUNSTONE"
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPD}" ; then
-        add_supervised_service opennebula-httpd
-    else
-        add_supervised_service opennebula-sunstone
-    fi
+    add_supervised_service opennebula-httpd
 
     msg "SETUP SERVICE: OPENNEBULA VNC"
     add_supervised_service opennebula-novnc
 }
 
+guacd()
+{
+    msg "SETUP SERVICE: OPENNEBULA GUACAMOLE (guacd)"
+    add_supervised_service opennebula-guacd
+}
+
 fireedge()
 {
-    msg "CONFIGURE OPENNEBULA FIREEDGE"
+    msg "CONFIGURE: OPENNEBULA FIREEDGE"
     configure_fireedge
 
     msg "SETUP SERVICE: OPENNEBULA FIREEDGE"
     add_supervised_service opennebula-fireedge
-
-    msg "SETUP SERVICE: OPENNEBULA VNC (guacd)"
-    add_supervised_service opennebula-guacd
 }
 
 memcached()
 {
+    msg "CONFIGURE: MEMCACHED"
+    configure_memcached
+
     msg "SETUP SERVICE: MEMCACHED"
     add_supervised_service memcached
 }
 
 scheduler()
 {
-    msg "CONFIGURE OPENNEBULA SCHEDULER"
+    msg "CONFIGURE: OPENNEBULA SCHEDULER"
     configure_scheduler
 
     msg "SETUP SERVICE: OPENNEBULA SCHEDULER"
@@ -926,11 +1074,11 @@ scheduler()
 
 oneflow()
 {
-    msg "CONFIGURE OPENNEBULA FLOW"
+    msg "CONFIGURE: OPENNEBULA FLOW"
     configure_oneflow
 
     if [ -n "${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT}" ] ; then
-        msg "CONFIGURE TLS PROXY (oneflow)"
+        msg "CONFIGURE: TLS PROXY (oneflow)"
         configure_tlsproxy oneflow
     fi
 
@@ -940,11 +1088,11 @@ oneflow()
 
 onegate()
 {
-    msg "CONFIGURE OPENNEBULA GATE"
+    msg "CONFIGURE: OPENNEBULA GATE"
     configure_onegate
 
     if [ -n "${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT}" ] ; then
-        msg "CONFIGURE TLS PROXY (onegate)"
+        msg "CONFIGURE: TLS PROXY (onegate)"
         configure_tlsproxy onegate
     fi
 
@@ -955,7 +1103,7 @@ onegate()
 onehem()
 {
     # TODO: does it make sense to run separately from oned? (can be even?)
-    #msg "CONFIGURE OPENNEBULA HEM"
+    #msg "CONFIGURE: OPENNEBULA HEM"
     #configure_onehem
 
     msg "SETUP SERVICE: OPENNEBULA HEM"
@@ -1006,6 +1154,7 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
             >> /etc/hosts
         sshd
         mysqld
+        docker
         oned
         tlsproxy
         scheduler
@@ -1015,6 +1164,7 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         sunstone
         memcached
         # TODO: return to this when fireedge is finished
+        #guacd
         #fireedge
         ;;
     oned)
@@ -1032,6 +1182,10 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
         mysqld
         ;;
+    docker)
+        msg "CONFIGURE FRONTEND SERVICE: DOCKER"
+        docker
+        ;;
     memcached)
         msg "CONFIGURE FRONTEND SERVICE: MEMCACHED"
         memcached
@@ -1039,6 +1193,10 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     sunstone)
         msg "CONFIGURE FRONTEND SERVICE: SUNSTONE"
         sunstone
+        ;;
+    guacd)
+        msg "CONFIGURE FRONTEND SERVICE: GUACD"
+        guacd
         ;;
     fireedge)
         msg "CONFIGURE FRONTEND SERVICE: FIREEDGE"

@@ -38,6 +38,36 @@ services:
         delay: 10s
       replicas: 1
 
+  opennebula-docker:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
+    init: true
+    privileged: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "docker"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+      - /var/lib/containers
+      - /var/lib/docker
+    networks:
+      - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 10s
+      replicas: 1
+
   opennebula-frontend:
     env_file:
       - ".env"
@@ -62,8 +92,6 @@ services:
       - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
       - ./certs:/certs:ro
       - ./ssh:/ssh:ro
-      # enable docker.sock if you want the DockerHub marketplace to work...
-      #- /var/run/docker.sock:/var/run/docker.sock
     tmpfs:
       - /run
       - /run/lock
@@ -245,6 +273,36 @@ services:
         delay: 10s
       replicas: 1
 
+  opennebula-guacd:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "guacd"
+    # TODO: should this be exposed or not?
+    #ports:
+    #  - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_GUACD_PUBLISHED_APIPORT:-4822}:${OPENNEBULA_GUACD_APIPORT:-4822}"
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+      - /var/tmp
+    networks:
+      - onenet
+    healthcheck:
+      test: ["CMD", "/onedocker-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 10s
+      replicas: 1
+
   opennebula-sunstone:
     env_file:
       - ".env"
@@ -283,7 +341,7 @@ services:
         delay: 10s
       replicas: 1
 
-# TODO: return to this when fireedge is finished
+# TODO: uncomment when fireedge is ready
 #  opennebula-fireedge:
 #    env_file:
 #      - ".env"
@@ -296,7 +354,6 @@ services:
 #      - opennebula-frontend
 #    ports:
 #      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT:-2616}:${OPENNEBULA_SUNSTONE_HTTPPORT:-2616}"
-#      - "${OPENNEBULA_FRONTEND_PUBLISH_ADDR:-0.0.0.0}:${OPENNEBULA_FIREEDGE_PUBLISHED_VNCPORT:-4822}:4822"
 #    volumes:
 #      - oneadmin_auth_data:/oneadmin/auth_data
 #    tmpfs:
