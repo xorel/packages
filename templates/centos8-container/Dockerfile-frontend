@@ -19,18 +19,18 @@ ARG OPENNEBULA_URL_GPGKEY="https://downloads.opennebula.io/repo/repo.key"
 
 LABEL version="${IMAGE_VERSION}"
 LABEL maintainer="OpenNebula Team (contact@opennebula.io)"
-LABEL description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL description="OpenNebula Front-end"
 LABEL org.label-schema.name="opennebula-frontend"
-LABEL org.label-schema.description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL org.label-schema.description="OpenNebula Front-end"
 LABEL org.label-schema.version="${IMAGE_VERSION}"
 LABEL org.label-schema.license="${OPENNEBULA_LICENSE}"
 LABEL org.label-schema.vendor="OpenNebula"
 LABEL org.opencontainers.image.title="opennebula-frontend"
-LABEL org.opencontainers.image.description="OpenNebula Frontend - Dockerized OpenNebula"
+LABEL org.opencontainers.image.description="OpenNebula Front-end"
 LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
 LABEL org.opencontainers.image.authors="OpenNebula Team (contact@opennebula.io)"
 LABEL org.opencontainers.image.licenses="${OPENNEBULA_LICENSE}"
-LABEL org.opencontainers.image.vendor="OpenNebula"
+LABEL org.opencontainers.image.vendor="OpenNebula Systems"
 
 # image params
 
@@ -155,16 +155,6 @@ RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
 # create supervisord logdir
 RUN mkdir -p /var/log/supervisor/services
 
-# fix permissions of supervisord files
-RUN chown -R root:root /usr/share/one/supervisor
-RUN chmod 0755 /usr/share/one/supervisor
-RUN chmod 0755 /usr/share/one/supervisor/supervisord.d
-RUN chmod 0600 /usr/share/one/supervisor/supervisord.d/*.ini
-RUN chmod 0755 /usr/share/one/supervisor/scripts
-RUN chmod 0755 /usr/share/one/supervisor/scripts/*.sh
-RUN chmod 0755 /usr/share/one/supervisor/scripts/lib
-RUN chmod 0755 /usr/share/one/supervisor/scripts/lib/*.sh
-
 # copy supervisord config
 COPY conf/supervisord.conf /usr/share/one/supervisor/supervisord.conf
 RUN chown root:root /usr/share/one/supervisor/supervisord.conf
@@ -181,10 +171,12 @@ RUN sed -i \
         -e '/PubkeyAuthentication/d' \
         /etc/ssh/sshd_config \
     && { \
+        echo '# OpenNebula Container Build #'; \
         echo 'PermitRootLogin no' ; \
         echo 'PasswordAuthentication no' ; \
         echo 'PermitEmptyPasswords no' ; \
         echo 'PubkeyAuthentication yes' ; \
+        echo '# OpenNebula Container Build #'; \
     } >> /etc/ssh/sshd_config
 
 # cleanup the ssh host keys if present
