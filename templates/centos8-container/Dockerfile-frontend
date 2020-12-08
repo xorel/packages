@@ -130,6 +130,7 @@ RUN dnf -y install \
         passenger \
         mod_passenger \
         stunnel \
+        fuse \
         opennebula-server \
         opennebula-ruby \
         opennebula-flow \

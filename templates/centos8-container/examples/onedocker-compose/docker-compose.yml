@@ -74,6 +74,8 @@ services:
     image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
     init: true
     #privileged: true
+    cap_add:
+      - SYS_ADMIN
     restart: always
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "oned"
@@ -92,6 +94,8 @@ services:
       - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
       - ./certs:/certs:ro
       - ./ssh:/ssh:ro
+    devices:
+      - /dev/fuse:/dev/fuse
     tmpfs:
       - /run
       - /run/lock
