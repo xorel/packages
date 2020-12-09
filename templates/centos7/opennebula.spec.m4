@@ -1197,6 +1197,9 @@ save
 EOF
 )
 
+# generate generic qemu-kvm-one symlink
+/usr/bin/qemu-kvm-one-gen
+
 if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
     systemctl try-restart libvirtd 2>/dev/null || true
 fi
@@ -1239,6 +1242,9 @@ rm /files/etc/libvirt/libvirtd.conf/unix_sock_rw_perms[. = '0770']
 save
 EOF
 )
+
+    # remove generic qemu-kvm-one symlink
+    rm -f /usr/bin/qemu-kvm-one
 
     if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
         systemctl try-restart libvirtd 2>/dev/null || :
@@ -1552,6 +1558,8 @@ sleep 10
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 %config %{_sysconfdir}/cron.d/opennebula-node
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node
+%{_bindir}/qemu-kvm-one-gen
+%attr(0755, root, root) %{_bindir}/qemu-kvm-one-gen
 
 ################################################################################
 # node-firecracker - files

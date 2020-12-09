@@ -21,6 +21,9 @@ save
 EOF
 )
 
+    # remove generic qemu-kvm-one symlink
+    rm -f /usr/bin/qemu-kvm-one
+
     if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
         systemctl try-restart libvirtd 2>/dev/null || true
     fi

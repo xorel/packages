@@ -35,6 +35,9 @@ save
 EOF
 )
 
+    # generate generic qemu-kvm-one symlink
+    /usr/bin/qemu-kvm-one-gen
+
     if [ -n "${AUGTOOL}" ] && [ -z "${AUGTOOL##*Saved *}" ]; then
         systemctl try-restart libvirt-bin 2>/dev/null || true
     fi

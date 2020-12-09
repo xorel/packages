@@ -7,7 +7,7 @@ index 8e068e4..dbe6c47 100644
  # NOTE: raw attribute value is appended to that on the VM template
 
 -#EMULATOR = /usr/libexec/qemu-kvm
-+EMULATOR = /usr/bin/qemu-kvm
++EMULATOR = /usr/bin/qemu-kvm-one
 
  #VCPU = 1
 
