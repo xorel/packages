@@ -1348,9 +1348,11 @@ fi
 
 %post provision
 if [ $1 = 1 ]; then
-    if [ ! -d "%{oneadmin_home}/.ssh/ddc/" ]; then
-        su oneadmin -c "mkdir %{oneadmin_home}/.ssh/ddc/"
-        su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh/ddc/id_rsa"
+    if [ ! -d "%{oneadmin_home}/.ssh-oneprovision/" ]; then
+        su oneadmin -c "mkdir %{oneadmin_home}/.ssh-oneprovision/"
+        su oneadmin -c "chmod 700 %{oneadmin_home}/.ssh-oneprovision/"
+        chcon -t ssh_home_t %{oneadmin_home}/.ssh-oneprovision
+        su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh-oneprovision/id_rsa"
     fi
 fi
 
@@ -1983,7 +1985,7 @@ sleep 10
 /usr/lib/one/ruby/DriverExecHelper.rb
 /usr/lib/one/ruby/ec2_driver.rb
 /usr/lib/one/ruby/nsx_driver.rb
-/usr/lib/one/ruby/ec2_vnm.rb
+/usr/lib/one/ruby/aws_vnm.rb
 /usr/lib/one/ruby/packet_vnm.rb
 %dir /usr/lib/one/ruby/nsx_driver
 /usr/lib/one/ruby/nsx_driver/*

@@ -9,20 +9,14 @@ ONE_UID=9869
 ONE_GID=9869
 
 ssh_key_configure() {
-    if ! [ -d "$ONEHOME/.ssh" ]; then
-        mkdir "$ONEHOME/.ssh"
-        chown $ONE_USER "$ONEHOME/.ssh"
-        chmod 755 "$ONEHOME/.ssh"
+    if ! [ -d "$ONEHOME/.ssh-oneprovision" ]; then
+        mkdir "$ONEHOME/.ssh-oneprovision"
+        chown $ONE_USER "$ONEHOME/.ssh-oneprovision"
+        chmod 700 "$ONEHOME/.ssh-oneprovision"
     fi
 
-    if ! [ -d "$ONEHOME/.ssh/ddc" ]; then
-        mkdir "$ONEHOME/.ssh/ddc"
-        chown $ONE_USER "$ONEHOME/.ssh/ddc"
-        chmod 755 "$ONEHOME/.ssh/ddc"
-    fi
-
-    if ! [ -f "$ONEHOME/.ssh/ddc/id_rsa" ]; then
-        su $ONE_USER -c "ssh-keygen -N '' -t rsa -f $ONEHOME/.ssh/ddc/id_rsa"
+    if ! [ -f "$ONEHOME/.ssh-oneprovision/id_rsa" ]; then
+        su $ONE_USER -c "ssh-keygen -N '' -t rsa -f $ONEHOME/.ssh-oneprovision/id_rsa"
     fi
 }
 
