@@ -129,7 +129,7 @@ for DOCKER_FILE in "templates/${TEMPLATES}"/Dockerfile-*; do
 
     # include docker-compose.yml
     echo "***** Include docker-compose.yml from examples" >&2
-    cp -a "${DOCKER_PATH}/examples/onedocker-compose/docker-compose.yml" \
+    cp -a "${DOCKER_PATH}/compose/frontend/docker-compose.yml" \
         "${BUILD_DIR}/"
 done
 

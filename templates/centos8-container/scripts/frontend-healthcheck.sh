@@ -18,7 +18,7 @@
 
 set -e
 
-# onedocker-frontend.sh should have bootstrapped the supervisord - if not then
+# frontend-bootstrap.sh should have bootstrapped the supervisord - if not then
 # it either failed and exited (therefore healthcheck is redundant) or it was
 # not started at all (e.g.: overidden entrypoint) and then it is irrelevant...
 

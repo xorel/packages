@@ -34,42 +34,34 @@ LABEL org.opencontainers.image.vendor="OpenNebula Systems"
 
 # image params
 
-LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Fontend service to run (or all), \
-OPENNEBULA_FRONTEND_SSH_HOSTNAME=Host to which node will ssh into, \
-OPENNEBULA_ONED_HOSTNAME=Host of the oned API server, \
-OPENNEBULA_ONED_APIPORT=Port of the oned server, \
-OPENNEBULA_ONED_TLSPROXY_APIPORT=Secure port of the oned server (if TLS proxy is enabled), \
-OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR=Path to the hypervisor on the node, \
-OPENNEBULA_ONEFLOW_HOSTNAME=Host of the oneflow server, \
-OPENNEBULA_ONEFLOW_APIPORT=Port of the oneflow server, \
-OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT=Secure port of the oneflow server (if TLS proxy is enabled), \
-OPENNEBULA_ONEGATE_HOSTNAME=Host of the onegate server, \
-OPENNEBULA_ONEGATE_APIPORT=Port of the onegate server, \
-OPENNEBULA_ONEGATE_TLSPROXY_APIPORT=Secure port of the onegate server (if TLS proxy is enabled), \
-OPENNEBULA_MEMCACHED_HOSTNAME=Host of the memcached server, \
-OPENNEBULA_MEMCACHED_APIPORT=Port of the memcached server, \
-OPENNEBULA_GUACD_HOSTNAME=Host of the guacd server, \
-OPENNEBULA_GUACD_APIPORT=Port of the guacd server, \
-OPENNEBULA_SUNSTONE_HTTPPORT=HTTP port for the sunstone server, \
-OPENNEBULA_SUNSTONE_HTTPSPORT=HTTPS port for the sunstone server, \
-OPENNEBULA_SUNSTONE_HTTPS_ENABLED=yes/no if HTTPS should be enabled at all, \
-OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT=Published HTTP port on the host part, \
-OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT=Published HTTPS port on the host part, \
-OPENNEBULA_SUNSTONE_VNCPORT=Port of the VNC server, \
-OPENNEBULA_FIREEDGE_HOSTNAME=Host of the fireedge server, \
-OPENNEBULA_FIREEDGE_HTTPPORT=HTTP port for the fireedge server, \
-OPENNEBULA_FIREEDGE_PUBLISH_ADDR=External host address of the fireedge server, \
-OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT=Published HTTP port of the fireedge server, \
-OPENNEBULA_TLS_PROXY_ENABLED=yes/no if TLS proxy (stunnel) should be running, \
-OPENNEBULA_TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
-OPENNEBULA_TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
-OPENNEBULA_TLS_CERT_BASE64=Custom certificate in base64 format, \
-OPENNEBULA_TLS_KEY_BASE64=Privkey to the custom certificate in base64 format, \
-OPENNEBULA_TLS_CERT=Custom certificate as a filename, \
-OPENNEBULA_TLS_KEY=Privkey to the custom certificate as a filename, \
+LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Frontend service to run (or all), \
+OPENNEBULA_FRONTEND_HOST=Host which will be advertised as the frontend endpoint, \
+OPENNEBULA_FRONTEND_SSH_HOST=Advertised host to which node will ssh into, \
+ONED_HOST=Host of the oned server, \
+ONEFLOW_HOST=Host of the oneflow server, \
+ONEGATE_HOST=Host of the onegate server, \
+ONEGATE_PORT=Advertised port of the onegate server, \
+MEMCACHED_HOST=Host of the memcached server, \
+GUACD_HOST=Host of the guacd server, \
+SUNSTONE_PORT=Advertised HTTP port for the sunstone server, \
+SUNSTONE_TLS_PORT=Advertised HTTPS port for the sunstone server, \
+SUNSTONE_HTTPS_ENABLED=yes/no if HTTPS should be enabled at all, \
+SUNSTONE_VNC_PORT=Port of the VNC server, \
+FIREEDGE_HOST=Host of the fireedge server, \
+TLS_PROXY_ENABLED=yes/no if TLS proxy (stunnel) should be running, \
+TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
+TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
+TLS_CERT_BASE64=Custom certificate in base64 format, \
+TLS_KEY_BASE64=Privkey to the custom certificate in base64 format, \
+TLS_CERT=Custom certificate as a filename, \
+TLS_KEY=Privkey to the custom certificate as a filename, \
 ONEADMIN_PASSWORD=Password for the oneadmin user (otherwise generated), \
 ONEADMIN_SSH_PRIVKEY=Privkey of the custom ssh key as a filename, \
 ONEADMIN_SSH_PUBKEY=Pubkey of the custom ssh key as a filename, \
+DOCKER_ENABLED=yes/no if docker service should be running, \
+DOCKER_TCP_ENABLED=yes/no if docker should listen on tcp, \
+DOCKER_HOST=Host of the docker server, \
+DOCKER_SOCKET=Filepath to the docker socket, \
 MYSQL_HOST=Host of the mysql server, \
 MYSQL_PORT=Port of the mysql server, \
 MYSQL_DATABASE=Database name for the OpenNebula database, \
@@ -156,6 +148,9 @@ RUN rm -rf /etc/supervisord.* && mkdir -p /etc/supervisord.d
 # create supervisord logdir
 RUN mkdir -p /var/log/supervisor/services
 
+# create config location for our supervisor services
+RUN mkdir -p /etc/default/supervisor
+
 # copy supervisord config
 COPY conf/supervisord.conf /usr/share/one/supervisor/supervisord.conf
 RUN chown root:root /usr/share/one/supervisor/supervisord.conf
@@ -228,6 +223,8 @@ RUN chmod a+x /var/lib/one/sunstone
 # This has meaning only when the built image is squashed or obfuscated (as we
 # do here via the two-stage build) - otherwise it will just hide these deleted
 # files in the top layer but they are still easily retrievable!
+#
+# TODO: what with the /run? Mariadb fails if /run/mariadb is not there...
 
 RUN rm -rf \
         /etc/yum.repos.d/opennebula.repo \
@@ -247,69 +244,71 @@ RUN truncate -c -s 0 \
 # HEALTHCHECK
 #
 
-COPY onedocker-healthcheck.sh /
-RUN chown root:root /onedocker-healthcheck.sh
-RUN chmod 0755 /onedocker-healthcheck.sh
+COPY scripts/frontend-healthcheck.sh /
+RUN chown root:root /frontend-healthcheck.sh
+RUN chmod 0755 /frontend-healthcheck.sh
 
 # this is a docker extension and it is not part of OCI definition - logic is
 # moved to the docker-compose file now
 #HEALTHCHECK --start-period=2m --interval=10s --retries=3 --timeout=10s \
-#    CMD [ "/onedocker-healthcheck.sh" ]
+#    CMD [ "/frontend-healthcheck.sh" ]
 
 #
 # ENTRYPOINT
 #
 
 # onedocker script which is doing the heavy-lifting
-COPY onedocker-frontend.sh /
-RUN chown root:root /onedocker-frontend.sh
-RUN chmod 0755 /onedocker-frontend.sh
+COPY scripts/frontend-bootstrap.sh /
+RUN chown root:root /frontend-bootstrap.sh
+RUN chmod 0755 /frontend-bootstrap.sh
 
-ENTRYPOINT [ "/onedocker-frontend.sh" ]
+ENTRYPOINT [ "/frontend-bootstrap.sh" ]
 
 # our entrypoint does not parse arguments
 #CMD [ "NO-EFFECT" ]
 
 #
-# PUBLISHED SERVICES
+# PUBLISHABLE SERVICES
 #
 
-# these are the default ports - *most* of them can be changed on every start...
-# the exceptions are sshd and mysqld services for the moment
+# commented out ports are those which are used in the container but not desired
+# to be exposed...
 
 # sshd:
 EXPOSE 22/tcp
 
 # mysql:
-EXPOSE 3306/tcp
+#EXPOSE 3306/tcp
 
 # sunstone:
-EXPOSE 9869/tcp
 EXPOSE 80/tcp
 EXPOSE 443/tcp
 
 # oned:
 EXPOSE 2633/tcp
+EXPOSE 2634/tcp
 
 # oneflow:
 EXPOSE 2474/tcp
+EXPOSE 2475/tcp
 
 # onegate:
 EXPOSE 5030/tcp
+EXPOSE 5031/tcp
 
 # memcached:
-EXPOSE 11211/tcp
+#EXPOSE 11211/tcp
 
 # novnc:
 EXPOSE 29876/tcp
 
 # fireedge:
-EXPOSE 2616/tcp
+#EXPOSE 2616/tcp
 
-# guacd (vnc):
-EXPOSE 4822/tcp
+# guacd:
+#EXPOSE 4822/tcp
 
 # docker daemon
-EXPOSE 2375/tcp
-EXPOSE 2376/tcp
+#EXPOSE 2375/tcp
+#EXPOSE 2376/tcp
 

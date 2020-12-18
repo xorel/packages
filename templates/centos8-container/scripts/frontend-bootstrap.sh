@@ -25,76 +25,76 @@ set -e
 # frontend
 
 export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
-export OPENNEBULA_FRONTEND_SSH_HOSTNAME="${OPENNEBULA_FRONTEND_SSH_HOSTNAME:-opennebula-frontend}"
+export OPENNEBULA_FRONTEND_HOST="${OPENNEBULA_FRONTEND_HOST:-opennebula-frontend}"
+export OPENNEBULA_FRONTEND_SSH_HOST="${OPENNEBULA_FRONTEND_SSH_HOST:-${OPENNEBULA_FRONTEND_HOST}}"
+export MAINTENANCE_MODE="${MAINTENANCE_MODE:-no}"
 
 # oned
 
-export OPENNEBULA_ONED_HOSTNAME="${OPENNEBULA_ONED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_ONED_APIPORT="${OPENNEBULA_ONED_APIPORT:-2633}"
-export OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR
-export OPENNEBULA_ONED_TLSPROXY_APIPORT
+export ONED_HOST="${ONED_HOST:-localhost}"
+export ONED_INTERNAL_PORT=2633
+export ONED_INTERNAL_TLS_PORT=2634
 
 # oneflow
 
-export OPENNEBULA_ONEFLOW_HOSTNAME="${OPENNEBULA_ONEFLOW_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_ONEFLOW_APIPORT="${OPENNEBULA_ONEFLOW_APIPORT:-2474}"
-export OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT
+export ONEFLOW_HOST="${ONEFLOW_HOST:-localhost}"
+export ONEFLOW_INTERNAL_PORT=2474
+export ONEFLOW_INTERNAL_TLS_PORT=2475
 
 # onegate
 
-export OPENNEBULA_ONEGATE_HOSTNAME="${OPENNEBULA_ONEGATE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_ONEGATE_APIPORT="${OPENNEBULA_ONEGATE_APIPORT:-5030}"
-export OPENNEBULA_ONEGATE_TLSPROXY_APIPORT
+export ONEGATE_HOST="${ONEGATE_HOST:-localhost}"
+export ONEGATE_INTERNAL_PORT=5030
+export ONEGATE_INTERNAL_TLS_PORT=5031
+# NOTE: this is needed so the oned can advertise this port
+export ONEGATE_PORT="${ONEGATE_PORT:-5030}"
 
 # memcached
 
-export OPENNEBULA_MEMCACHED_HOSTNAME="${OPENNEBULA_MEMCACHED_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_MEMCACHED_APIPORT="${OPENNEBULA_MEMCACHED_APIPORT:-11211}"
+export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
+export MEMCACHED_INTERNAL_PORT=11211
 
 # guacd
 
-export OPENNEBULA_GUACD_HOSTNAME="${OPENNEBULA_GUACD_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_GUACD_APIPORT="${OPENNEBULA_GUACD_APIPORT:-4822}"
+export GUACD_HOST="${GUACD_HOST:-localhost}"
+export GUACD_INTERNAL_PORT=4822
 
 # fireedge
 
-export OPENNEBULA_FIREEDGE_HOSTNAME="${OPENNEBULA_FIREEDGE_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_FIREEDGE_HTTPPORT="${OPENNEBULA_FIREEDGE_HTTPPORT:-2616}"
-# NOTE: these are needed for sunstone to provide user-facing URL to fireedge
-export OPENNEBULA_FIREEDGE_PUBLISH_ADDR="${OPENNEBULA_FIREEDGE_PUBLISH_ADDR:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT="${OPENNEBULA_FIREEDGE_PUBLISHED_HTTPPORT:-2616}"
+export FIREEDGE_HOST="${FIREEDGE_HOST:-localhost}"
+export FIREEDGE_INTERNAL_PORT=2616
 
 # sunstone
 
-export OPENNEBULA_SUNSTONE_HTTPPORT="${OPENNEBULA_SUNSTONE_HTTPPORT:-9869}"
-export OPENNEBULA_SUNSTONE_HTTPSPORT="${OPENNEBULA_SUNSTONE_HTTPSPORT:-443}"
-export OPENNEBULA_SUNSTONE_VNCPORT="${OPENNEBULA_SUNSTONE_VNCPORT:-29876}"
-# TODO: this is not ideal - but I need to match and/or redirect these ports...
-export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT:-9869}"
-export OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT="${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT:-443}"
+export SUNSTONE_INTERNAL_PORT=80
+export SUNSTONE_INTERNAL_TLS_PORT=443
+# NOTE: this is not ideal - but I need to match and/or redirect these ports...
+export SUNSTONE_PORT="${SUNSTONE_PORT:-80}"
+export SUNSTONE_TLS_PORT="${SUNSTONE_TLS_PORT:-443}"
+# TODO: can this be just internal port - is this proxied or advertised?
+export SUNSTONE_VNC_PORT="${SUNSTONE_VNC_PORT:-29876}"
 # NOTE: HTTP redirection is no longer optional (it will be set to yes when HTTPS is enabled)
-export OPENNEBULA_SUNSTONE_HTTP_REDIRECT=no
-export OPENNEBULA_SUNSTONE_HTTPS_ENABLED="${OPENNEBULA_SUNSTONE_HTTPS_ENABLED:-yes}"
+export SUNSTONE_HTTP_REDIRECT=no
+export SUNSTONE_HTTPS_ENABLED="${SUNSTONE_HTTPS_ENABLED:-yes}"
 
 # TLS
 
-export OPENNEBULA_TLS_PROXY_ENABLED="${OPENNEBULA_TLS_PROXY_ENABLED:-no}"
-export OPENNEBULA_TLS_DOMAIN_LIST="${OPENNEBULA_TLS_DOMAIN_LIST:-*}"
-export OPENNEBULA_TLS_VALID_DAYS="${OPENNEBULA_TLS_VALID_DAYS:-365}"
-export OPENNEBULA_TLS_CERT_BASE64
-export OPENNEBULA_TLS_KEY_BASE64
-export OPENNEBULA_TLS_CERT
-export OPENNEBULA_TLS_KEY
+export TLS_PROXY_ENABLED="${TLS_PROXY_ENABLED:-no}"
+export TLS_DOMAIN_LIST="${TLS_DOMAIN_LIST:-*}"
+export TLS_VALID_DAYS="${TLS_VALID_DAYS:-365}"
+export TLS_CERT_BASE64
+export TLS_KEY_BASE64
+export TLS_CERT
+export TLS_KEY
 
 # docker
 
 # docker needs to run in privileged container - therefore disabled by default
-export OPENNEBULA_DOCKER_ENABLED="${OPENNEBULA_DOCKER_ENABLED:-no}"
-export OPENNEBULA_DOCKER_HOSTNAME="${OPENNEBULA_DOCKER_HOSTNAME:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
-export OPENNEBULA_DOCKER_APIPORT="${OPENNEBULA_DOCKER_APIPORT:-2375}"
-export OPENNEBULA_DOCKER_SOCKET="${OPENNEBULA_DOCKER_SOCKET:-/var/run/docker.sock}"
-export OPENNEBULA_DOCKER_APIPORT="${OPENNEBULA_DOCKER_APIPORT:-2375}"
-export OPENNEBULA_DOCKER_TCPHOST_ENABLED="${OPENNEBULA_DOCKER_TCPHOST_ENABLED:-no}"
+export DIND_ENABLED="${DIND_ENABLED:-no}"
+export DIND_HOST="${DIND_HOST:-localhost}"
+export DIND_INTERNAL_PORT=2375
+export DIND_SOCKET="${DIND_SOCKET:-/var/run/docker.sock}"
+export DIND_TCP_ENABLED="${DIND_TCP_ENABLED:-no}"
 
 # oneadmin
 
@@ -107,7 +107,7 @@ export ONEADMIN_SSH_PUBKEY
 
 # mysql
 
-export MYSQL_HOST="${MYSQL_HOST:-${OPENNEBULA_FRONTEND_SSH_HOSTNAME}}"
+export MYSQL_HOST="${MYSQL_HOST:-localhost}"
 export MYSQL_PORT="${MYSQL_PORT:-3306}"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-opennebula}"
 export MYSQL_USER="${MYSQL_USER:-oneadmin}"
@@ -119,6 +119,8 @@ export MYSQL_ROOT_PASSWORD
 #
 
 PASSWORD_LENGTH=16
+DELETE_LIST="/var/tmp/delete_on_bootstrap_exit"
+TIMEOUT=120 # in seconds
 
 ###############################################################################
 # functions
@@ -126,12 +128,12 @@ PASSWORD_LENGTH=16
 
 msg()
 {
-    echo "[ONEDOCKER]: $*"
+    echo "[BOOTSTRAP]: $*"
 }
 
 err()
 {
-    echo "[ONEDOCKER] [!] ERROR: $*"
+    echo "[BOOTSTRAP] [!] ERROR: $*"
 }
 
 gen_password()
@@ -158,6 +160,16 @@ is_true()
 
     return 1
 )
+
+trapped_on_exit()
+{
+    # delete locks and temp files
+    if [ -f "$DELETE_LIST" ] ; then
+        cat "$DELETE_LIST" | while read -r _filename ; do
+            rm -rf "$_filename"
+        done
+    fi
+}
 
 # Feed augtool commands on stdin of this function:
 #
@@ -375,42 +387,111 @@ prepare_ssh()
     fi
 }
 
+# arg: <lockfile>
+lock_or_skip()
+(
+    _lock_file="$1"
+    _tmp_file=$(mktemp "${1}-XXXX")
+
+    # no need to store pid because the process would not be seen from other
+    # container anyway...so we store our own name to be deleted later
+    echo "$_tmp_file" > "$_tmp_file"
+
+    # hardlink is atomic operation
+    if ! ln "$_tmp_file" "$_lock_file" >/dev/null 2>&1 ; then
+        # lock already exists
+        return 1
+    fi
+
+    # store filenames in the file for potential cleanup on an abrupt exit
+    echo "$_tmp_file" >> "$DELETE_LIST"
+    echo "$_lock_file" >> "$DELETE_LIST"
+
+    return 0
+)
+
+# arg: <lockfile>
+remove_lock()
+(
+    _lock_file="$1"
+    _tmp_file=$(cat "$_lock_file")
+
+    rm -f "$_lock_file" "$_tmp_file"
+)
+
+wait_for_file()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if [ -e "$1" ] ; then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1
+    done
+
+    return 1
+)
+
 prepare_cert()
 (
+    # internal filepaths can be hardcoded - only the content varies
+    _cert_path="/cert_data/one.crt"
+    _key_path="/cert_data/one.key"
+    _cert_info_path="/cert_data/one.txt"
+    _cert_lock="/cert_data/one.lock"
+
     # ensure the existence of cert_data directory
     if ! [ -d /cert_data ] ; then
         mkdir -p /cert_data
     fi
 
-    # internal filepaths can be hardcoded - only the content is variable
-    _cert_path="/cert_data/one.crt"
-    _key_path="/cert_data/one.key"
-    _cert_info_path="/cert_data/one.txt"
+    msg "LOCK OR WAIT FOR CERTIFICATE CREATION"
+    if ! lock_or_skip "$_cert_lock" ; then
+        msg "WAITING FOR CERTIFICATE TO EMERGE (${TIMEOUT} secs)..."
+
+        if ! wait_for_file "$_cert_path" ; then
+            err "REACHED TIMEOUT: NO CERTIFICATE"
+            exit 1
+        fi
+
+        if ! wait_for_file "$_key_path" ; then
+            err "REACHED TIMEOUT: NO CERTIFICATE"
+            exit 1
+        fi
+
+        msg "GOT CERTIFICATE"
+        return 0
+    fi
+
+    msg "CREATE OR STORE CERTIFICATE"
 
     # copy the custom certificate
     _custom_cert=no
-    if [ -n "$OPENNEBULA_TLS_CERT_BASE64" ] && [ -n "$OPENNEBULA_TLS_KEY_BASE64" ] ; then
+    if [ -n "$TLS_CERT_BASE64" ] && [ -n "$TLS_KEY_BASE64" ] ; then
         _custom_cert=yes
 
-        if ! echo "$OPENNEBULA_TLS_CERT_BASE64" | base64 -d > "${_cert_path}" ; then
-            err "'OPENNEBULA_TLS_CERT_BASE64' does not have a base64 value - ABORT"
+        if ! echo "$TLS_CERT_BASE64" | base64 -d > "${_cert_path}" ; then
+            err "'TLS_CERT_BASE64' does not have a base64 value - ABORT"
             return 1
         fi
         chmod 0644 "${_cert_path}"
 
-        if ! echo "$OPENNEBULA_TLS_KEY_BASE64" | base64 -d > "${_key_path}" ; then
-            err "'OPENNEBULA_TLS_KEY_BASE64' does not have a base64 value - ABORT"
+        if ! echo "$TLS_KEY_BASE64" | base64 -d > "${_key_path}" ; then
+            err "'TLS_KEY_BASE64' does not have a base64 value - ABORT"
             return 1
         fi
         chmod 0600 "${_key_path}"
-    elif [ -n "$OPENNEBULA_TLS_CERT" ] && [ -n "$OPENNEBULA_TLS_KEY" ] ; then
-        if [ -f "$OPENNEBULA_TLS_CERT" ] && [ -f "$OPENNEBULA_TLS_KEY" ] ; then
+    elif [ -n "$TLS_CERT" ] && [ -n "$TLS_KEY" ] ; then
+        if [ -f "$TLS_CERT" ] && [ -f "$TLS_KEY" ] ; then
             _custom_cert=yes
 
-            cat "$OPENNEBULA_TLS_CERT" > "${_cert_path}"
+            cat "$TLS_CERT" > "${_cert_path}"
             chmod 0644 "${_cert_path}"
 
-            cat "$OPENNEBULA_TLS_KEY" > "${_key_path}"
+            cat "$TLS_KEY" > "${_key_path}"
             chmod 0600 "${_key_path}"
         fi
     fi
@@ -426,8 +507,8 @@ prepare_cert()
             # versions of openssl command)
             if [ -f "${_cert_info_path}" ] ; then
                 _new_cert_info=$(cat <<EOF
-DNS = ${OPENNEBULA_TLS_DOMAIN_LIST}
-DAYS = ${OPENNEBULA_TLS_VALID_DAYS}
+DNS = ${TLS_DOMAIN_LIST}
+DAYS = ${TLS_VALID_DAYS}
 EOF
                 )
                 _new_cert_info_hash=$(echo "${_new_cert_info}" | sha256sum)
@@ -453,7 +534,7 @@ EOF
 
         # exploit the shell argument array
         set -f
-        set -- ${OPENNEBULA_TLS_DOMAIN_LIST}
+        set -- ${TLS_DOMAIN_LIST}
         set +f
         _cn="${1}"
         shift
@@ -470,20 +551,23 @@ EOF
         # also deduplicate this openssl command
         if [ -n "$_alt" ] ; then
             openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
-                -days "${OPENNEBULA_TLS_VALID_DAYS}" \
+                -days "${TLS_VALID_DAYS}" \
                 -subj "/CN=${_cn}" \
                 -addext "subjectAltName=${_alt}" \
                 -out "${_cert_path}" \
                 -keyout "${_key_path}"
         else
             openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
-                -days "${OPENNEBULA_TLS_VALID_DAYS}" \
+                -days "${TLS_VALID_DAYS}" \
                 -subj "/CN=${_cn}" \
                 -out "${_cert_path}" \
                 -keyout "${_key_path}"
         fi
 
     fi
+
+    # cleanup the temp files
+    remove_lock "$_cert_lock"
 
     chown -R "${ONEADMIN_USERNAME}:" /cert_data
     chmod 0700 /cert_data
@@ -510,18 +594,18 @@ configure_tlsproxy()
     case "$1" in
         oned)
             _name="$1"
-            _accept_port="${OPENNEBULA_ONED_TLSPROXY_APIPORT}"
-            _connect_port="${OPENNEBULA_ONED_APIPORT}"
+            _accept_port="${ONED_INTERNAL_TLS_PORT}"
+            _connect_port="${ONED_INTERNAL_PORT}"
             ;;
         onegate)
             _name="$1"
-            _accept_port="${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT}"
-            _connect_port="${OPENNEBULA_ONEGATE_APIPORT}"
+            _accept_port="${ONEGATE_INTERNAL_TLS_PORT}"
+            _connect_port="${ONEGATE_INTERNAL_PORT}"
             ;;
         oneflow)
             _name="$1"
-            _accept_port="${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT}"
-            _connect_port="${OPENNEBULA_ONEFLOW_APIPORT}"
+            _accept_port="${ONEFLOW_INTERNAL_TLS_PORT}"
+            _connect_port="${ONEFLOW_INTERNAL_PORT}"
             ;;
         *)
             err "UNKNOWN TLS PROXY SERVICE '${1}' - ABORT"
@@ -547,16 +631,9 @@ configure_oned()
 {
     # setup hostname and port
     augtool_helper /etc/one/oned.conf <<EOF
-set HOSTNAME '"${OPENNEBULA_FRONTEND_SSH_HOSTNAME}"'
-set PORT '"${OPENNEBULA_ONED_APIPORT}"'
+set HOSTNAME '"${OPENNEBULA_FRONTEND_SSH_HOST}"'
+set PORT '"${ONED_INTERNAL_PORT}"'
 EOF
-
-    # setup hypervisor specifics
-    if [ -n "${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}" ] ; then
-        augtool_helper /etc/one/vmm_exec/vmm_exec_kvm.conf <<EOF
-set EMULATOR '"${OPENNEBULA_ONED_VMM_EXEC_KVM_EMULATOR}"'
-EOF
-    fi
 
     # add new DB connections based on the passed env. variables
     augtool_helper /etc/one/oned.conf <<EOF
@@ -569,16 +646,26 @@ set DB/PASSWD  '"${MYSQL_PASSWORD}"'
 set DB/DB_NAME '"${MYSQL_DATABASE}"'
 EOF
 
-    # add onegate endpoint
-    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
+    # advertise this onegate endpoint
+    if is_true "${TLS_PROXY_ENABLED}" ; then
         augtool_helper /etc/one/oned.conf <<EOF
-set ONEGATE_ENDPOINT '"https://${OPENNEBULA_ONEGATE_HOSTNAME}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT}"'
+set ONEGATE_ENDPOINT '"https://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}"'
 EOF
     else
         augtool_helper /etc/one/oned.conf <<EOF
-set ONEGATE_ENDPOINT '"http://${OPENNEBULA_ONEGATE_HOSTNAME}:${OPENNEBULA_ONEGATE_PUBLISHED_APIPORT}"'
+set ONEGATE_ENDPOINT '"http://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}"'
 EOF
     fi
+
+    # populate service env file
+    cat > /etc/default/supervisor/oned <<EOF
+export MYSQL_HOST="${MYSQL_HOST}"
+export MYSQL_PORT="${MYSQL_PORT}"
+export MYSQL_DATABASE="${MYSQL_DATABASE}"
+export MYSQL_USER="${MYSQL_USER}"
+export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+EOF
 }
 
 configure_sunstone()
@@ -587,7 +674,7 @@ configure_sunstone()
     # sanity checks
     #
 
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         if ! [ -f /cert_data/one.crt ] || ! [ -f /cert_data/one.key ] ; then
             err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
             exit 1
@@ -599,26 +686,26 @@ configure_sunstone()
     #
 
     sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
-        -e "s#^:oneflow_server:.*#:oneflow_server: http://${OPENNEBULA_ONEFLOW_HOSTNAME}:${OPENNEBULA_ONEFLOW_APIPORT}#" \
-        -e "s#^:port:.*#:port: ${OPENNEBULA_SUNSTONE_HTTPPORT}#" \
-        -e "s#^:vnc_proxy_port:.*#:vnc_proxy_port: ${OPENNEBULA_SUNSTONE_VNCPORT}#" \
+        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
+        -e "s#^:oneflow_server:.*#:oneflow_server: http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}#" \
+        -e "s#^:port:.*#:port: ${SUNSTONE_INTERNAL_PORT}#" \
+        -e "s#^:vnc_proxy_port:.*#:vnc_proxy_port: ${SUNSTONE_VNC_PORT}#" \
         -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
         /etc/one/sunstone-server.conf
 
     # this will decide where sunstone will point client to fireedge
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         sed -i \
-            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: https://${OPENNEBULA_FIREEDGE_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPSPORT}/fireedge#" \
+            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: https://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_TLS_PORT}/fireedge#" \
             /etc/one/sunstone-server.conf
     else
         sed -i \
-            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: http://${OPENNEBULA_FIREEDGE_PUBLISH_ADDR}:${OPENNEBULA_SUNSTONE_PUBLISHED_HTTPPORT}/fireedge#" \
+            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: http://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_PORT}/fireedge#" \
             /etc/one/sunstone-server.conf
     fi
 
     # enable vnc over ssl when https is required and certs provided
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         # value can be: no, yes, only
         _wss="only"
 
@@ -633,11 +720,6 @@ configure_sunstone()
     mkdir -p /var/tmp/sunstone/shared
     chown -R oneadmin:oneadmin /var/tmp/sunstone/shared
     chmod 0755 /var/tmp/sunstone/shared
-
-    # TODO: remove this when sunstone is fixed:
-    # https://github.com/OpenNebula/one/issues/5019
-    sed -i 's/^\([[:space:]]*webauthn_avail[[:space:]]*\)=.*/\1= false/' \
-        /usr/lib/one/sunstone/sunstone-server.rb
 
     # setup apache if requested
     mkdir -p /run/passenger
@@ -658,9 +740,9 @@ configure_sunstone()
         /etc/httpd/conf.d/opennebula-http.conf
 
     # enable HTTPS VirtualHost
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         # the if conditional in the httpd conf will expect yes or true
-        OPENNEBULA_SUNSTONE_HTTP_REDIRECT='yes'
+        SUNSTONE_HTTP_REDIRECT='yes'
 
         cp -a /etc/httpd/conf.d/opennebula-https.conf-disabled \
             /etc/httpd/conf.d/opennebula-https.conf
@@ -669,15 +751,26 @@ configure_sunstone()
     # configure memcached
     sed -i \
         -e "s#^:sessions:.*#:sessions: 'memcache'#" \
-        -e "s#^:memcache_host:.*#:memcache_host: ${OPENNEBULA_MEMCACHED_HOSTNAME}#" \
-        -e "s#^:memcache_port:.*#:memcache_port: ${OPENNEBULA_MEMCACHED_APIPORT}#" \
+        -e "s#^:memcache_host:.*#:memcache_host: ${MEMCACHED_HOST}#" \
+        -e "s#^:memcache_port:.*#:memcache_port: ${MEMCACHED_INTERNAL_PORT}#" \
         /etc/one/sunstone-server.conf
+
+    # populate service env file
+    cat > /etc/default/supervisor/sunstone <<EOF
+export SUNSTONE_HTTP_REDIRECT="${SUNSTONE_HTTP_REDIRECT}"
+export SUNSTONE_INTERNAL_PORT="${SUNSTONE_INTERNAL_PORT}"
+export SUNSTONE_INTERNAL_TLS_PORT="${SUNSTONE_INTERNAL_TLS_PORT}"
+export SUNSTONE_PORT="${SUNSTONE_PORT}"
+export SUNSTONE_TLS_PORT="${SUNSTONE_TLS_PORT}"
+export FIREEDGE_HOST="${FIREEDGE_HOST}"
+export FIREEDGE_INTERNAL_PORT="${FIREEDGE_INTERNAL_PORT}"
+EOF
 }
 
 configure_memcached()
 {
     augtool_helper /etc/sysconfig/memcached <<EOF
-set PORT '"${OPENNEBULA_MEMCACHED_APIPORT}"'
+set PORT '"${MEMCACHED_INTERNAL_PORT}"'
 EOF
 }
 
@@ -695,19 +788,19 @@ LOG: prod
 CORS: true
 
 # Fireedge server port
-PORT: ${OPENNEBULA_FIREEDGE_HTTPPORT}
+PORT: ${FIREEDGE_INTERNAL_PORT}
 
 # OpenNebula Zones: use it if you have oned and fireedge on different servers
 DEFAULT_ZONE:
   ID: '0'
   NAME: 'OpenNebula'
-  RPC: 'http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2'
+  RPC: 'http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2'
 
 # Flow Server: use it if you have flow-server and fireedge on different servers
 ONE_FLOW_SERVER:
   PROTOCOL: 'http'
-  HOST: '${OPENNEBULA_ONEFLOW_HOSTNAME}'
-  POST: ${OPENNEBULA_ONEFLOW_APIPORT}
+  HOST: '${ONEFLOW_HOST}'
+  POST: ${ONEFLOW_INTERNAL_PORT}
 
 # JWT life time (days)
 LIMIT_TOKEN:
@@ -720,8 +813,8 @@ LIMIT_TOKEN:
 
 # Guacamole: use it if you have the Guacd in other server or port
 GUACD:
-  PORT: ${OPENNEBULA_GUACD_APIPORT}
-  HOST: '${OPENNEBULA_GUACD_HOSTNAME}'
+  PORT: ${GUACD_INTERNAL_PORT}
+  HOST: '${GUACD_HOST}'
 
 EOF
 }
@@ -729,54 +822,69 @@ EOF
 configure_scheduler()
 {
     augtool_helper /etc/one/sched.conf <<EOF
-set ONE_XMLRPC '"http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2"'
+set ONE_XMLRPC '"http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"'
 EOF
 }
 
 configure_oneflow()
 {
     sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
+        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
         -e "s#^:host:.*#:host: 0.0.0.0#" \
-        -e "s#^:port:.*#:port: ${OPENNEBULA_ONEFLOW_APIPORT}#" \
+        -e "s#^:port:.*#:port: ${ONEFLOW_INTERNAL_PORT}#" \
         /etc/one/oneflow-server.conf
 }
 
 configure_onegate()
 {
     sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${OPENNEBULA_ONED_HOSTNAME}:${OPENNEBULA_ONED_APIPORT}/RPC2#" \
-        -e "s#^:oneflow_server:.*#:oneflow_server: http://${OPENNEBULA_ONEFLOW_HOSTNAME}:${OPENNEBULA_ONEFLOW_APIPORT}#" \
+        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
+        -e "s#^:oneflow_server:.*#:oneflow_server: http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}#" \
         -e "s#^:host:.*#:host: 0.0.0.0#" \
-        -e "s#^:port:.*#:port: ${OPENNEBULA_ONEGATE_APIPORT}#" \
+        -e "s#^:port:.*#:port: ${ONEGATE_INTERNAL_PORT}#" \
         /etc/one/onegate-server.conf
 }
 
-# TODO: remove?
-# The logic was moved to the mysqld-configure service
-#configure_db()
-#{
-#    mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" \
-#        -u root -p"$MYSQL_ROOT_PASSWORD" \
-#        -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
-#}
+configure_mysql()
+{
+    # TODO: remove? The logic was moved to the mysqld-configure service
+    #mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" \
+    #    -u root -p"$MYSQL_ROOT_PASSWORD" \
+    #    -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
+
+    # ensure that the mysql directory is owned by mysql user and has correct
+    # permissions
+    chown -R mysql:mysql /var/lib/mysql
+    chmod 755 /var/lib/mysql
+
+    # populate service env file
+    cat > /etc/default/supervisor/mysqld <<EOF
+export MYSQL_HOST="${MYSQL_HOST}"
+export MYSQL_PORT="${MYSQL_PORT}"
+export MYSQL_DATABASE="${MYSQL_DATABASE}"
+export MYSQL_USER="${MYSQL_USER}"
+export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
+EOF
+}
 
 configure_docker()
 (
     # setup docker socket which will be used in all cases
-    _docker_hosts="--host=unix://${OPENNEBULA_DOCKER_SOCKET}"
+    _docker_hosts="--host=unix://${DIND_SOCKET}"
 
-    if is_true "${OPENNEBULA_DOCKER_TCPHOST_ENABLED}" ; then
+    if is_true "${DIND_TCP_ENABLED}" ; then
         # just add space if needed
         _docker_hosts="${_docker_hosts}${_docker_hosts:+ }"
 
         # expose docker daemon via TCP
-        _docker_hosts="${_docker_hosts}--host=tcp://${OPENNEBULA_DOCKER_HOSTNAME}:${OPENNEBULA_DOCKER_APIPORT}"
+        _docker_hosts="${_docker_hosts}--host=tcp://${DIND_HOST}:${DIND_INTERNAL_PORT}"
     fi
 
-    cat > /etc/sysconfig/dockerd <<EOF
-DOCKERD_SOCK="${OPENNEBULA_DOCKER_SOCKET}"
-DOCKER_HOSTS="${_docker_hosts}"
+    # populate service env file
+    cat > /etc/default/supervisor/dockerd <<EOF
+export DOCKERD_SOCK="${DIND_SOCKET}"
+export DOCKER_HOSTS="${_docker_hosts}"
 EOF
 )
 
@@ -795,13 +903,13 @@ sanity_check()
 
 fix_docker_socket()
 {
-    if ! [ -e "${OPENNEBULA_DOCKER_SOCKET}" ] ; then
-        err "NO DOCKER SOCKET (${OPENNEBULA_DOCKER_SOCKET}): SKIP"
+    if ! [ -e "${DIND_SOCKET}" ] ; then
+        err "NO DOCKER SOCKET (${DIND_SOCKET}): SKIP"
         return 0
     fi
 
     # save the gid of the docker.sock
-    _docker_gid=$(stat -c %g "${OPENNEBULA_DOCKER_SOCKET}")
+    _docker_gid=$(stat -c %g "${DIND_SOCKET}")
 
     if getent group | grep -q '^docker:' ; then
         # we reassign the docker's GID to that of the actual docker.sock
@@ -817,10 +925,10 @@ fix_docker_socket()
 
 fix_docker_command()
 (
-    if is_true "${OPENNEBULA_DOCKER_TCPHOST_ENABLED}" ; then
-        _docker_host="tcp://${OPENNEBULA_DOCKER_HOSTNAME}:${OPENNEBULA_DOCKER_APIPORT}"
+    if is_true "${DIND_TCP_ENABLED}" ; then
+        _docker_host="tcp://${DIND_HOST}:${DIND_INTERNAL_PORT}"
     else
-        _docker_host="unix://${OPENNEBULA_DOCKER_SOCKET}"
+        _docker_host="unix://${DIND_SOCKET}"
     fi
 
     cat > /usr/local/bin/docker <<EOF
@@ -892,8 +1000,38 @@ fix_hosts_file()
     rm -f /etc/hosts.tmp
 }
 
+cleanup_tmpdirs()
+{
+    find \
+        /tmp \
+        /run/lock \
+        -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \;
+
+    # TODO: remove this when /lib/tmpfiles.d/opennebula-common.conf is corrected
+    # to /run/lock
+    mkdir -p /run/lock
+}
+
+fix_volume_ownership()
+{
+    # podman does not respect ownership of directories when volume is mounted -
+    # these must be then explicitly stated during bootstrap
+    #
+    # setup which does not fit anywhere else can be here...
+
+    # opennebula shared log directory
+    chown oneadmin:oneadmin /var/log/one
+    chmod 0750 /var/log/one
+}
+
 common_configuration()
 {
+    msg "CLEAN UP NON-PERSISTENT DIRECTORIES"
+    cleanup_tmpdirs
+
+    msg "FIX OWNERSHIP OF THE VOLUME PATHS"
+    fix_volume_ownership
+
     msg "FIX HOSTS FILE (/etc/hosts)"
     fix_hosts_file
 
@@ -910,11 +1048,28 @@ common_configuration()
     link_onedata
 }
 
+# useful only in all-in-one deployment or if using podman (cause its containers
+# share the network namespace and are basically reachable on the localhost)
+resolve_frontend_hostname()
+{
+    echo 127.0.0.1 "$OPENNEBULA_FRONTEND_HOST" \
+        >> /etc/hosts
+}
+
+tlsproxy()
+{
+    # prepare TLS proxy service
+    if is_true "${TLS_PROXY_ENABLED}" ; then
+        msg "SETUP SERVICE: STUNNEL"
+        add_supervised_service stunnel
+    fi
+}
+
 #
 # frontend services
 #
 
-sshd()
+sshd_srv()
 {
     msg "PREPARE SSH HOST KEYS"
     restore_ssh_host_keys
@@ -931,7 +1086,7 @@ sshd()
     add_supervised_service sshd
 }
 
-mysqld()
+mysqld_srv()
 {
     # for convenience when mysqld and oned are running together
     if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
@@ -945,10 +1100,8 @@ mysqld()
         fi
     fi
 
-    # ensure that the mysql directory is owned by mysql user and has correct
-    # permissions
-    chown -R mysql:mysql /var/lib/mysql
-    chmod 755 /var/lib/mysql
+    msg "CONFIGURE: MYSQL"
+    configure_mysql
 
     msg "SETUP SERVICE: MYSQLD"
     add_supervised_service mysqld
@@ -956,9 +1109,9 @@ mysqld()
     add_supervised_service mysqld-configure
 }
 
-docker()
+docker_srv()
 {
-    if is_true "${OPENNEBULA_DOCKER_ENABLED}" ; then
+    if is_true "${DIND_ENABLED}" ; then
         msg "CONFIGURE: DOCKER"
         configure_docker
 
@@ -973,7 +1126,7 @@ docker()
     fi
 }
 
-oned()
+oned_srv()
 {
     msg "SANITY CHECK"
     sanity_check
@@ -995,12 +1148,10 @@ oned()
     msg "CONFIGURE DATA"
     prepare_onedata
 
-    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
+    if is_true "${TLS_PROXY_ENABLED}" ; then
         msg "PREPARE CERTIFICATE"
         prepare_cert
-    fi
 
-    if [ -n "${OPENNEBULA_ONED_TLSPROXY_APIPORT}" ] ; then
         msg "CONFIGURE: TLS PROXY (oned)"
         configure_tlsproxy oned
     fi
@@ -1022,9 +1173,9 @@ oned()
     add_supervised_service opennebula-showback
 }
 
-sunstone()
+sunstone_srv()
 {
-    if is_true "${OPENNEBULA_SUNSTONE_HTTPS_ENABLED}" ; then
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         msg "PREPARE CERTIFICATE"
         prepare_cert
     fi
@@ -1039,13 +1190,13 @@ sunstone()
     add_supervised_service opennebula-novnc
 }
 
-guacd()
+guacd_srv()
 {
     msg "SETUP SERVICE: OPENNEBULA GUACAMOLE (guacd)"
     add_supervised_service opennebula-guacd
 }
 
-fireedge()
+fireedge_srv()
 {
     msg "CONFIGURE: OPENNEBULA FIREEDGE"
     configure_fireedge
@@ -1054,7 +1205,7 @@ fireedge()
     add_supervised_service opennebula-fireedge
 }
 
-memcached()
+memcached_srv()
 {
     msg "CONFIGURE: MEMCACHED"
     configure_memcached
@@ -1063,7 +1214,7 @@ memcached()
     add_supervised_service memcached
 }
 
-scheduler()
+scheduler_srv()
 {
     msg "CONFIGURE: OPENNEBULA SCHEDULER"
     configure_scheduler
@@ -1072,12 +1223,12 @@ scheduler()
     add_supervised_service opennebula-scheduler
 }
 
-oneflow()
+oneflow_srv()
 {
     msg "CONFIGURE: OPENNEBULA FLOW"
     configure_oneflow
 
-    if [ -n "${OPENNEBULA_ONEFLOW_TLSPROXY_APIPORT}" ] ; then
+    if is_true "${TLS_PROXY_ENABLED}" ; then
         msg "CONFIGURE: TLS PROXY (oneflow)"
         configure_tlsproxy oneflow
     fi
@@ -1086,12 +1237,12 @@ oneflow()
     add_supervised_service opennebula-flow
 }
 
-onegate()
+onegate_srv()
 {
     msg "CONFIGURE: OPENNEBULA GATE"
     configure_onegate
 
-    if [ -n "${OPENNEBULA_ONEGATE_TLSPROXY_APIPORT}" ] ; then
+    if [ -n "${TLS_PROXY_ENABLED}" ] ; then
         msg "CONFIGURE: TLS PROXY (onegate)"
         configure_tlsproxy onegate
     fi
@@ -1100,7 +1251,7 @@ onegate()
     add_supervised_service opennebula-gate
 }
 
-onehem()
+onehem_srv()
 {
     # TODO: does it make sense to run separately from oned? (can be even?)
     #msg "CONFIGURE: OPENNEBULA HEM"
@@ -1110,22 +1261,16 @@ onehem()
     add_supervised_service opennebula-hem
 }
 
-tlsproxy()
-{
-    # prepare TLS proxy service
-    if is_true "${OPENNEBULA_TLS_PROXY_ENABLED}" ; then
-        msg "SETUP SERVICE: STUNNEL"
-        add_supervised_service stunnel
-    fi
-}
-
 ###############################################################################
 # start service
 #
 
-# run prestart hook if any
-if [ -f /prestart-hook.sh ] && [ -x /prestart-hook.sh ] ; then
-    /prestart-hook.sh
+msg "SET TRAP ON EXIT"
+trap trapped_on_exit INT QUIT TERM EXIT
+
+# run preconfigure hook if any
+if [ -f /preconfigure-hook.sh ] && [ -x /preconfigure-hook.sh ] ; then
+    /preconfigure-hook.sh
 fi
 
 msg "BEGIN BOOTSTRAP (${0}): ${OPENNEBULA_FRONTEND_SERVICE}"
@@ -1141,7 +1286,7 @@ add_supervised_service crond
 
 case "${OPENNEBULA_FRONTEND_SERVICE}" in
     none)
-        msg "MAINTENANCE MODE - NOTHING TO DO"
+        msg "NO FRONTEND SERVICE REQUESTED - NOTHING TO DO"
         # supervisord needs at least one program section...should not be needed
         # thanks to the crond but just in case...
         msg "SETUP SERVICE: INFINITE LOOP"
@@ -1149,71 +1294,70 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         ;;
     all)
         msg "CONFIGURE FRONTEND SERVICE: ALL"
-        # this will fix some issues:
-        echo 127.0.0.1 "$OPENNEBULA_FRONTEND_SSH_HOSTNAME" \
-            >> /etc/hosts
-        sshd
-        mysqld
-        docker
-        oned
+        # this is needed if user does not provide proper hostnames
+        resolve_frontend_hostname
+        sshd_srv
+        mysqld_srv
+        docker_srv
+        oned_srv
         tlsproxy
-        scheduler
-        oneflow
-        onegate
-        onehem
-        sunstone
-        memcached
+        scheduler_srv
+        oneflow_srv
+        onegate_srv
+        onehem_srv
+        sunstone_srv
+        memcached_srv
         # TODO: return to this when fireedge is finished
-        #guacd
-        #fireedge
+        #guacd_srv
+        #fireedge_srv
         ;;
     oned)
         msg "CONFIGURE FRONTEND SERVICE: ONED"
-        oned
-        onehem
+        oned_srv
+        onehem_srv
         tlsproxy
         ;;
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
-        sshd
+        sshd_srv
         switch_to_pub_ssh_data
         ;;
     mysqld)
         msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
-        mysqld
+        mysqld_srv
         ;;
     docker)
         msg "CONFIGURE FRONTEND SERVICE: DOCKER"
-        docker
+        docker_srv
         ;;
     memcached)
         msg "CONFIGURE FRONTEND SERVICE: MEMCACHED"
-        memcached
+        memcached_srv
         ;;
     sunstone)
         msg "CONFIGURE FRONTEND SERVICE: SUNSTONE"
-        sunstone
+        sunstone_srv
         ;;
     guacd)
         msg "CONFIGURE FRONTEND SERVICE: GUACD"
-        guacd
+        guacd_srv
         ;;
     fireedge)
         msg "CONFIGURE FRONTEND SERVICE: FIREEDGE"
-        fireedge
+        fireedge_srv
         ;;
     scheduler)
         msg "CONFIGURE FRONTEND SERVICE: SCHEDULER"
-        scheduler
+        scheduler_srv
         ;;
     oneflow)
         msg "CONFIGURE FRONTEND SERVICE: ONEFLOW"
-        oneflow
+        oneflow_srv
         tlsproxy
         ;;
     onegate)
         msg "CONFIGURE FRONTEND SERVICE: ONEGATE"
-        onegate
+        onegate_srv
         tlsproxy
         ;;
     *)
@@ -1224,6 +1368,24 @@ esac
 
 msg "BOOTSTRAP FINISHED"
 
-msg "EXEC SUPERVISORD"
-exec /usr/bin/supervisord -n -c /etc/supervisord.conf
+# run prestart hook if any
+if [ -f /prestart-hook.sh ] && [ -x /prestart-hook.sh ] ; then
+    /prestart-hook.sh
+fi
 
+if is_true "${MAINTENANCE_MODE}" ; then
+        msg "MAINTENANCE MODE - NO FRONTEND SERVICE WILL BE STARTED"
+
+        # disable autostart for all configured and enabled services
+        sed -i \
+            -e '/^[[:space:]]*autostart=/d' \
+            -e '$s/.*/&\nautostart=false/' \
+            /etc/supervisord.d/*.ini
+
+        # supervisord needs at least one program section...
+        msg "SETUP SERVICE: INFINITE LOOP"
+        add_supervised_service infinite-loop
+fi
+
+msg "EXEC SUPERVISORD"
+exec env -i PATH="${PATH}" /usr/bin/supervisord -n -c /etc/supervisord.conf
