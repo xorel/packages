@@ -161,14 +161,31 @@ is_true()
     return 1
 )
 
-trapped_on_exit()
+on_exit()
 {
+    exit_status=$?
+
     # delete locks and temp files
     if [ -f "$DELETE_LIST" ] ; then
         cat "$DELETE_LIST" | while read -r _filename ; do
             rm -rf "$_filename"
         done
     fi
+
+    # unset signal handlers to avoid exiting once more
+    trap '' EXIT INT QUIT TERM
+    exit $exit_status
+}
+
+sig_exit()
+{
+    # workaround for different behaviors in different shells
+    trap '' EXIT
+
+    false # set faulty exit status
+
+    # and exit
+    on_exit
 }
 
 # Feed augtool commands on stdin of this function:
@@ -201,100 +218,44 @@ EOF
 # in the database.
 #
 # For these reasons we need to have a volume:
-prepare_oneadmin_data()
+prepare_oneadmin_auth()
 {
     # ensure the existence of our auth directory
-    if ! [ -d /oneadmin/auth_data/auth ] ; then
-        mkdir -p /oneadmin/auth_data/auth
+    if ! [ -d /var/lib/one/.one ] ; then
+        mkdir -p /var/lib/one/.one
     fi
 
     # store the password if not already there
-    if ! [ -f /oneadmin/auth_data/auth/one_auth ] ; then
+    if ! [ -f /var/lib/one/.one/one_auth ] ; then
         if [ -z "$ONEADMIN_PASSWORD" ] ; then
             msg "EMPTY 'ONEADMIN_PASSWORD': GENERATE RANDOM"
             ONEADMIN_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
         fi
         echo "${ONEADMIN_USERNAME}:${ONEADMIN_PASSWORD}" \
-            > /oneadmin/auth_data/auth/one_auth
+            > /var/lib/one/.one/one_auth
     fi
 
     # and ensure the correct permissions
-    chown "${ONEADMIN_USERNAME}:" /oneadmin
-    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/auth_data/auth
-    chmod 0700 /oneadmin/auth_data/auth
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.one
+    chmod 0700 /var/lib/one/.one
 }
 
-link_oneadmin_auth()
+create_common_tmpfiles()
 {
-    # TODO: can we wait for this prerequisite elsewhere?
-    ## ensure the existence of our auth directory
-    #if ! [ -d /oneadmin/auth_data/auth ] ; then
-    #    err "We need '/oneadmin/auth_data/auth'"
-    #    exit 1
-    #fi
-
-    # remove .one if not the correct symlink
-    if ! [ -L /var/lib/one/.one ] ; then
-        rm -rf /var/lib/one/.one
-    elif [ "$(readlink /var/lib/one/.one)" != /oneadmin/auth_data/auth ] ; then
-        unlink /var/lib/one/.one
-    fi
-
-    # symlink oneadmin's auth dir into the volume
-    if ! [ -L /var/lib/one/.one ] ; then
-        ln -s /oneadmin/auth_data/auth /var/lib/one/.one
-    fi
+    systemd-tmpfiles --create \
+        /lib/tmpfiles.d/etc.conf \
+        /lib/tmpfiles.d/dbus.conf \
+        /lib/tmpfiles.d/legacy.conf \
+        /lib/tmpfiles.d/pam.conf \
+        /lib/tmpfiles.d/sudo.conf \
+        /lib/tmpfiles.d/supervisor.conf \
+        /lib/tmpfiles.d/var.conf \
+        ;
 }
 
-link_oneadmin_ssh()
+create_ssh_tmpfiles()
 {
-    # TODO: can we wait for this prerequisite elsewhere?
-    ## ensure the existence of our ssh directory
-    #if ! [ -d /oneadmin/ssh_data/ssh ] ; then
-    #    err "We need '/oneadmin/ssh_data/ssh'"
-    #    exit 1
-    #fi
-
-    # remove .ssh if not the correct symlink
-    if ! [ -L /var/lib/one/.ssh ] ; then
-        rm -rf /var/lib/one/.ssh
-    elif [ "$(readlink /var/lib/one/.ssh)" != /oneadmin/ssh_data/ssh ] ; then
-        unlink /var/lib/one/.ssh
-    fi
-
-    # symlink oneadmin's ssh config dir into the volume
-    if ! [ -L /var/lib/one/.ssh ] ; then
-        ln -s /oneadmin/ssh_data/ssh /var/lib/one/.ssh
-    fi
-}
-
-switch_to_pub_ssh_data()
-{
-    # NOTE: this expects that it is ran AFTER link_oneadmin_ssh
-
-    if [ "$(readlink /var/lib/one/.ssh)" != /oneadmin/ssh_pub_data/ssh ] ; then
-        unlink /var/lib/one/.ssh
-    fi
-
-    # symlink oneadmin's ssh config dir into the pub_ssh_data volume
-    if ! [ -L /var/lib/one/.ssh ] ; then
-        ln -s /oneadmin/ssh_pub_data/ssh /var/lib/one/.ssh
-    fi
-}
-
-link_onedata()
-{
-    # remove datastores if not the correct symlink
-    if ! [ -L /var/lib/one/datastores ] ; then
-        rm -rf /var/lib/one/datastores
-    elif [ "$(readlink /var/lib/one/datastores)" != /data/datastores ] ; then
-        unlink /var/lib/one/datastores
-    fi
-
-    # symlink datastores into the volume
-    if ! [ -L /var/lib/one/datastores ] ; then
-        ln -s /data/datastores /var/lib/one/datastores
-    fi
+    systemd-tmpfiles --create /lib/tmpfiles.d/openssh.conf
 }
 
 create_oneadmin_tmpfiles()
@@ -302,36 +263,49 @@ create_oneadmin_tmpfiles()
     systemd-tmpfiles --create /lib/tmpfiles.d/opennebula-common.conf
 }
 
+create_httpd_tmpfiles()
+{
+    systemd-tmpfiles --create /lib/tmpfiles.d/httpd.conf
+    systemd-tmpfiles --create /lib/tmpfiles.d/passenger.conf
+}
+
+create_mariadb_tmpfiles()
+{
+    systemd-tmpfiles --create /lib/tmpfiles.d/mariadb.conf
+}
+
 restore_ssh_host_keys()
 {
     # create new or restore saved ssh host keys
-    if ! [ -d /data/ssh_host_keys ] ; then
+    _ssh_keys=$(ls -1 \
+        /srv/one/secret-ssh-host-keys/ssh_host_* \
+        2>/dev/null | wc -l)
+    if [ "$_ssh_keys" -eq 0 ] ; then
         # we have no keys saved
-        mkdir -p /data/ssh_host_keys
 
         # force recreating of new host keys
         rm -f /etc/ssh/ssh_host_*
         ssh-keygen -A
 
         # save the keys
-        cp -a /etc/ssh/ssh_host_* /data/ssh_host_keys/
+        cp -a /etc/ssh/ssh_host_* /srv/one/secret-ssh-host-keys/
     else
         # restore the saved ssh host keys
-        cp -af /data/ssh_host_keys/ssh_host_* /etc/ssh/
+        cp -af /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
     fi
 }
 
 prepare_ssh()
 {
     # ensure the existence of ssh directory
-    if ! [ -d /oneadmin/ssh_data/ssh ] ; then
-        mkdir -p /oneadmin/ssh_data/ssh
+    if ! [ -d /var/lib/one/.ssh ] ; then
+        mkdir -p /var/lib/one/.ssh
     fi
 
     # if no ssh config is present then use the default
-    if ! [ -f /oneadmin/ssh_data/ssh/config ] ; then
-        cat /usr/share/one/ssh/config > /oneadmin/ssh_data/ssh/config
-        chmod 0644 /oneadmin/ssh_data/ssh/config
+    if ! [ -f /var/lib/one/.ssh/config ] ; then
+        cat /usr/share/one/ssh/config > /var/lib/one/.ssh/config
+        chmod 0644 /var/lib/one/.ssh/config
     fi
 
     # copy the custom ssh key-pair
@@ -343,8 +317,8 @@ prepare_ssh()
             _custom_key=yes
             _privkey=$(basename "$ONEADMIN_SSH_PRIVKEY")
             _pubkey=$(basename "$ONEADMIN_SSH_PUBKEY")
-            _private_key_path="/oneadmin/ssh_data/ssh/${_privkey}"
-            _public_key_path="/oneadmin/ssh_data/ssh/${_pubkey}"
+            _private_key_path="/var/lib/one/.ssh/${_privkey}"
+            _public_key_path="/var/lib/one/.ssh/${_pubkey}"
 
             cat "$ONEADMIN_SSH_PRIVKEY" > "${_private_key_path}"
             chmod 0600 "${_private_key_path}"
@@ -352,38 +326,41 @@ prepare_ssh()
             cat "$ONEADMIN_SSH_PUBKEY" > "${_public_key_path}"
             chmod 0644 "${_public_key_path}"
 
-            cat "${_public_key_path}" > /oneadmin/ssh_data/ssh/authorized_keys
-            chmod 0644 /oneadmin/ssh_data/ssh/authorized_keys
+            cat "${_public_key_path}" > /var/lib/one/.ssh/authorized_keys
+            chmod 0644 /var/lib/one/.ssh/authorized_keys
         fi
     fi
 
     # generate ssh key-pair if no custom one is provided
     if [ "$_custom_key" != 'yes' ] ; then
-        _private_key_path="/oneadmin/ssh_data/ssh/id_rsa"
-        _public_key_path="/oneadmin/ssh_data/ssh/id_rsa.pub"
+        _private_key_path="/var/lib/one/.ssh/id_rsa"
+        _public_key_path="/var/lib/one/.ssh/id_rsa.pub"
 
         if ! [ -f "${_private_key_path}" ] || ! [ -f "${_public_key_path}" ] ; then
             rm -f "${_private_key_path}" "${_public_key_path}"
             ssh-keygen -N '' -f "${_private_key_path}"
         fi
 
-        cat "${_public_key_path}" > /oneadmin/ssh_data/ssh/authorized_keys
-        chmod 0644 /oneadmin/ssh_data/ssh/authorized_keys
+        cat "${_public_key_path}" > /var/lib/one/.ssh/authorized_keys
+        chmod 0644 /var/lib/one/.ssh/authorized_keys
     fi
 
-    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_data/ssh
-    chmod 0700 /oneadmin/ssh_data/ssh
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.ssh
+    chmod 0700 /var/lib/one/.ssh
 
     # store a copy of the authorized_keys and ssh config aside for ssh
     # container to pick it up
-    mkdir -p /oneadmin/ssh_pub_data/ssh
-    chmod 0700 /oneadmin/ssh_pub_data/ssh
-    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_pub_data/ssh
-    if ! [ -f /oneadmin/ssh_pub_data/ssh/authorized_keys ] ; then
-        cp -a /oneadmin/ssh_data/ssh/authorized_keys /oneadmin/ssh_pub_data/ssh/
+
+    mkdir -p /var/lib/one/.ssh-copyback
+    chmod 0700 /var/lib/one/.ssh-copyback
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.ssh-copyback
+
+    if ! [ -f /var/lib/one/.ssh-copyback/authorized_keys ] ; then
+        cp -a /var/lib/one/.ssh/authorized_keys /var/lib/one/.ssh-copyback/
     fi
-    if ! [ -f /oneadmin/ssh_pub_data/ssh/config ] ; then
-        cp -a /oneadmin/ssh_data/ssh/config /oneadmin/ssh_pub_data/ssh/
+
+    if ! [ -f /var/lib/one/.ssh-copyback/config ] ; then
+        cp -a /var/lib/one/.ssh/config /var/lib/one/.ssh-copyback/
     fi
 }
 
@@ -397,15 +374,19 @@ lock_or_skip()
     # container anyway...so we store our own name to be deleted later
     echo "$_tmp_file" > "$_tmp_file"
 
-    # hardlink is atomic operation
-    if ! ln "$_tmp_file" "$_lock_file" >/dev/null 2>&1 ; then
-        # lock already exists
-        return 1
-    fi
-
     # store filenames in the file for potential cleanup on an abrupt exit
     echo "$_tmp_file" >> "$DELETE_LIST"
     echo "$_lock_file" >> "$DELETE_LIST"
+
+    # hardlink is atomic operation
+    if ! ln "$_tmp_file" "$_lock_file" >/dev/null 2>&1 ; then
+        # lock already exists
+        rm -f "$_tmp_file"
+        return 1
+    fi
+
+    # delete temp file - lock file is hardlink so it stays
+    rm -f "$_tmp_file"
 
     return 0
 )
@@ -417,6 +398,15 @@ remove_lock()
     _tmp_file=$(cat "$_lock_file")
 
     rm -f "$_lock_file" "$_tmp_file"
+)
+
+execute_delete_list()
+(
+    cat "${DELETE_LIST}" | while read -r filename ; do
+        rm -rf "${filename}"
+    done
+
+    rm -f "${DELETE_LIST}"
 )
 
 wait_for_file()
@@ -438,19 +428,19 @@ wait_for_file()
 prepare_cert()
 (
     # internal filepaths can be hardcoded - only the content varies
-    _cert_path="/cert_data/one.crt"
-    _key_path="/cert_data/one.key"
-    _cert_info_path="/cert_data/one.txt"
-    _cert_lock="/cert_data/one.lock"
+    _cert_path="/srv/one/secret-tls/one.crt"
+    _key_path="/srv/one/secret-tls/one.key"
+    _cert_info_path="/srv/one/secret-tls/one.txt"
+    _cert_lock="/srv/one/secret-tls/one.lock"
 
-    # ensure the existence of cert_data directory
-    if ! [ -d /cert_data ] ; then
-        mkdir -p /cert_data
+    # ensure the existence of cert directory
+    if ! [ -d /srv/one/secret-tls ] ; then
+        mkdir -p /srv/one/secret-tls
     fi
 
-    msg "LOCK OR WAIT FOR CERTIFICATE CREATION"
+    msg "LOCK OR WAIT FOR TLS CERTIFICATE"
     if ! lock_or_skip "$_cert_lock" ; then
-        msg "WAITING FOR CERTIFICATE TO EMERGE (${TIMEOUT} secs)..."
+        msg "FAILED TO ACQUIRE LOCK: WAITING (${TIMEOUT} secs)..."
 
         if ! wait_for_file "$_cert_path" ; then
             err "REACHED TIMEOUT: NO CERTIFICATE"
@@ -462,11 +452,11 @@ prepare_cert()
             exit 1
         fi
 
-        msg "GOT CERTIFICATE"
+        msg "SUCCESS: CERTIFICATE EMERGED"
         return 0
     fi
 
-    msg "CREATE OR STORE CERTIFICATE"
+    msg "ACQUIRED LOCK FOR CERTIFICATE MANIPULATION"
 
     # copy the custom certificate
     _custom_cert=no
@@ -505,23 +495,27 @@ prepare_cert()
             # not rely onto this info file...but I was lazy to parse it (it can
             # have different output on different systems and with different
             # versions of openssl command)
-            if [ -f "${_cert_info_path}" ] ; then
-                _new_cert_info=$(cat <<EOF
+            _new_cert_info=$(cat <<EOF
 DNS = ${TLS_DOMAIN_LIST}
 DAYS = ${TLS_VALID_DAYS}
 EOF
                 )
-                _new_cert_info_hash=$(echo "${_new_cert_info}" | sha256sum)
+            _new_cert_info_hash=$(echo "${_new_cert_info}" | sha256sum)
+
+            # compare if params of the cert are changed
+            if [ -f "${_cert_info_path}" ] ; then
                 _old_cert_info_hash=$(sha256sum < "${_cert_info_path}")
 
                 if [ "$_new_cert_info_hash" = "$_old_cert_info_hash" ] ; then
                     # the cert does not need to be generated again
+                    msg "FOUND EXISTING CERTIFICATE"
+                    remove_lock "$_cert_lock"
                     return 0
-                else
-                    # store the new info
-                    echo "$_new_cert_info" > "$_cert_info_path"
                 fi
             fi
+
+            # store the new info
+            echo "$_new_cert_info" > "$_cert_info_path"
         fi
 
         # we remove the leftover old cert in the internal path
@@ -546,6 +540,8 @@ EOF
             _alt="${_alt}${_alt:+,} DNS:${_name}"
         done
 
+        msg "GENERATE NEW CERTIFICATE"
+
         # TODO: this can be improved (support for more configuration options?)
         # + rewrite this whole section with a config file in mind which will
         # also deduplicate this openssl command
@@ -569,21 +565,9 @@ EOF
     # cleanup the temp files
     remove_lock "$_cert_lock"
 
-    chown -R "${ONEADMIN_USERNAME}:" /cert_data
-    chmod 0700 /cert_data
+    chown -R "${ONEADMIN_USERNAME}:" /srv/one/secret-tls
+    chmod 0700 /srv/one/secret-tls
 )
-
-prepare_onedata()
-{
-    # ensure the existence of the datastores directory
-    if ! [ -d /data/datastores ] ; then
-        mkdir -p /data/datastores
-    fi
-
-    # and ensure the correct permissions
-    chown -R "${ONEADMIN_USERNAME}:" /data/datastores
-    chmod 0750 /data/datastores
-}
 
 configure_tlsproxy()
 (
@@ -613,13 +597,13 @@ configure_tlsproxy()
             ;;
     esac
 
-    if [ -f /cert_data/one.crt ] && [ -f /cert_data/one.key ] ; then
+    if [ -f /srv/one/secret-tls/one.crt ] && [ -f /srv/one/secret-tls/one.key ] ; then
         cat > "/etc/stunnel/conf.d/${_name}.conf" <<EOF
 [${_name}]
 accept = ${_accept_port}
 connect = ${_connect_port}
-cert = /cert_data/one.crt
-key = /cert_data/one.key
+cert = /srv/one/secret-tls/one.crt
+key = /srv/one/secret-tls/one.key
 EOF
     else
         err "TLS PROXY REQUESTED BUT NO CERTS PROVIDED - ABORT"
@@ -675,7 +659,7 @@ configure_sunstone()
     #
 
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
-        if ! [ -f /cert_data/one.crt ] || ! [ -f /cert_data/one.key ] ; then
+        if ! [ -f /srv/one/secret-tls/one.crt ] || ! [ -f /srv/one/secret-tls/one.key ] ; then
             err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
             exit 1
         fi
@@ -711,8 +695,8 @@ configure_sunstone()
 
         sed -i \
             -e "s#^:vnc_proxy_support_wss:.*#:vnc_proxy_support_wss: ${_wss}#" \
-            -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /cert_data/one.crt#" \
-            -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /cert_data/one.key#" \
+            -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /srv/one/secret-tls/one.crt#" \
+            -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /srv/one/secret-tls/one.key#" \
             /etc/one/sunstone-server.conf
     fi
 
@@ -855,7 +839,7 @@ configure_mysql()
     # ensure that the mysql directory is owned by mysql user and has correct
     # permissions
     chown -R mysql:mysql /var/lib/mysql
-    chmod 755 /var/lib/mysql
+    chmod 0755 /var/lib/mysql
 
     # populate service env file
     cat > /etc/default/supervisor/mysqld <<EOF
@@ -888,15 +872,10 @@ export DOCKER_HOSTS="${_docker_hosts}"
 EOF
 )
 
-sanity_check()
+oned_sanity_check()
 {
     if [ -z "$MYSQL_PASSWORD" ] ; then
         err "EMPTY 'MYSQL_PASSWORD' - ABORT"
-        exit 1
-    fi
-
-    if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
-        err "EMPTY 'MYSQL_ROOT_PASSWORD' - ABORT"
         exit 1
     fi
 }
@@ -960,11 +939,14 @@ initialize_supervisord_conf()
 # arg: <service name>
 add_supervised_service()
 {
+    # TODO: improve or delete this - it breaks bootstrap when container is
+    # restarted on failure...
+    #
     # do not alter the configuration if supervisord.conf was already provided
-    if [ -n "$_DO_NOT_MODIFY_SUPERVISORD" ] ; then
-        msg "CUSTOM SUPERVISORD.CONF - SKIP: ${1}.ini"
-        return 0
-    fi
+    #if [ -n "$_DO_NOT_MODIFY_SUPERVISORD" ] ; then
+    #    msg "CUSTOM SUPERVISORD.CONF - SKIP: ${1}.ini"
+    #    return 0
+    #fi
 
     msg "ADD SUPERVISED SERVICE: /etc/supervisord.d/${1}.ini"
     cp -a "/usr/share/one/supervisor/supervisord.d/${1}.ini" /etc/supervisord.d/
@@ -1002,14 +984,16 @@ fix_hosts_file()
 
 cleanup_tmpdirs()
 {
-    find \
-        /tmp \
-        /run/lock \
-        -mindepth 1 -maxdepth 1 -exec rm -rf '{}' \;
-
-    # TODO: remove this when /lib/tmpfiles.d/opennebula-common.conf is corrected
-    # to /run/lock
-    mkdir -p /run/lock
+    # try to delete all temporary files
+    for _tmp_dir in /tmp /run /run/lock ; do
+        if [ -d "${_tmp_dir}" ] ; then
+            find "${_tmp_dir}" \
+                -mindepth 1 \
+                -maxdepth 1 \
+                -exec rm -rf '{}' \; \
+                || true
+        fi
+    done
 }
 
 fix_volume_ownership()
@@ -1020,8 +1004,12 @@ fix_volume_ownership()
     # setup which does not fit anywhere else can be here...
 
     # opennebula shared log directory
-    chown oneadmin:oneadmin /var/log/one
+    chown -R "${ONEADMIN_USERNAME}:" /var/log/one
     chmod 0750 /var/log/one
+
+    # oneadmin's directories
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/datastores
+    chmod 0750 /var/lib/one/datastores
 }
 
 common_configuration()
@@ -1035,17 +1023,11 @@ common_configuration()
     msg "FIX HOSTS FILE (/etc/hosts)"
     fix_hosts_file
 
+    msg "CREATE SYSTEM TMPFILES"
+    create_common_tmpfiles
+
     msg "CREATE ONEADMIN's TMPFILES"
     create_oneadmin_tmpfiles
-
-    msg "SYMLINK ONEADMIN's AUTH DATA"
-    link_oneadmin_auth
-
-    msg "SYMLINK ONEADMIN's SSH DATA"
-    link_oneadmin_ssh
-
-    msg "SYMLINK ONEADMIN's DATASTORES"
-    link_onedata
 }
 
 # useful only in all-in-one deployment or if using podman (cause its containers
@@ -1071,6 +1053,9 @@ tlsproxy()
 
 sshd_srv()
 {
+    msg "CREATE SSH TMPFILES"
+    create_ssh_tmpfiles
+
     msg "PREPARE SSH HOST KEYS"
     restore_ssh_host_keys
 
@@ -1088,6 +1073,9 @@ sshd_srv()
 
 mysqld_srv()
 {
+    msg "CREATE MYSQL TMPFILES"
+    create_mariadb_tmpfiles
+
     # for convenience when mysqld and oned are running together
     if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
         if [ -z "$MYSQL_PASSWORD" ] ; then
@@ -1103,7 +1091,7 @@ mysqld_srv()
     msg "CONFIGURE: MYSQL"
     configure_mysql
 
-    msg "SETUP SERVICE: MYSQLD"
+    msg "SETUP SERVICE: MYSQLD (mariadb)"
     add_supervised_service mysqld
     add_supervised_service mysqld-upgrade
     add_supervised_service mysqld-configure
@@ -1129,7 +1117,7 @@ docker_srv()
 oned_srv()
 {
     msg "SANITY CHECK"
-    sanity_check
+    oned_sanity_check
 
     msg "FIX DOCKER SOCKET"
     fix_docker_socket
@@ -1140,13 +1128,10 @@ oned_srv()
     fi
 
     msg "PREPARE ONEADMIN's ONE_AUTH"
-    prepare_oneadmin_data
+    prepare_oneadmin_auth
 
     msg "PREPARE ONEADMIN's SSH"
     prepare_ssh
-
-    msg "CONFIGURE DATA"
-    prepare_onedata
 
     if is_true "${TLS_PROXY_ENABLED}" ; then
         msg "PREPARE CERTIFICATE"
@@ -1175,6 +1160,9 @@ oned_srv()
 
 sunstone_srv()
 {
+    msg "CREATE HTTPD TMPFILES"
+    create_httpd_tmpfiles
+
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         msg "PREPARE CERTIFICATE"
         prepare_cert
@@ -1183,10 +1171,10 @@ sunstone_srv()
     msg "CONFIGURE: OPENNEBULA SUNSTONE"
     configure_sunstone
 
-    msg "SETUP SERVICE: OPENNEBULA SUNSTONE"
+    msg "SETUP SERVICE: OPENNEBULA SUNSTONE (httpd)"
     add_supervised_service opennebula-httpd
 
-    msg "SETUP SERVICE: OPENNEBULA VNC"
+    msg "SETUP SERVICE: OPENNEBULA VNC (novnc)"
     add_supervised_service opennebula-novnc
 }
 
@@ -1242,7 +1230,7 @@ onegate_srv()
     msg "CONFIGURE: OPENNEBULA GATE"
     configure_onegate
 
-    if [ -n "${TLS_PROXY_ENABLED}" ] ; then
+    if is_true "${TLS_PROXY_ENABLED}" ; then
         msg "CONFIGURE: TLS PROXY (onegate)"
         configure_tlsproxy onegate
     fi
@@ -1266,10 +1254,12 @@ onehem_srv()
 #
 
 msg "SET TRAP ON EXIT"
-trap trapped_on_exit INT QUIT TERM EXIT
+trap on_exit EXIT
+trap sig_exit INT QUIT TERM
 
 # run preconfigure hook if any
 if [ -f /preconfigure-hook.sh ] && [ -x /preconfigure-hook.sh ] ; then
+    msg "PRECONFIGURE HOOK FOUND: RUNNING '/preconfigure-hook.sh'"
     /preconfigure-hook.sh
 fi
 
@@ -1320,7 +1310,6 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
         sshd_srv
-        switch_to_pub_ssh_data
         ;;
     mysqld)
         msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
@@ -1366,10 +1355,14 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         ;;
 esac
 
+msg "DELETE WORKFILES"
+execute_delete_list
+
 msg "BOOTSTRAP FINISHED"
 
 # run prestart hook if any
 if [ -f /prestart-hook.sh ] && [ -x /prestart-hook.sh ] ; then
+    msg "PRESTART HOOK FOUND: RUNNING '/prestart-hook.sh'"
     /prestart-hook.sh
 fi
 

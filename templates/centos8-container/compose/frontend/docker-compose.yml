@@ -1,14 +1,15 @@
 version: '3.7'
 
 volumes:
-  opennebula_certs:
-  opennebula_db:
-  opennebula_data:
+  opennebula_mysql:
+  opennebula_datastores:
+  opennebula_secret_tls:
+  opennebula_secret_ssh_host_keys:
+  opennebula_oneadmin_auth:
+  opennebula_oneadmin_ssh:
+  opennebula_oneadmin_ssh_copyback:
   opennebula_logs:
-  opennebula_sharedtmp:
-  oneadmin_auth_data:
-  oneadmin_ssh_priv_data:
-  oneadmin_ssh_pub_data:
+  opennebula_shared_tmp:
 
 networks:
   onenet:
@@ -24,9 +25,11 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "mysqld"
     volumes:
-      - opennebula_db:/var/lib/mysql
+      - opennebula_mysql:/var/lib/mysql
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -52,6 +55,8 @@ services:
       OPENNEBULA_FRONTEND_SERVICE: "docker"
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -82,19 +87,22 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONED_EXTERNAL_PORT:-2633}:${DEPLOY_ONED_INTERNAL_PORT:-2633}"
     volumes:
-      - opennebula_certs:/cert_data
-      - opennebula_data:/data
+      - opennebula_datastores:/var/lib/one/datastores
+      - opennebula_secret_tls:/srv/one/secret-tls
+      - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_oneadmin_ssh:/var/lib/one/.ssh
+      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh-copyback
       - opennebula_logs:/var/log/one
-      - opennebula_sharedtmp:/var/tmp/sunstone
-      - oneadmin_auth_data:/oneadmin/auth_data
-      - oneadmin_ssh_priv_data:/oneadmin/ssh_data
-      - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
+      - opennebula_shared_tmp:/var/tmp/sunstone
       - ./certs:/certs:ro
       - ./ssh:/ssh:ro
     devices:
       - /dev/fuse:/dev/fuse
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -122,10 +130,13 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - opennebula_data:/data
-      - oneadmin_ssh_pub_data:/oneadmin/ssh_pub_data
+      - opennebula_datastores:/var/lib/one/datastores
+      - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys
+      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -150,6 +161,8 @@ services:
       OPENNEBULA_FRONTEND_SERVICE: "memcached"
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -175,10 +188,12 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - oneadmin_auth_data:/oneadmin/auth_data
+      - opennebula_oneadmin_auth:/var/lib/one/.one
       - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -206,11 +221,13 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONEFLOW_EXTERNAL_PORT:-2474}:${DEPLOY_ONEFLOW_INTERNAL_PORT:-2474}"
     volumes:
-      - oneadmin_auth_data:/oneadmin/auth_data
-      - opennebula_certs:/cert_data:ro
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_secret_tls:/srv/one/secret-tls:ro
       - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -238,11 +255,13 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONEGATE_EXTERNAL_PORT:-5030}:${DEPLOY_ONEGATE_INTERNAL_PORT:-5030}"
     volumes:
-      - oneadmin_auth_data:/oneadmin/auth_data
-      - opennebula_certs:/cert_data:ro
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_secret_tls:/srv/one/secret-tls:ro
       - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -267,6 +286,8 @@ services:
       OPENNEBULA_FRONTEND_SERVICE: "guacd"
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -296,13 +317,15 @@ services:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_TLS_PORT:-4443}:443"
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_VNC_PORT:-29876}:29876"
     volumes:
-      - opennebula_certs:/cert_data
-      - opennebula_sharedtmp:/var/tmp/sunstone
-      - oneadmin_auth_data:/oneadmin/auth_data
+      - opennebula_secret_tls:/srv/one/secret-tls
+      - opennebula_oneadmin_auth:/var/lib/one/.one
       - opennebula_logs:/var/log/one
+      - opennebula_shared_tmp:/var/tmp/sunstone
       - ./certs:/certs:ro
     tmpfs:
       - /tmp
+      - /run
+      - /run/lock
     networks:
       - onenet
     healthcheck:
@@ -331,10 +354,12 @@ services:
 #    ports:
 #      - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_FIREEDGE_EXTERNAL_PORT:-2616}:2616"
 #    volumes:
-#      - oneadmin_auth_data:/oneadmin/auth_data
+#      - opennebula_oneadmin_auth:/var/lib/one/.one
 #      - opennebula_logs:/var/log/one
 #    tmpfs:
 #      - /tmp
+#      - /run
+#      - /run/lock
 #    networks:
 #      - onenet
 #    healthcheck:
