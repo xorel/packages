@@ -6,25 +6,29 @@ ONE_USER=oneadmin
 ONE_UID=9869
 ONE_GID=9869
 
-ONESCAPE_ETC='/etc/onescape'
-ONESCAPE_CFG="${ONESCAPE_ETC}/config.yaml"
-ONESCAPE_BAK="${ONEHOME}/backups/config"
+# configuration management
+ONECFG_CFG='/etc/onecfg.conf'
+ONECFG_BAK="${ONEHOME}/backups/config"
 
 ### Backup configuration ###
 
 # better fail silently than break installation
 set +e
 
-# create OneScape directory
-if [ ! -d "${ONESCAPE_ETC}" ]; then
-    mkdir -p "${ONESCAPE_ETC}"
+# migrate old OneScape configuration
+if [ -d '/etc/onescape' ]; then
+    if [ -f '/etc/onescape/config.yaml' ] && [ ! -f "${ONECFG_CFG}" ]; then
+        mv /etc/onescape/config.yaml "${ONECFG_CFG}"
+    fi
+
+    rm -rf /etc/onescape
 fi
 
 # create backup directory
-if [ ! -d "${ONESCAPE_BAK}" ]; then
-    mkdir -p "${ONESCAPE_BAK}"
-    chmod 700 "${ONESCAPE_BAK}"
-    chown 'root:root' "${ONESCAPE_BAK}"
+if [ ! -d "${ONECFG_BAK}" ]; then
+    mkdir -p "${ONECFG_BAK}"
+    chmod 700 "${ONECFG_BAK}"
+    chown 'root:root' "${ONECFG_BAK}"
 
     # FIX: parent directory, just safety check if we would change onescape_bak
     if [ -d "${ONEHOME}/backups" ]; then
@@ -44,7 +48,7 @@ fi
 # upgrade
 if [ -n "${PREV_VERSION}" ]; then
     # backup configuration
-    BACKUP_DIR="${ONESCAPE_BAK}/$(date +'%Y-%m-%d_%H:%M:%S')-v${PREV_VERSION:-UNKNOWN}"
+    BACKUP_DIR="${ONECFG_BAK}/$(date +'%Y-%m-%d_%H:%M:%S')-v${PREV_VERSION:-UNKNOWN}"
     mkdir "${BACKUP_DIR}"
     chmod 700 "${BACKUP_DIR}"
 
@@ -58,26 +62,26 @@ if [ -n "${PREV_VERSION}" ]; then
         fi
     done
 
-    if [ -f "${ONESCAPE_CFG}" ]; then
+    if [ -f "${ONECFG_CFG}" ]; then
        # if it already contains backup, we put obsolete
        # flag and don't modify backup again.
-       if grep -qF 'backup:' "${ONESCAPE_CFG}"; then
-           if ! grep -qF 'outdated: true' "${ONESCAPE_CFG}"; then
-               printf "\noutdated: true\n" >> "${ONESCAPE_CFG}"
+       if grep -qF 'backup:' "${ONECFG_CFG}"; then
+           if ! grep -qF 'outdated: true' "${ONECFG_CFG}"; then
+               printf "\noutdated: true\n" >> "${ONECFG_CFG}"
            fi
        else
-           printf "\nbackup: '%s'\n" "${BACKUP_DIR}" >> "${ONESCAPE_CFG}"
+           printf "\nbackup: '%s'\n" "${BACKUP_DIR}" >> "${ONECFG_CFG}"
        fi
     else
         # create new configuration
-        cat - <<EOF >"${ONESCAPE_CFG}"
+        cat - <<EOF >"${ONECFG_CFG}"
 ---
 backup: '${BACKUP_DIR}'
 EOF
 
         # and, put version inside if known
         if [ -n "${PREV_VERSION}" ]; then
-            printf "\nversion: '%s'\n" "${PREV_VERSION}" >> "${ONESCAPE_CFG}"
+            printf "\nversion: '%s'\n" "${PREV_VERSION}" >> "${ONECFG_CFG}"
         fi
     fi
 
@@ -87,7 +91,7 @@ elif [ "$1" = 'install' ]; then
     VERSION=${VERSION%%-*}
 
     if [ -n "${VERSION}" ]; then
-        cat - <<EOF >"${ONESCAPE_CFG}"
+        cat - <<EOF >"${ONECFG_CFG}"
 ---
 version: '${VERSION}'
 EOF

@@ -20,10 +20,9 @@
 # https://developers.redhat.com/blog/2018/03/21/compiler-and-linker-flags-gcc/
 %global _hardened_build 1
 
-# OneScape
-%define onescape_etc /etc/onescape
-%define onescape_cfg %{onescape_etc}/config.yaml
-%define onescape_bak %{oneadmin_home}/backups/config
+# configuration management
+%define onecfg_cfg /etc/onecfg.conf
+%define onecfg_bak %{oneadmin_home}/backups/config
 
 # Editions
 %if %{with_enterprise}
@@ -1014,18 +1013,22 @@ systemd-tmpfiles --create /usr/lib/tmpfiles.d/opennebula-common.conf || :
 # better fail silently than break installation
 set +e
 
-# create OneScape directory
-if [ ! -d '%{onescape_etc}' ]; then
-    mkdir -p '%{onescape_etc}'
+# migrate old OneScape configuration
+if [ -d '/etc/onescape' ]; then
+    if [ -f '/etc/onescape/config.yaml' ] && [ ! -f '%{onecfg_cfg}' ]; then
+        mv /etc/onescape/config.yaml '%{onecfg_cfg}'
+    fi
+
+    rm -rf /etc/onescape
 fi
 
 # create backup directory
-if [ ! -d '%{onescape_bak}' ]; then
-    mkdir -p '%{onescape_bak}'
-    chmod 700 '%{onescape_bak}'
-    chown 'root:root' '%{onescape_bak}'
+if [ ! -d '%{onecfg_bak}' ]; then
+    mkdir -p '%{onecfg_bak}'
+    chmod 700 '%{onecfg_bak}'
+    chown 'root:root' '%{onecfg_bak}'
 
-    # FIX: parent directory, just safety check if we would change onescape_bak
+    # FIX: parent directory, just safety check if we would change onecfg_bak
     if [ -d '%{oneadmin_home}/backups' ]; then
         chmod 700 '%{oneadmin_home}/backups'
         chown '%{oneadmin_uid}:%{oneadmin_gid}' '%{oneadmin_home}/backups'
@@ -1040,7 +1043,7 @@ PREV_VERSION=${PREV_VERSION:-$(cat /var/lib/one/remotes/VERSION 2>/dev/null)}
 # upgrade
 if [ -n "${PREV_VERSION}" ]; then
     # backup configuration
-    BACKUP_DIR="%{onescape_bak}/$(date +'%Y-%m-%d_%H:%M:%%S')-v${PREV_VERSION:-UNKNOWN}"
+    BACKUP_DIR="%{onecfg_bak}/$(date +'%Y-%m-%d_%H:%M:%%S')-v${PREV_VERSION:-UNKNOWN}"
     mkdir "${BACKUP_DIR}"
     chmod 700 "${BACKUP_DIR}"
 
@@ -1054,32 +1057,32 @@ if [ -n "${PREV_VERSION}" ]; then
         fi
     done
 
-    if [ -f '%{onescape_cfg}' ]; then
+    if [ -f '%{onecfg_cfg}' ]; then
        # if it already contains backup, we put obsolete
        # flag and don't modify backup again.
-       if grep -qF 'backup:' '%{onescape_cfg}'; then
-           if ! grep -qF 'outdated: true' '%{onescape_cfg}'; then
-               printf "\noutdated: true\n" >> '%{onescape_cfg}'
+       if grep -qF 'backup:' '%{onecfg_cfg}'; then
+           if ! grep -qF 'outdated: true' '%{onecfg_cfg}'; then
+               printf "\noutdated: true\n" >> '%{onecfg_cfg}'
            fi
        else
-           printf "\nbackup: '%%s'\n" "${BACKUP_DIR}" >> '%{onescape_cfg}'
+           printf "\nbackup: '%%s'\n" "${BACKUP_DIR}" >> '%{onecfg_cfg}'
        fi
     else
         # create new configuration
-        cat - <<EOF >'%{onescape_cfg}'
+        cat - <<EOF >'%{onecfg_cfg}'
 ---
 backup: '${BACKUP_DIR}'
 EOF
 
         # and, put version inside if known
         if [ -n "${PREV_VERSION}" ]; then
-            printf "\nversion: '%%s'\n" "${PREV_VERSION}" >> '%{onescape_cfg}'
+            printf "\nversion: '%%s'\n" "${PREV_VERSION}" >> '%{onecfg_cfg}'
         fi
     fi
 
 # install
 elif [ "$1" = '1' ]; then
-    cat - <<EOF >'%{onescape_cfg}'
+    cat - <<EOF >'%{onecfg_cfg}'
 ---
 version: '%{version}'
 EOF
@@ -1933,14 +1936,16 @@ sleep 10
 /usr/lib/one/onecfg/lib/onecfg.rb
 /usr/lib/one/onecfg/lib/settings.rb
 /usr/lib/one/onecfg/lib/version.rb
+/usr/lib/one/onecfg/lib/transaction.rb
+/usr/lib/one/onecfg/lib/patch.rb
 %dir /usr/lib/one/onecfg/lib/common
 /usr/lib/one/onecfg/lib/common/*
 %dir /usr/lib/one/onecfg/lib/config
 /usr/lib/one/onecfg/lib/config/*
+%dir /usr/lib/one/onecfg/lib/patch
+/usr/lib/one/onecfg/lib/patch/*
 %dir /usr/share/one/conf
 /usr/share/one/conf/*
-%dir /usr/share/one/onecfg/augeas
-/usr/share/one/onecfg/augeas/*
 %dir /usr/share/one/onecfg/etc
 /usr/share/one/onecfg/etc/*
 
