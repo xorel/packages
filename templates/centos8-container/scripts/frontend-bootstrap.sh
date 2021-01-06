@@ -102,8 +102,8 @@ export DIND_TCP_ENABLED="${DIND_TCP_ENABLED:-no}"
 #export ONEADMIN_USERNAME="${ONEADMIN_USERNAME:-oneadmin}"
 export ONEADMIN_USERNAME="oneadmin"
 export ONEADMIN_PASSWORD
-export ONEADMIN_SSH_PRIVKEY
-export ONEADMIN_SSH_PUBKEY
+export ONEADMIN_SSH_PRIVKEY="${ONEADMIN_SSH_PRIVKEY:-/ssh/id_rsa}"
+export ONEADMIN_SSH_PUBKEY="${ONEADMIN_SSH_PUBKEY:-/ssh/id_rsa.pub}"
 
 # mysql
 
@@ -291,6 +291,7 @@ restore_ssh_host_keys()
         cp -a /etc/ssh/ssh_host_* /srv/one/secret-ssh-host-keys/
     else
         # restore the saved ssh host keys
+        rm -f /etc/ssh/ssh_host_*
         cp -af /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
     fi
 }
@@ -648,7 +649,6 @@ export MYSQL_PORT="${MYSQL_PORT}"
 export MYSQL_DATABASE="${MYSQL_DATABASE}"
 export MYSQL_USER="${MYSQL_USER}"
 export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
-export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}"
 EOF
 }
 
@@ -675,16 +675,17 @@ configure_sunstone()
         -e "s#^:port:.*#:port: ${SUNSTONE_INTERNAL_PORT}#" \
         -e "s#^:vnc_proxy_port:.*#:vnc_proxy_port: ${SUNSTONE_VNC_PORT}#" \
         -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
+        -e "s#^:private_fireedge_endpoint:.*#:private_fireedge_endpoint: http://${FIREEDGE_HOST}:${FIREEDGE_INTERNAL_PORT}#" \
         /etc/one/sunstone-server.conf
 
     # this will decide where sunstone will point client to fireedge
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         sed -i \
-            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: https://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_TLS_PORT}/fireedge#" \
+            -e "s#^:public_fireedge_endpoint:.*#:public_fireedge_endpoint: https://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_TLS_PORT}#" \
             /etc/one/sunstone-server.conf
     else
         sed -i \
-            -e "s#^:fireedge_endpoint:.*#:fireedge_endpoint: http://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_PORT}/fireedge#" \
+            -e "s#^:public_fireedge_endpoint:.*#:public_fireedge_endpoint: http://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_PORT}#" \
             /etc/one/sunstone-server.conf
     fi
 
@@ -704,6 +705,11 @@ configure_sunstone()
     mkdir -p /var/tmp/sunstone/shared
     chown -R oneadmin:oneadmin /var/tmp/sunstone/shared
     chmod 0755 /var/tmp/sunstone/shared
+
+    # shared vmrc_tokens with fireedge
+    mkdir -p /var/lib/one/sunstone_vmrc_tokens
+    chown -R oneadmin:oneadmin /var/lib/one/sunstone_vmrc_tokens
+    chmod 0755 /var/lib/one/sunstone_vmrc_tokens
 
     # setup apache if requested
     mkdir -p /run/passenger
@@ -758,6 +764,13 @@ set PORT '"${MEMCACHED_INTERNAL_PORT}"'
 EOF
 }
 
+configure_guacd()
+{
+    cat > /etc/one/guacd <<EOF
+export OPTS=" -b 0.0.0.0 -l ${GUACD_INTERNAL_PORT}"
+EOF
+}
+
 configure_fireedge()
 {
     cat > /etc/one/fireedge-server.conf <<EOF
@@ -766,41 +779,38 @@ configure_fireedge()
 ################################################################################
 
 # System log (Morgan) prod or dev
-LOG: prod
+log: prod
 
 # Enable cors (cross-origin resource sharing)
-CORS: true
+cors: true
 
 # Fireedge server port
-PORT: ${FIREEDGE_INTERNAL_PORT}
+port: ${FIREEDGE_INTERNAL_PORT}
 
-# OpenNebula Zones: use it if you have oned and fireedge on different servers
-DEFAULT_ZONE:
-  ID: '0'
-  NAME: 'OpenNebula'
-  RPC: 'http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2'
+# OpenNebula: use it if you have oned and fireedge on different servers
+one_xmlrpc: 'http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2'
 
 # Flow Server: use it if you have flow-server and fireedge on different servers
-ONE_FLOW_SERVER:
-  PROTOCOL: 'http'
-  HOST: '${ONEFLOW_HOST}'
-  POST: ${ONEFLOW_INTERNAL_PORT}
+oneflow_server: 'http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}'
 
 # JWT life time (days)
-LIMIT_TOKEN:
-  MIN: 14
-  MAX: 30
+limit_token:
+  min: 14
+  max: 30
 
+# TODO: what with this?
 # VMRC
-#VMRC:
-#  TARGET: 'http://opennebula.io'
+vmrc: 'http://opennebula.io'
 
 # Guacamole: use it if you have the Guacd in other server or port
-GUACD:
-  PORT: ${GUACD_INTERNAL_PORT}
-  HOST: '${GUACD_HOST}'
+guacd:
+  port: ${GUACD_INTERNAL_PORT}
+  host: '${GUACD_HOST}'
 
 EOF
+
+    # TODO: remove when FireEdge is fixed
+    cat /etc/one/fireedge-server.conf > /usr/lib/one/fireedge/dist/fireedge-server.conf
 }
 
 configure_scheduler()
@@ -1082,10 +1092,12 @@ mysqld_srv()
             msg "EMPTY 'MYSQL_PASSWORD': GENERATE RANDOM"
             MYSQL_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
         fi
-        if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
-            msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
-            MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
-        fi
+    fi
+
+    msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
+    if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
+        msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
+        MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
     fi
 
     msg "CONFIGURE: MYSQL"
@@ -1144,6 +1156,9 @@ oned_srv()
     msg "CONFIGURE: OPENNEBULA ONED"
     configure_oned
 
+    msg "SETUP LOGROTATE: OPENNEBULA ONED"
+    cp -a /etc/logrotate.one/opennebula /etc/logrotate.d/
+
     msg "SETUP SERVICE: OPENNEBULA ONED"
     add_supervised_service opennebula
 
@@ -1171,6 +1186,12 @@ sunstone_srv()
     msg "CONFIGURE: OPENNEBULA SUNSTONE"
     configure_sunstone
 
+    msg "SETUP LOGROTATE: OPENNEBULA SUNSTONE"
+    cp -a /etc/logrotate.one/opennebula-sunstone /etc/logrotate.d/
+
+    msg "SETUP LOGROTATE: OPENNEBULA VNC (novnc)"
+    cp -a /etc/logrotate.one/opennebula-novnc /etc/logrotate.d/
+
     msg "SETUP SERVICE: OPENNEBULA SUNSTONE (httpd)"
     add_supervised_service opennebula-httpd
 
@@ -1180,6 +1201,9 @@ sunstone_srv()
 
 guacd_srv()
 {
+    msg "CONFIGURE: OPENNEBULA GUACD"
+    configure_guacd
+
     msg "SETUP SERVICE: OPENNEBULA GUACAMOLE (guacd)"
     add_supervised_service opennebula-guacd
 }
@@ -1188,6 +1212,9 @@ fireedge_srv()
 {
     msg "CONFIGURE: OPENNEBULA FIREEDGE"
     configure_fireedge
+
+    msg "SETUP LOGROTATE: OPENNEBULA FIREEDGE"
+    cp -a /etc/logrotate.one/opennebula-fireedge /etc/logrotate.d/
 
     msg "SETUP SERVICE: OPENNEBULA FIREEDGE"
     add_supervised_service opennebula-fireedge
@@ -1207,6 +1234,9 @@ scheduler_srv()
     msg "CONFIGURE: OPENNEBULA SCHEDULER"
     configure_scheduler
 
+    msg "SETUP LOGROTATE: OPENNEBULA SCHEDULER"
+    cp -a /etc/logrotate.one/opennebula-scheduler /etc/logrotate.d/
+
     msg "SETUP SERVICE: OPENNEBULA SCHEDULER"
     add_supervised_service opennebula-scheduler
 }
@@ -1220,6 +1250,9 @@ oneflow_srv()
         msg "CONFIGURE: TLS PROXY (oneflow)"
         configure_tlsproxy oneflow
     fi
+
+    msg "SETUP LOGROTATE: OPENNEBULA FLOW"
+    cp -a /etc/logrotate.one/opennebula-flow /etc/logrotate.d/
 
     msg "SETUP SERVICE: OPENNEBULA FLOW"
     add_supervised_service opennebula-flow
@@ -1235,6 +1268,9 @@ onegate_srv()
         configure_tlsproxy onegate
     fi
 
+    msg "SETUP LOGROTATE: OPENNEBULA GATE"
+    cp -a /etc/logrotate.one/opennebula-gate /etc/logrotate.d/
+
     msg "SETUP SERVICE: OPENNEBULA GATE"
     add_supervised_service opennebula-gate
 }
@@ -1242,8 +1278,9 @@ onegate_srv()
 onehem_srv()
 {
     # TODO: does it make sense to run separately from oned? (can be even?)
-    #msg "CONFIGURE: OPENNEBULA HEM"
-    #configure_onehem
+
+    msg "SETUP LOGROTATE: OPENNEBULA HEM"
+    cp -a /etc/logrotate.one/opennebula-hem /etc/logrotate.d/
 
     msg "SETUP SERVICE: OPENNEBULA HEM"
     add_supervised_service opennebula-hem
@@ -1297,9 +1334,8 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         onehem_srv
         sunstone_srv
         memcached_srv
-        # TODO: return to this when fireedge is finished
-        #guacd_srv
-        #fireedge_srv
+        guacd_srv
+        fireedge_srv
         ;;
     oned)
         msg "CONFIGURE FRONTEND SERVICE: ONED"

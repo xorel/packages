@@ -229,6 +229,10 @@ RUN mkdir -p \
     && chown oneadmin:oneadmin /var/lib/one/.one /var/lib/one/.ssh* \
     && chmod 0700 /var/lib/one/.one /var/lib/one/.ssh*
 
+# move aside conflicting logrotate files so they can be explicitly enabled
+RUN mkdir -p /etc/logrotate.one \
+    && mv /etc/logrotate.d/opennebula* /etc/logrotate.one/
+
 #
 # CLEANUP
 #
@@ -260,6 +264,7 @@ RUN truncate -c -s 0 \
 # implicit anonymous volumes for persistent data
 
 VOLUME ["/var/log"]
+VOLUME ["/var/log/one"]
 VOLUME ["/var/lib/mysql"]
 VOLUME ["/var/lib/one/.one"]
 VOLUME ["/var/lib/one/.ssh"]
