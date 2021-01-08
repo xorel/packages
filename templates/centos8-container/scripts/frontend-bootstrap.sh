@@ -34,6 +34,7 @@ export MAINTENANCE_MODE="${MAINTENANCE_MODE:-no}"
 export ONED_HOST="${ONED_HOST:-localhost}"
 export ONED_INTERNAL_PORT=2633
 export ONED_INTERNAL_TLS_PORT=2634
+export ONED_DB_BACKUP_ENABLED="${ONED_DB_BACKUP_ENABLED:-yes}"
 
 # oneflow
 
@@ -104,6 +105,8 @@ export ONEADMIN_USERNAME="oneadmin"
 export ONEADMIN_PASSWORD
 export ONEADMIN_SSH_PRIVKEY="${ONEADMIN_SSH_PRIVKEY:-/ssh/id_rsa}"
 export ONEADMIN_SSH_PUBKEY="${ONEADMIN_SSH_PUBKEY:-/ssh/id_rsa.pub}"
+export ONEADMIN_SSH_PRIVKEY_BASE64
+export ONEADMIN_SSH_PUBKEY_BASE64
 
 # mysql
 
@@ -313,7 +316,25 @@ prepare_ssh()
     _private_key_path=
     _public_key_path=
     _custom_key=no
-    if [ -n "$ONEADMIN_SSH_PRIVKEY" ] && [ -n "$ONEADMIN_SSH_PUBKEY" ] ; then
+    if [ -n "$ONEADMIN_SSH_PRIVKEY_BASE64" ] && [ -n "$ONEADMIN_SSH_PUBKEY_BASE64" ] ; then
+        _custom_cert=yes
+        _private_key_path="/var/lib/one/.ssh/id_rsa"
+        _public_key_path="/var/lib/one/.ssh/id_rsa.pub"
+
+        if ! echo "$ONEADMIN_SSH_PRIVKEY_BASE64" | base64 -d > "${_private_key_path}.tmp" ; then
+            err "'ONEADMIN_SSH_PRIVKEY_BASE64' does not have a base64 value - ABORT"
+            exit 1
+        fi
+        mv "${_private_key_path}.tmp" "${_private_key_path}"
+        chmod 0600 "${_private_key_path}"
+
+        if ! echo "$ONEADMIN_SSH_PUBKEY_BASE64" | base64 -d > "${_public_key_path}.tmp" ; then
+            err "'ONEADMIN_SSH_PUBKEY_BASE64' does not have a base64 value - ABORT"
+            exit 1
+        fi
+        mv "${_public_key_path}.tmp" "${_public_key_path}"
+        chmod 0644 "${_public_key_path}"
+    elif [ -n "$ONEADMIN_SSH_PRIVKEY" ] && [ -n "$ONEADMIN_SSH_PUBKEY" ] ; then
         if [ -f "$ONEADMIN_SSH_PRIVKEY" ] && [ -f "$ONEADMIN_SSH_PUBKEY" ] ; then
             _custom_key=yes
             _privkey=$(basename "$ONEADMIN_SSH_PRIVKEY")
@@ -426,6 +447,26 @@ wait_for_file()
     return 1
 )
 
+wait_for_opennebula_db()
+(
+    TIMEOUT="${TIMEOUT:-120}"
+
+    while [ "$TIMEOUT" -gt 0 ] ; do
+        if mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -D "$MYSQL_DATABASE" \
+            -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" \
+            -e 'exit' \
+            ;
+        then
+            return 0
+        fi
+
+        TIMEOUT=$(( TIMEOUT - 1 ))
+        sleep 1s
+    done
+
+    return 1
+)
+
 prepare_cert()
 (
     # internal filepaths can be hardcoded - only the content varies
@@ -464,17 +505,19 @@ prepare_cert()
     if [ -n "$TLS_CERT_BASE64" ] && [ -n "$TLS_KEY_BASE64" ] ; then
         _custom_cert=yes
 
-        if ! echo "$TLS_CERT_BASE64" | base64 -d > "${_cert_path}" ; then
-            err "'TLS_CERT_BASE64' does not have a base64 value - ABORT"
-            return 1
-        fi
-        chmod 0644 "${_cert_path}"
-
-        if ! echo "$TLS_KEY_BASE64" | base64 -d > "${_key_path}" ; then
+        if ! echo "$TLS_KEY_BASE64" | base64 -d > "${_key_path}.tmp" ; then
             err "'TLS_KEY_BASE64' does not have a base64 value - ABORT"
             return 1
         fi
+        mv "${_key_path}.tmp" "${_key_path}"
         chmod 0600 "${_key_path}"
+
+        if ! echo "$TLS_CERT_BASE64" | base64 -d > "${_cert_path}.tmp" ; then
+            err "'TLS_CERT_BASE64' does not have a base64 value - ABORT"
+            return 1
+        fi
+        mv "${_cert_path}.tmp" "${_cert_path}"
+        chmod 0644 "${_cert_path}"
     elif [ -n "$TLS_CERT" ] && [ -n "$TLS_KEY" ] ; then
         if [ -f "$TLS_CERT" ] && [ -f "$TLS_KEY" ] ; then
             _custom_cert=yes
@@ -933,6 +976,53 @@ EOF
     chmod 0755 /usr/local/bin/docker
 )
 
+onedb_upgrade()
+{
+    # wait for mysqld
+    msg "ONEDB: WAIT FOR MYSQL"
+    if ! wait_for_opennebula_db ; then
+        err "ONEDB: REACHED TIMEOUT"
+        exit 1
+    fi
+
+    msg "ONEDB: CHECK VERSION"
+
+    # to avoid script termination on non-zero code from command - we wrap the
+    # command in if-else construct
+    if onedb version -v ; then
+        _status=0
+    else
+        _status=$?
+    fi
+
+    case "$_status" in
+        0)
+            msg "ONEDB: DATABASE IS UP-TO-DATE"
+            ;;
+        1)
+            msg "ONEDB: DATABASE WAS NOT CREATED YET - SKIP"
+            ;;
+        2)
+            msg "ONEDB: UPGRADING DATABASE"
+            if is_true "${ONED_DB_BACKUP_ENABLED}" ; then
+                _mysqldump="/var/lib/one/backups/db/opennebula-$(date +%Y-%m-%d-%s).sql"
+                onedb upgrade --backup "${_mysqldump}"
+                nohup gzip "${_mysqldump}" &
+            else
+                onedb upgrade --no-backup
+            fi
+            ;;
+        3)
+            err "ONEDB: DATABASE IS NEWER THAN OPENNEBULA - ABORT"
+            exit 1
+            ;;
+        *)
+            err "ONEDB: UNKNOWN ERROR - ABORT"
+            exit 1
+            ;;
+    esac
+}
+
 initialize_supervisord_conf()
 {
     # respect the pre-existing config
@@ -1018,8 +1108,16 @@ fix_volume_ownership()
     chmod 0750 /var/log/one
 
     # oneadmin's directories
+
+    # datastore
     chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/datastores
     chmod 0750 /var/lib/one/datastores
+
+    # backups and db
+    mkdir -p /var/lib/one/backups/db
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/backups
+    chmod 0750 /var/lib/one/backups
+    chmod 0750 /var/lib/one/backups/db
 }
 
 common_configuration()
@@ -1155,6 +1253,9 @@ oned_srv()
 
     msg "CONFIGURE: OPENNEBULA ONED"
     configure_oned
+
+    msg "ONEDB: CHECK/UPGRADE DATABASE"
+    onedb_upgrade
 
     msg "SETUP LOGROTATE: OPENNEBULA ONED"
     cp -a /etc/logrotate.one/opennebula /etc/logrotate.d/

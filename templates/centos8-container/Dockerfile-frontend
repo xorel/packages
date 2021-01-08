@@ -38,6 +38,7 @@ LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Frontend servi
 OPENNEBULA_FRONTEND_HOST=Host which will be advertised as the frontend endpoint, \
 OPENNEBULA_FRONTEND_SSH_HOST=Advertised host to which node will ssh into, \
 ONED_HOST=Host of the oned server, \
+ONED_DB_BACKUP_ENABLED=yes/no if onedb should create sqldump, \
 ONEFLOW_HOST=Host of the oneflow server, \
 ONEGATE_HOST=Host of the onegate server, \
 ONEGATE_PORT=Advertised port of the onegate server, \
@@ -52,12 +53,14 @@ TLS_PROXY_ENABLED=yes/no if TLS proxy (stunnel) should be running, \
 TLS_DOMAIN_LIST=Space separated list of DNS names (asterisk allowed), \
 TLS_VALID_DAYS=Expiration days for the generated self-signed certificate, \
 TLS_CERT_BASE64=Custom certificate in base64 format, \
-TLS_KEY_BASE64=Privkey to the custom certificate in base64 format, \
-TLS_CERT=Custom certificate as a filename, \
-TLS_KEY=Privkey to the custom certificate as a filename, \
+TLS_KEY_BASE64=Privkey of the custom certificate in base64 format, \
+TLS_CERT=Filename of the custom certificate, \
+TLS_KEY=Filename of the privkey for the custom certificate, \
 ONEADMIN_PASSWORD=Password for the oneadmin user (otherwise generated), \
-ONEADMIN_SSH_PRIVKEY=Privkey of the custom ssh key as a filename, \
-ONEADMIN_SSH_PUBKEY=Pubkey of the custom ssh key as a filename, \
+ONEADMIN_SSH_PRIVKEY=Filename of the custom ssh privkey, \
+ONEADMIN_SSH_PUBKEY=Filename of the custom ssh pubkey, \
+ONEADMIN_SSH_PRIVKEY_BASE64=Custom ssh privkey in base64 format, \
+ONEADMIN_SSH_PUBKEY_BASE64=Custom ssh pubkey in base64 format, \
 DOCKER_ENABLED=yes/no if docker service should be running, \
 DOCKER_TCP_ENABLED=yes/no if docker should listen on tcp, \
 DOCKER_HOST=Host of the docker server, \
@@ -266,6 +269,7 @@ RUN truncate -c -s 0 \
 VOLUME ["/var/log"]
 VOLUME ["/var/log/one"]
 VOLUME ["/var/lib/mysql"]
+VOLUME ["/var/lib/one/backups"]
 VOLUME ["/var/lib/one/.one"]
 VOLUME ["/var/lib/one/.ssh"]
 VOLUME ["/var/lib/one/datastores"]

@@ -26,7 +26,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "mysqld"
     volumes:
-      - opennebula_mysql:/var/lib/mysql:Z
+      - opennebula_mysql:/var/lib/mysql
     tmpfs:
       - /tmp
       - /run
@@ -88,15 +88,15 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONED_EXTERNAL_PORT:-2633}:${DEPLOY_ONED_INTERNAL_PORT:-2633}"
     volumes:
-      - opennebula_datastores:/var/lib/one/datastores:z
-      - opennebula_secret_tls:/srv/one/secret-tls:z
-      - opennebula_oneadmin_auth:/var/lib/one/.one:z
-      - opennebula_oneadmin_ssh:/var/lib/one/.ssh:Z
-      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh-copyback:z
-      - opennebula_logs:/var/log/one:z
-      - opennebula_shared_tmp:/var/tmp/sunstone:z
-      - ./certs:/certs:ro
-      - ./ssh:/ssh:ro
+      - opennebula_datastores:/var/lib/one/datastores
+      - opennebula_secret_tls:/srv/one/secret-tls
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_oneadmin_ssh:/var/lib/one/.ssh
+      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh-copyback
+      - opennebula_logs:/var/log/one
+      - opennebula_shared_tmp:/var/tmp/sunstone
+      - ./certs:/certs:z
+      - ./ssh:/ssh:z
     devices:
       - /dev/fuse:/dev/fuse
     tmpfs:
@@ -130,9 +130,9 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - opennebula_datastores:/var/lib/one/datastores:z
-      - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys:Z
-      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh:z
+      - opennebula_datastores:/var/lib/one/datastores
+      - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys
+      - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh
     tmpfs:
       - /tmp
       - /run
@@ -189,7 +189,7 @@ services:
       - opennebula-oned
     volumes:
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
-      - opennebula_logs:/var/log/one:z
+      - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
       - /run
@@ -223,7 +223,7 @@ services:
     volumes:
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
       - opennebula_secret_tls:/srv/one/secret-tls:ro
-      - opennebula_logs:/var/log/one:z
+      - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
       - /run
@@ -257,7 +257,7 @@ services:
     volumes:
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
       - opennebula_secret_tls:/srv/one/secret-tls:ro
-      - opennebula_logs:/var/log/one:z
+      - opennebula_logs:/var/log/one
     tmpfs:
       - /tmp
       - /run
@@ -317,12 +317,12 @@ services:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_TLS_PORT:-4443}:443"
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_VNC_PORT:-29876}:29876"
     volumes:
-      - opennebula_secret_tls:/srv/one/secret-tls:z
+      - opennebula_secret_tls:/srv/one/secret-tls
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
-      - opennebula_logs:/var/log/one:z
-      - opennebula_shared_tmp:/var/tmp/sunstone:z
-      - opennebula_shared_vmrc:/var/lib/one/sunstone_vmrc_tokens:z
-      - ./certs:/certs:ro
+      - opennebula_logs:/var/log/one
+      - opennebula_shared_tmp:/var/tmp/sunstone
+      - opennebula_shared_vmrc:/var/lib/one/sunstone_vmrc_tokens
+      - ./certs:/certs:z
     tmpfs:
       - /tmp
       - /run
@@ -352,9 +352,9 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - opennebula_oneadmin_auth:/var/lib/one/.one:z
-      - opennebula_logs:/var/log/one:z
-      - opennebula_shared_vmrc:/var/lib/one/sunstone_vmrc_tokens:z
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_logs:/var/log/one
+      - opennebula_shared_vmrc:/var/lib/one/sunstone_vmrc_tokens
     tmpfs:
       - /tmp
       - /run
