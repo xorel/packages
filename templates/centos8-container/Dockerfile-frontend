@@ -37,6 +37,8 @@ LABEL org.opencontainers.image.vendor="OpenNebula Systems"
 LABEL org.label-schema.docker.params="OPENNEBULA_FRONTEND_SERVICE=Frontend service to run (or all), \
 OPENNEBULA_FRONTEND_HOST=Host which will be advertised as the frontend endpoint, \
 OPENNEBULA_FRONTEND_SSH_HOST=Advertised host to which node will ssh into, \
+OPENNEBULA_FRONTEND_ONECFG_PATCH=Custom onecfg patch file, \
+MAINTENANCE_MODE=yes/no if container should start in the maintenance mode, \
 ONED_HOST=Host of the oned server, \
 ONED_DB_BACKUP_ENABLED=yes/no if onedb should create sqldump, \
 ONEFLOW_HOST=Host of the oneflow server, \
@@ -79,7 +81,7 @@ MYSQL_ROOT_PASSWORD=Root password of the mysql server"
 # basic packages (and remove kdump)
 RUN dnf -y remove kexec-tools && dnf -y update && dnf -y install \
         epel-release \
-        yum-utils \
+        dnf-plugins-core \
     && dnf clean all && rm -rf /var/cache/dnf/*
 
 # prepare opennebula repo
@@ -100,12 +102,16 @@ RUN sed -i "s/[\$][{]OPENNEBULA_VERSION[}]/${OPENNEBULA_VERSION}/" \
         /etc/yum.repos.d/opennebula.repo
 
 # prepare docker repo
-RUN yum-config-manager --add-repo \
+RUN dnf config-manager --add-repo \
         https://download.docker.com/linux/centos/docker-ce.repo
 
 # prepare phusion passenger repo
 RUN curl --fail -sSLo /etc/yum.repos.d/passenger.repo \
         https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+
+# prepare terraform repo
+RUN dnf config-manager --add-repo \
+        https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
 
 # opennebula packages and dependencies
 RUN dnf -y install \
@@ -126,6 +132,9 @@ RUN dnf -y install \
         mod_passenger \
         stunnel \
         fuse \
+        terraform \
+        ansible-2.9.* \
+        git \
         opennebula-server \
         opennebula-ruby \
         opennebula-flow \
@@ -133,6 +142,7 @@ RUN dnf -y install \
         opennebula-sunstone \
         opennebula-fireedge \
         opennebula-guacd \
+        opennebula-provision \
         file \
         e2fsprogs \
         nc \

@@ -27,6 +27,7 @@ set -e
 export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
 export OPENNEBULA_FRONTEND_HOST="${OPENNEBULA_FRONTEND_HOST:-opennebula-frontend}"
 export OPENNEBULA_FRONTEND_SSH_HOST="${OPENNEBULA_FRONTEND_SSH_HOST:-${OPENNEBULA_FRONTEND_HOST}}"
+export OPENNEBULA_FRONTEND_ONECFG_PATCH
 export MAINTENANCE_MODE="${MAINTENANCE_MODE:-no}"
 
 # oned
@@ -195,6 +196,15 @@ sig_exit()
 #
 # this will make augtool little faster by using only needed lenses and executing
 # commands in one run
+#
+# Example:
+#
+# % augtool_helper /etc/one/oned.conf <<EOF
+# > set HOSTNAME '"${OPENNEBULA_FRONTEND_SSH_HOST}"'
+# > set PORT '"${ONED_INTERNAL_PORT}"'
+# > EOF
+# %
+#
 # args: <absolute-path-to-the-edited-file>
 augtool_helper()
 {
@@ -206,6 +216,26 @@ $(cat)
 save
 quit
 EOF
+}
+
+# Analogical to the augtool_helper usage but for onecfg command:
+#
+# deduplicate filename and provide some boilerplate
+#
+# args: <absolute-path-to-the-edited-file>
+onecfg_helper()
+{
+    # output is surpressed because it is not good idea to have passwords in the
+    # log...
+    #
+    # also due to the result code not being always zero when not all changes
+    # are applied - we wrap the command in the if-else construct
+    if ! sed "s#.*#${1} &#" | onecfg patch --format line >/dev/null 2>&1 ; then
+        if [ $? -ne 1 ] ; then
+            err "ONECFG: PATCHING THE FILE '$1' FAILED - ABORT"
+            exit 1
+        fi
+    fi
 }
 
 # IMPORTANT!
@@ -638,30 +668,29 @@ EOF
 configure_oned()
 {
     # setup hostname and port
-    augtool_helper /etc/one/oned.conf <<EOF
-set HOSTNAME '"${OPENNEBULA_FRONTEND_SSH_HOST}"'
-set PORT '"${ONED_INTERNAL_PORT}"'
+    onecfg_helper /etc/one/oned.conf <<EOF
+set HOSTNAME "\"${OPENNEBULA_FRONTEND_SSH_HOST}\""
+set PORT ${ONED_INTERNAL_PORT}
 EOF
 
     # add new DB connections based on the passed env. variables
-    augtool_helper /etc/one/oned.conf <<EOF
-rm DB
-set DB/BACKEND '"mysql"'
-set DB/SERVER  '"${MYSQL_HOST}"'
-set DB/PORT    '${MYSQL_PORT}'
-set DB/USER    '"${MYSQL_USER}"'
-set DB/PASSWD  '"${MYSQL_PASSWORD}"'
-set DB/DB_NAME '"${MYSQL_DATABASE}"'
+    onecfg_helper /etc/one/oned.conf <<EOF
+set DB/BACKEND "\"mysql\""
+set DB/SERVER  "\"${MYSQL_HOST}\""
+set DB/PORT    ${MYSQL_PORT}
+set DB/USER    "\"${MYSQL_USER}\""
+set DB/PASSWD  "\"${MYSQL_PASSWORD}\""
+set DB/DB_NAME "\"${MYSQL_DATABASE}\""
 EOF
 
     # advertise this onegate endpoint
     if is_true "${TLS_PROXY_ENABLED}" ; then
-        augtool_helper /etc/one/oned.conf <<EOF
-set ONEGATE_ENDPOINT '"https://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}"'
+        onecfg_helper /etc/one/oned.conf <<EOF
+set ONEGATE_ENDPOINT "\"https://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}\""
 EOF
     else
-        augtool_helper /etc/one/oned.conf <<EOF
-set ONEGATE_ENDPOINT '"http://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}"'
+        onecfg_helper /etc/one/oned.conf <<EOF
+set ONEGATE_ENDPOINT "\"http://${OPENNEBULA_FRONTEND_HOST}:${ONEGATE_PORT}\""
 EOF
     fi
 
@@ -693,24 +722,24 @@ configure_sunstone()
     # configuration
     #
 
-    sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
-        -e "s#^:oneflow_server:.*#:oneflow_server: http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}#" \
-        -e "s#^:port:.*#:port: ${SUNSTONE_INTERNAL_PORT}#" \
-        -e "s#^:vnc_proxy_port:.*#:vnc_proxy_port: ${SUNSTONE_VNC_PORT}#" \
-        -e "s#^:tmpdir:.*#:tmpdir: /var/tmp/sunstone/shared#" \
-        -e "s#^:private_fireedge_endpoint:.*#:private_fireedge_endpoint: http://${FIREEDGE_HOST}:${FIREEDGE_INTERNAL_PORT}#" \
-        /etc/one/sunstone-server.conf
+    onecfg_helper /etc/one/sunstone-server.conf <<EOF
+SET :one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
+SET :oneflow_server "http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}"
+SET :port ${SUNSTONE_INTERNAL_PORT}
+SET :vnc_proxy_port ${SUNSTONE_VNC_PORT}
+SET :tmpdir "/var/tmp/sunstone/shared"
+SET :private_fireedge_endpoint "http://${FIREEDGE_HOST}:${FIREEDGE_INTERNAL_PORT}"
+EOF
 
     # this will decide where sunstone will point client to fireedge
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
-        sed -i \
-            -e "s#^:public_fireedge_endpoint:.*#:public_fireedge_endpoint: https://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_TLS_PORT}#" \
-            /etc/one/sunstone-server.conf
+        onecfg_helper /etc/one/sunstone-server.conf <<EOF
+SET :public_fireedge_endpoint "https://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_TLS_PORT}"
+EOF
     else
-        sed -i \
-            -e "s#^:public_fireedge_endpoint:.*#:public_fireedge_endpoint: http://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_PORT}#" \
-            /etc/one/sunstone-server.conf
+        onecfg_helper /etc/one/sunstone-server.conf <<EOF
+SET :public_fireedge_endpoint "http://${OPENNEBULA_FRONTEND_HOST}:${SUNSTONE_PORT}"
+EOF
     fi
 
     # enable vnc over ssl when https is required and certs provided
@@ -718,11 +747,11 @@ configure_sunstone()
         # value can be: no, yes, only
         _wss="only"
 
-        sed -i \
-            -e "s#^:vnc_proxy_support_wss:.*#:vnc_proxy_support_wss: ${_wss}#" \
-            -e "s#^:vnc_proxy_cert:.*#:vnc_proxy_cert: /srv/one/secret-tls/one.crt#" \
-            -e "s#^:vnc_proxy_key:.*#:vnc_proxy_key: /srv/one/secret-tls/one.key#" \
-            /etc/one/sunstone-server.conf
+        onecfg_helper /etc/one/sunstone-server.conf <<EOF
+SET :vnc_proxy_support_wss "${_wss}"
+SET :vnc_proxy_cert "/srv/one/secret-tls/one.crt"
+SET :vnc_proxy_key "/srv/one/secret-tls/one.key"
+EOF
     fi
 
     # shared tmpdir with oned
@@ -763,11 +792,11 @@ configure_sunstone()
     fi
 
     # configure memcached
-    sed -i \
-        -e "s#^:sessions:.*#:sessions: 'memcache'#" \
-        -e "s#^:memcache_host:.*#:memcache_host: ${MEMCACHED_HOST}#" \
-        -e "s#^:memcache_port:.*#:memcache_port: ${MEMCACHED_INTERNAL_PORT}#" \
-        /etc/one/sunstone-server.conf
+    onecfg_helper /etc/one/sunstone-server.conf <<EOF
+SET :sessions "memcache"
+SET :memcache_host "${MEMCACHED_HOST}"
+SET :memcache_port ${MEMCACHED_INTERNAL_PORT}
+EOF
 
     # populate service env file
     cat > /etc/default/supervisor/sunstone <<EOF
@@ -797,40 +826,13 @@ EOF
 
 configure_fireedge()
 {
-    cat > /etc/one/fireedge-server.conf <<EOF
-################################################################################
-# Server Configuration
-################################################################################
-
-# System log (Morgan) prod or dev
-log: prod
-
-# Enable cors (cross-origin resource sharing)
-cors: true
-
-# Fireedge server port
-port: ${FIREEDGE_INTERNAL_PORT}
-
-# OpenNebula: use it if you have oned and fireedge on different servers
-one_xmlrpc: 'http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2'
-
-# Flow Server: use it if you have flow-server and fireedge on different servers
-oneflow_server: 'http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}'
-
-# JWT life time (days)
-limit_token:
-  min: 14
-  max: 30
-
-# TODO: what with this?
-# VMRC
-vmrc: 'http://opennebula.io'
-
-# Guacamole: use it if you have the Guacd in other server or port
-guacd:
-  port: ${GUACD_INTERNAL_PORT}
-  host: '${GUACD_HOST}'
-
+    onecfg_helper /etc/one/fireedge-server.conf <<EOF
+SET port ${FIREEDGE_INTERNAL_PORT}
+SET one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
+SET oneflow_server "http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}"
+SET guacd {}
+SET guacd/host "${GUACD_HOST}"
+SET guacd/port ${GUACD_INTERNAL_PORT}
 EOF
 
     # TODO: remove when FireEdge is fixed
@@ -839,28 +841,28 @@ EOF
 
 configure_scheduler()
 {
-    augtool_helper /etc/one/sched.conf <<EOF
-set ONE_XMLRPC '"http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"'
+    onecfg_helper /etc/one/sched.conf <<EOF
+set ONE_XMLRPC "\"http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2\""
 EOF
 }
 
 configure_oneflow()
 {
-    sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
-        -e "s#^:host:.*#:host: 0.0.0.0#" \
-        -e "s#^:port:.*#:port: ${ONEFLOW_INTERNAL_PORT}#" \
-        /etc/one/oneflow-server.conf
+    onecfg_helper /etc/one/oneflow-server.conf <<EOF
+SET :one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
+SET :host "0.0.0.0"
+SET :port ${ONEFLOW_INTERNAL_PORT}
+EOF
 }
 
 configure_onegate()
 {
-    sed -i \
-        -e "s#^:one_xmlrpc:.*#:one_xmlrpc: http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2#" \
-        -e "s#^:oneflow_server:.*#:oneflow_server: http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}#" \
-        -e "s#^:host:.*#:host: 0.0.0.0#" \
-        -e "s#^:port:.*#:port: ${ONEGATE_INTERNAL_PORT}#" \
-        /etc/one/onegate-server.conf
+    onecfg_helper /etc/one/onegate-server.conf <<EOF
+SET :one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
+SET :oneflow_server "http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}"
+SET :host "0.0.0.0"
+SET :port ${ONEGATE_INTERNAL_PORT}
+EOF
 }
 
 configure_mysql()
@@ -1111,6 +1113,28 @@ sshd_srv()
 
     msg "SETUP SERVICE: SSHD"
     add_supervised_service sshd
+}
+
+provision_srv()
+{
+    msg "CREATE SSH TMPFILES"
+    create_ssh_tmpfiles
+
+# TODO:
+#    msg "PREPARE SSH HOST KEYS"
+#    restore_ssh_host_keys
+#
+#    msg "REMOVE NOLOGIN FILES"
+#    rm -f /etc/nologin /run/nologin
+#
+#    msg "CREATE ONEADMIN's SSH DIRECTORY"
+#    mkdir -p /oneadmin/ssh_pub_data/ssh
+#    chmod 0700 /oneadmin/ssh_pub_data/ssh
+#    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_pub_data/ssh
+#
+#    msg "SETUP SERVICE: SSHD"
+#    add_supervised_service sshd
+    MAINTENANCE_MODE=yes
 }
 
 mysqld_srv()
@@ -1417,6 +1441,10 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         onegate_srv
         tlsproxy
         ;;
+    provision)
+        msg "CONFIGURE FRONTEND SERVICE: ONEPROVISION"
+        provision_srv
+        ;;
     *)
         err "UNKNOWN FRONTEND SERVICE: ${OPENNEBULA_FRONTEND_SERVICE}"
         exit 1
@@ -1432,6 +1460,14 @@ msg "BOOTSTRAP FINISHED"
 if [ -f /prestart-hook.sh ] && [ -x /prestart-hook.sh ] ; then
     msg "PRESTART HOOK FOUND: RUNNING '/prestart-hook.sh'"
     /prestart-hook.sh
+fi
+
+# custom onecfg patch
+if [ -n "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] \
+   && [ -f "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] ;
+then
+    msg "ONECFG: APPLY USER-PROVIDED PATCH: ${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
+    onecfg patch --all --format line "${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
 fi
 
 if is_true "${MAINTENANCE_MODE}" ; then

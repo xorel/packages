@@ -373,3 +373,33 @@ services:
         delay: 10s
       replicas: 1
 
+# TODO:
+#  opennebula-provision:
+#    env_file:
+#      - ".env"
+#    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
+#    init: true
+#    restart: always
+#    environment:
+#      OPENNEBULA_FRONTEND_SERVICE: "provision"
+#    volumes:
+#      - opennebula_oneadmin_auth:/var/lib/one/.one
+#      - opennebula_logs:/var/log/one
+#    tmpfs:
+#      - /tmp
+#      - /run
+#      - /run/lock
+#    networks:
+#      - onenet
+#    healthcheck:
+#      test: ["CMD", "/frontend-healthcheck.sh"]
+#      interval: "10s"
+#      timeout: "10s"
+#      retries: 3
+#      start_period: "2m"
+#    deploy:
+#      restart_policy:
+#        condition: any
+#        delay: 10s
+#      replicas: 1
+
