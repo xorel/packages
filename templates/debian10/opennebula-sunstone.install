@@ -9,21 +9,12 @@ dist/usr/bin/novnc-server /usr/bin/
 
 # Sunstone
 
-dist/usr/lib/one/sunstone/config.ru /usr/lib/one/sunstone/
-
 dist/etc/one/sunstone-server.conf  /etc/one/
-dist/etc/one/sunstone-logos.yaml  /etc/one/
-
+dist/etc/one/sunstone-logos.yaml   /etc/one/
 dist/etc/one/sunstone-views.yaml   /etc/one/
 dist/etc/one/sunstone-views/*      /etc/one/sunstone-views/
 
-dist/usr/lib/one/sunstone/*.rb                      /usr/lib/one/sunstone/
-dist/usr/lib/one/sunstone/models/Sunstone*          /usr/lib/one/sunstone/models/
-dist/usr/lib/one/sunstone/models/sunstone_*         /usr/lib/one/sunstone/models/
-dist/usr/lib/one/sunstone/public/*                  /usr/lib/one/sunstone/public/
-dist/usr/lib/one/sunstone/views/*                   /usr/lib/one/sunstone/views/
-
-dist/usr/lib/one/sunstone/routes/* /usr/lib/one/sunstone/routes/
+dist/usr/lib/one/sunstone/*                         /usr/lib/one/sunstone/
 
 dist/usr/bin/sunstone-server    /usr/bin/
 
@@ -44,6 +35,7 @@ dist/usr/lib/one/ruby/cloud/econe/econe-server.rb         /usr/lib/one/ruby/clou
 dist/usr/lib/one/ruby/cloud/econe/econe_application.rb    /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/elastic_ip.rb           /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/ImageEC2.rb             /usr/lib/one/ruby/cloud/econe/
+dist/usr/lib/one/ruby/cloud/econe/EC2QueryClient.rb       /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/EC2QueryServer.rb       /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/ebs.rb                  /usr/lib/one/ruby/cloud/econe/
 dist/usr/lib/one/ruby/cloud/econe/instance.rb             /usr/lib/one/ruby/cloud/econe/

@@ -45,12 +45,8 @@ dist/usr/lib/one/ruby/az_driver.rb  /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/ec2_driver.rb /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/aws_vnm.rb        /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/packet_vnm.rb     /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/nsx_driver.rb /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/nsx_driver/*  /usr/lib/one/ruby/nsx_driver/
 dist/usr/lib/one/ruby/opennebula_driver.rb /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/packet_driver.rb      /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/vcenter_driver.rb     /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/vcenter_driver/*      /usr/lib/one/ruby/vcenter_driver/
 
 dist/usr/lib/one/ruby/onedb/fsck/*         /usr/lib/one/ruby/onedb/fsck/
 dist/usr/lib/one/ruby/onedb/patches/*      /usr/lib/one/ruby/onedb/patches/

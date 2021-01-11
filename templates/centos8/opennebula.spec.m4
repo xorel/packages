@@ -4,8 +4,6 @@
 
 %define with_rubygems           0%{?_with_rubygems:1}
 %define with_docker_machine     0%{?_with_docker_machine:1}
-%define with_addon_tools        0%{?_with_addon_tools:1}
-%define with_addon_markets      0%{?_with_addon_markets:1}
 %define with_enterprise         0%{?_with_enterprise:1}
 %define with_fireedge           0%{?_with_fireedge:1}
 %define with_guacd              0%{!?_without_guacd:1}
@@ -80,7 +78,7 @@
 
 Name: opennebula
 Version: _VERSION_
-Summary: OpenNebula command line tools (%{edition})
+Summary: OpenNebula Server and Scheduler (%{edition})
 Release: _PKG_VERSION_%{?dist}
 %if %{undefined packager}
 Packager: Unofficial Unsupported Build
@@ -96,12 +94,6 @@ Source3: build_opennebula.sh
 Source4: xml_parse_huge.patch
 %if %{with_docker_machine}
 Source5: opennebula-docker-machine-%{version}.tar.gz
-%endif
-%if %{with_addon_tools}
-Source7: opennebula-addon-tools-%{version}.tar.gz
-%endif
-%if %{with_addon_markets}
-Source8: opennebula-addon-markets-%{version}.tar.gz
 %endif
 %if %{with_oca_java_prebuilt}
 Source9: java-oca-%{version}.tar.gz
@@ -201,40 +193,10 @@ BuildRequires: libvorbis-devel
 %endif
 
 ################################################################################
-# Requires
-################################################################################
-
-Requires: openssl
-Requires: openssh
-Requires: openssh-clients
-Requires: less
-Requires: gnuplot
-# Recommends: gnuplot   # TODO: we are missing repository metadata to handle weak dependencies
-Requires: bash-completion
-
-Obsoletes: %{name}-addon-tools
-Requires: %{name}-common = %{version}
-Requires: %{name}-common-onecfg = %{version}
-Requires: %{name}-ruby = %{version}
-%if %{with_rubygems}
-Requires: %{name}-rubygems = %{version}
-%endif
-
-################################################################################
 # Main Package
 ################################################################################
 
-%description
-CLI tools of OpenNebula.
-
-################################################################################
-# Package opennebula-server
-################################################################################
-
-%package server
-Summary: OpenNebula Server and Scheduler (%{edition})
-Group: System
-Requires: %{name} = %{version}
+Requires: %{name}-tools = %{version}
 Requires: %{name}-common-onecfg = %{version}
 Requires: sqlite
 Requires: openssh-server
@@ -257,6 +219,8 @@ Requires: zeromq >= 4, zeromq < 5
 %endif
 # Devel package brings libzmq.so symlink required by ffi-rzmq-core gem
 Requires: zeromq-devel
+Provides: %{name}-server = %{version}
+Obsoletes: %{name}-server < 5.13.80
 Obsoletes: %{name}-addon-markets
 Obsoletes: %{name}-ozones
 %if %{with_enterprise}
@@ -266,8 +230,34 @@ Requires: %{name}-ee-tools = %{version}
 Obsoletes: %{name}-migration
 %endif
 
-%description server
+%description
 OpenNebula Server and Scheduler daemons.
+
+################################################################################
+# Package opennebula-tools
+################################################################################
+
+%package tools
+Summary: OpenNebula command line tools (%{edition})
+Group: System
+BuildArch: noarch
+Requires: openssl
+Requires: openssh
+Requires: openssh-clients
+Requires: /bin/more
+Recommends: bash-completion
+Recommends: gnuplot
+Obsoletes: %{name} < 5.13.80
+Obsoletes: %{name}-addon-tools
+Requires: %{name}-common = %{version}
+Requires: %{name}-common-onecfg = %{version}
+Requires: %{name}-libs = %{version}
+%if %{with_rubygems}
+Requires: %{name}-rubygems = %{version}
+%endif
+
+%description tools
+CLI tools for OpenNebula.
 
 ################################################################################
 # Package common
@@ -300,13 +290,14 @@ Obsoletes: %{name}-common-onescape
 Helpers for OpenNebula onecfg
 
 ################################################################################
-# Package ruby
+# Package libs
 ################################################################################
 
-%package ruby
-Summary: OpenNebula Ruby libraries (%{edition})
+%package libs
+Summary: OpenNebula libraries (%{edition})
 Group: System
 BuildArch: noarch
+Obsoletes: %{name}-ruby < 5.13.80
 Requires: ruby
 Requires: rubygems
 Requires: rubygem-bigdecimal
@@ -317,8 +308,8 @@ Requires: rubygem-psych
 Requires: %{name}-rubygems = %{version}
 %endif
 
-%description ruby
-OpenNebula Ruby libraries.
+%description libs
+OpenNebula libraries.
 
 ################################################################################
 # Package rubygems
@@ -449,8 +440,7 @@ Summary: OpenNebula web interface Sunstone (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
-Requires: %{name}-ruby = %{version}
-Requires: %{name}-server = %{version}
+Requires: %{name}-libs = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
@@ -475,8 +465,9 @@ Browser based UI for OpenNebula cloud management and usage.
 Summary: OpenNebula web interface FireEdge (%{edition})
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
+Requires: %{name}-provision-data = %{version}
 %if %{with_guacd}
-Requires: %{name}-guacd = %{version}
+Recommends: %{name}-guacd = %{version}
 %endif
 
 %description fireedge
@@ -492,7 +483,7 @@ Summary: OpenNebula Gate server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
-Requires: %{name}-ruby = %{version}
+Requires: %{name}-libs = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
@@ -509,7 +500,7 @@ Summary: OpenNebula Flow server (%{edition})
 BuildArch: noarch
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
-Requires: %{name}-ruby = %{version}
+Requires: %{name}-libs = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
@@ -531,51 +522,6 @@ to be installed separately).
 %endif
 
 ################################################################################
-# Package Addon Tools
-################################################################################
-
-%if %{with_addon_tools}
-%package addon-tools
-License: OpenNebula Systems Commercial Open-Source Software License
-Summary: OpenNebula Enterprise Tools Add-on (%{edition})
-BuildArch: noarch
-Requires: %{name} = %{version}
-Requires: %{name}-server = %{version}
-Obsoletes: %{name}-cli-extensions
-
-%description addon-tools
-The CLI extension package install new subcomands that extend
-the functionality of the standard OpenNebula CLI, to enable and/or
-simplify common workflows for production deployments.
-
-This package is distributed under the
-OpenNebula Systems Commercial Open-Source Software License
-https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
-%endif
-
-################################################################################
-# Package market addon
-################################################################################
-
-%if %{with_addon_markets}
-%package addon-markets
-License: OpenNebula Systems Commercial Open-Source Software License
-Summary: OpenNebula Enterprise Markets Add-on (%{edition})
-BuildArch: noarch
-Requires: %{name} = %{version}
-Requires: %{name}-server = %{version}
-
-%description addon-markets
-OpenNebula's Enterprise Market Addons will link turnkeylinux.org
-as a marketplace allowing users to easily interact and download
-existing appliances from Turnkey.
-
-This package is distributed under the
-OpenNebula Systems Commercial Open-Source Software License
-https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
-%endif
-
-################################################################################
 # Packages for Enterprise Edition
 ################################################################################
 
@@ -585,7 +531,7 @@ License: OpenNebula Software License
 Summary: Enterprise Tools for OpenNebula
 BuildArch: noarch
 Requires: %{name} = %{version}
-Requires: %{name}-server = %{version}
+Requires: %{name}-tools = %{version}
 
 %description ee-tools
 Enterprise Tools for OpenNebula
@@ -598,7 +544,7 @@ License: OpenNebula Software License
 Summary: Migration tools for OpenNebula Enterprise Edition
 BuildArch: noarch
 Requires: %{name} = %{version}
-Requires: %{name}-server = %{version}
+Requires: %{name}-tools = %{version}
 Obsoletes: %{name}-migration-community
 
 %description migration
@@ -611,7 +557,7 @@ See /usr/share/doc/one/LICENSE.onsla provided by opennebula-common package.
 License: OpenNebula Software License for Non-Commercial Use
 Summary: Migration tools for OpenNebula Community Edition
 BuildArch: noarch
-Requires: %{name}-server >= 5.12, %{name}-server < 5.13
+Requires: %{name} >= 5.12, %{name} < 5.13
 Obsoletes: %{name}-migration
 
 %description migration-community
@@ -658,6 +604,7 @@ Java bindings for OpenNebula Cloud API (OCA)
 Summary: Services for OpenNebula KVM node (%{edition})
 Group: System
 Conflicts: %{name}-node-xen
+Conflicts: %{name}-node-firecracker
 BuildArch: noarch
 Requires: ruby
 Requires: openssh-server
@@ -686,6 +633,7 @@ Services and configurations for OpenNebula KVM node.
 Summary: Services for OpenNebula Firecracker node (%{edition})
 Group: System
 Conflicts: %{name}-node-xen
+Conflicts: %{name}-node-kvm
 Requires: ruby
 Requires: openssh-server
 Requires: openssh-clients
@@ -707,26 +655,6 @@ Requires: %{name}-common = %{version}
 Services and configurations for OpenNebula Firecracker node.
 
 ################################################################################
-# Package node-xen
-################################################################################
-
-# %package node-xen
-# Summary: Configures an OpenNebula node providing xen
-# Group: System
-# Conflicts: %{name}-node-kvm
-# Requires: centos-release-xen
-# Requires: ruby
-# Requires: openssh-server
-# Requires: openssh-clients
-# Requires: xen
-# Requires: nfs-utils
-# Requires: bridge-utils
-# Requires: %{name}-common = %{version}
-#
-# %description node-xen
-# Configures an OpenNebula node providing Xen.
-
-################################################################################
 # Package provisioning tool
 ################################################################################
 
@@ -736,8 +664,9 @@ BuildArch: noarch
 Requires: %{name} = %{version}
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
-Requires: %{name}-server = %{version}
-Requires: %{name}-ruby = %{version}
+Requires: %{name}-tools = %{version}
+Requires: %{name}-libs = %{version}
+Requires: %{name}-provision-data = %{version}
 %if %{with_rubygems}
 Requires: %{name}-rubygems = %{version}
 %endif
@@ -746,12 +675,24 @@ Requires: %{name}-rubygems = %{version}
 OpenNebula provisioning tool
 
 ################################################################################
+# Package provision-data
+################################################################################
+
+%package provision-data
+Summary: OpenNebula infrastructure provisioning data (%{edition})
+BuildArch: noarch
+
+%description provision-data
+OpenNebula infrastructure provisioning data
+
+################################################################################
 # Package guacd
 ################################################################################
 
 %if %{with_guacd}
 %package guacd
 Release: %{guacamole_version}+_PKG_VERSION_%{?dist}
+License: ASL 2.0
 Summary: Provides Guacamole server for Fireedge to be used in Sunstone (%{edition})
 
 %description guacd
@@ -767,12 +708,6 @@ OpenNebula Guacamole server
 %setup -q
 %if %{with_docker_machine}
 %setup -T -D -a 5
-%endif
-%if %{with_addon_tools}
-%setup -T -D -a 7
-%endif
-%if %{with_addon_markets}
-%setup -T -D -a 8
 %endif
 %if %{with_oca_java} && %{with_oca_java_prebuilt}
 %setup -T -D -a 9
@@ -804,7 +739,9 @@ mv java-oca-%{version}/jar/ src/oca/java/
 
 %if %{with_rubygems}
 pushd opennebula-rubygems-%{version}
-    GEM_PATH=$PWD/gems-dist/ GEM_HOME=$PWD/gems-dist/ \
+    NOKOGIRI_USE_SYSTEM_LIBRARIES=yes \
+    GEM_PATH=$PWD/gems-dist/ \
+    GEM_HOME=$PWD/gems-dist/ \
         gem install \
             --local \
             --ignore-dependencies \
@@ -825,7 +762,9 @@ pushd guacamole-server-*
     ./configure \
         --prefix=/usr/share/one/guacd \
         --exec-prefix=/usr/share/one/guacd \
-        --with-freerdp-plugin-dir=/usr/share/one/guacd
+        --with-freerdp-plugin-dir=/usr/share/one/guacd \
+        --disable-static \
+        --without-pulse
     make
 popd
 %endif
@@ -876,18 +815,6 @@ export DESTDIR=%{buildroot}
 %if %{with_docker_machine}
     ./install.sh -e
 %endif
-%if %{with_addon_tools}
-    (
-        cd addon-tools
-        ./install.sh
-    )
-%endif
-%if %{with_addon_markets}
-    (
-        cd addon-markets
-        ./install.sh
-    )
-%endif
 
 %if %{with_enterprise}
 pushd one-ee-tools
@@ -901,6 +828,7 @@ popd
 %if %{with_guacd}
 pushd guacamole-server-*
     %make_install
+    rm -rf %{buildroot}/usr/share/one/guacd/include
 popd
 
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-guacd.service %{buildroot}/lib/systemd/system/opennebula-guacd.service
@@ -931,7 +859,7 @@ install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-econe.servic
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-flow.service                %{buildroot}/lib/systemd/system/opennebula-flow.service
 install -p -D -m 644 share/pkgs/services/%{dir_services}/opennebula-novnc.service               %{buildroot}/lib/systemd/system/opennebula-novnc.service
 
-install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula.conf      %{buildroot}/%{_tmpfilesdir}/opennebula-common.conf
+install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-common.conf %{buildroot}/%{_tmpfilesdir}/opennebula-common.conf
 install -p -D -m 644 share/pkgs/tmpfiles/%{dir_tmpfiles}/opennebula-node.conf %{buildroot}/%{_tmpfilesdir}/opennebula-node.conf
 
 install -p -D -m 644 %{SOURCE1} \
@@ -947,7 +875,7 @@ cp -a share/pkgs/services/supervisor/%{dir_supervisor}/* %{buildroot}%{_datadir}
 %{__mkdir} -p %{buildroot}%{_sysconfdir}/sudoers.d
 install -p -D -m 440 share/pkgs/sudoers/%{dir_sudoers}/opennebula %{buildroot}%{_sysconfdir}/sudoers.d/opennebula
 install -p -D -m 440 share/pkgs/sudoers/opennebula-server %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-server
-install -p -D -m 440 share/pkgs/sudoers/opennebula-node   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node
+install -p -D -m 440 share/pkgs/sudoers/opennebula-node-kvm %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node-kvm
 install -p -D -m 440 share/pkgs/sudoers/opennebula-node-firecracker   %{buildroot}%{_sysconfdir}/sudoers.d/opennebula-node-firecracker
 
 # logrotate
@@ -990,7 +918,7 @@ install -p -D -m 644 share/install_gems/%{gemfile_lock}/Gemfile.lock %{buildroot
 %endif
 
 # Shell completion
-install -p -D -m 644 share/shell/bash_completion          %{buildroot}%{_sysconfdir}/bash_completion.d/one
+install -p -D -m 644 share/shell/bash_completion          %{buildroot}%{_sysconfdir}/bash_completion.d/opennebula
 
 # oned.aug
 %{__mkdir} -p %{buildroot}/usr/share/augeas/lenses
@@ -1015,6 +943,7 @@ pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}/usr/share/one/web
 %endif
 
 # Firecracker
+%{__mkdir} -p %{buildroot}/srv/jailer/firecracker
 install -p -D -m 755 src/svncterm_server/svncterm_server                                    %{buildroot}%{_bindir}/svncterm_server
 install -p -D -m 755 src/vmm_mad/remotes/lib/firecracker/one-clean-firecracker-domain       %{buildroot}%{_sbindir}/one-clean-firecracker-domain
 install -p -D -m 755 src/vmm_mad/remotes/lib/firecracker/one-prepare-firecracker-domain     %{buildroot}%{_sbindir}/one-prepare-firecracker-domain
@@ -1158,10 +1087,10 @@ set -e
 /bin/true
 
 ################################################################################
-# server - scripts
+# main package - scripts
 ################################################################################
 
-%pre server
+%pre
 # Upgrade - Stop the service
 if [ $1 = 2 ]; then
     /sbin/service opennebula stop >/dev/null || :
@@ -1170,7 +1099,7 @@ if [ $1 = 2 ]; then
     /sbin/service opennebula-ssh-agent stop >/dev/null || :
 fi
 
-%post server
+%post
 if [ $1 = 1 ]; then
     if [ ! -e %{oneadmin_home}/.one/one_auth ]; then
         PASSWORD=$(echo $RANDOM$(date '+%s')|md5sum|cut -d' ' -f1)
@@ -1191,7 +1120,7 @@ if [ $1 = 1 ]; then
 fi
 systemctl daemon-reload 2>/dev/null || :
 
-%preun server
+%preun
 if [ $1 = 0 ]; then
     /sbin/service opennebula stop >/dev/null || :
     /sbin/service opennebula-scheduler stop >/dev/null || :
@@ -1199,7 +1128,7 @@ if [ $1 = 0 ]; then
     /sbin/service opennebula-ssh-agent stop >/dev/null || :
 fi
 
-%postun server
+%postun
 if [ $1 = 0 ]; then
     systemctl daemon-reload 2>/dev/null || :
 
@@ -1227,6 +1156,22 @@ if [ $1 = 0 ]; then
             rmdir --ignore-fail-on-non-empty "${DIR}" 2>/dev/null || :
         fi
     done
+fi
+
+%triggerpostun -- opennebula-server
+# This workarounds deprecation of opennebula-server<5.13.80 in favour
+# of main opennebula package. On such deprecation, the removal of
+# opennebula-server package results in running its %postun scriptlet
+# in uninstalling(!!!), not upgrading, mode which removes some state
+# directories we still require for current opennebula.
+if [ $2 = 0 ]; then
+    DIR_VMS=/var/lib/one/vms
+
+    if [ -d /var/lib/one ] && ! [ -d "${DIR_VMS}" ]; then
+        mkdir "${DIR_VMS}"
+        chown oneadmin:oneadmin "${DIR_VMS}"
+        chmod 0750 "${DIR_VMS}"
+    fi
 fi
 
 ################################################################################
@@ -1324,14 +1269,13 @@ fi
 ################################################################################
 
 %post node-firecracker
-
-# Install firecracker + jailer
-/usr/sbin/install-firecracker || exit $?
-
 # Changes ownership of chroot folder
 mkdir -p /srv/jailer/firecracker
 chown -R oneadmin:oneadmin /srv/jailer
 chmod 750 /srv/jailer
+
+# Install firecracker + jailer
+/usr/sbin/install-firecracker || exit $?
 
 if [ $1 = 2 ]; then
     # Upgrade
@@ -1343,6 +1287,7 @@ fi
 if [ $1 = 0 ]; then
     rm -f /usr/bin/firecracker
     rm -f /usr/bin/jailer
+    # TODO, should /srv/jailer/* be removed (it may contains VM information)
 fi
 
 ################################################################################
@@ -1358,15 +1303,6 @@ if [ $1 = 1 ]; then
         su oneadmin -c "ssh-keygen -N '' -t rsa -f %{oneadmin_home}/.ssh-oneprovision/id_rsa"
     fi
 fi
-
-################################################################################
-# node-xen - scripts
-################################################################################
-
-# %post node-xen
-# if [ $1 = 1 ]; then
-#     /usr/bin/grub-bootxen.sh
-# fi
 
 ################################################################################
 # sunstone - scripts
@@ -1502,10 +1438,10 @@ if [ $1 = 0 ]; then
 fi
 
 ################################################################################
-# ruby - scripts
+# libs - scripts
 ################################################################################
 
-%post ruby
+%post libs
 if ! [ -d /usr/share/one/gems/ ]; then
     cat <<EOF
 ==========================[ WARNING ]==================================
@@ -1515,7 +1451,6 @@ update all the OpenNebula required Ruby gems system-wide !!!
 ==========================[ WARNING ]==================================
 EOF
 fi
-
 
 ################################################################################
 # rubygems - scripts
@@ -1632,9 +1567,8 @@ sleep 10
 %config %{_sysconfdir}/polkit-1/localauthority/50-local.d/50-org.libvirt.unix.manage-opennebula.pkla
 %config %{_sysconfdir}/sysctl.d/bridge-nf-call.conf
 %config %{_sysconfdir}/cron.d/opennebula-node
-%attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node
+%attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node-kvm
 %{_bindir}/qemu-kvm-one-gen
-%attr(0755, root, root) %{_bindir}/qemu-kvm-one-gen
 
 ################################################################################
 # node-firecracker - files
@@ -1648,12 +1582,7 @@ sleep 10
 %{_sbindir}/one-prepare-firecracker-domain
 %{_bindir}/svncterm_server
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-node-firecracker
-
-################################################################################
-# node-xen - files
-################################################################################
-
-# %files node-xen
+%attr(0750, oneadmin, oneadmin) %dir /srv/jailer/firecracker
 
 ################################################################################
 # java - files
@@ -1688,16 +1617,24 @@ sleep 10
 %endif
 
 ################################################################################
-# ruby - files
+# libs - files
 ################################################################################
 
-%files ruby
+%files libs
 %defattr(-, root, root, 0755)
 %dir /usr/lib/one/ruby/opennebula
 /usr/lib/one/ruby/opennebula.rb
 /usr/lib/one/ruby/opennebula/*
 %dir /usr/lib/one/ruby/vendors
 /usr/lib/one/ruby/vendors/packethost
+
+# required by Sunstone
+/usr/lib/one/ruby/nsx_driver.rb
+%dir /usr/lib/one/ruby/nsx_driver
+/usr/lib/one/ruby/nsx_driver/*
+%dir /usr/lib/one/ruby/vcenter_driver
+/usr/lib/one/ruby/vcenter_driver.rb
+/usr/lib/one/ruby/vcenter_driver/*
 
 %dir /usr/lib/one/ruby/cloud
 /usr/lib/one/ruby/cloud/CloudClient.rb
@@ -1880,33 +1817,19 @@ sleep 10
 /usr/lib/one/ruby/cli/one_helper/oneprovision_helper.rb
 /usr/lib/one/ruby/cli/one_helper/oneprovider_helper.rb
 /usr/lib/one/ruby/cli/one_helper/oneprovision_template_helper.rb
+%dir /usr/lib/one/oneprovision
 /usr/lib/one/oneprovision/*
-%{_datadir}/one/oneprovision/*
 %{_mandir}/man1/oneprovision.1*
 %{_mandir}/man1/oneprovider.1*
 %{_mandir}/man1/oneprovision-template.1*
 
 ################################################################################
-# addon tools - files
+# provision-data - files
 ################################################################################
 
-%if %{with_addon_tools}
-%files addon-tools
-/usr/lib/one/ruby/cli/addons/onezone/serversync.rb
-/usr/lib/one/ruby/cli/addons/onevcenter/cleartags.rb
-%attr(0440, root, root) /etc/sudoers.d/one-extension-serversync
-%endif
-
-################################################################################
-# addon markets - files
-################################################################################
-
-%if %{with_addon_markets}
-%files addon-markets
-%defattr(-, oneadmin, oneadmin, 0750)
-%dir %{_sharedstatedir}/one/remotes/market/turnkeylinux
-%{_sharedstatedir}/one/remotes/market/turnkeylinux/*
-%endif
+%files provision-data
+%dir %{_datadir}/one/oneprovision
+%{_datadir}/one/oneprovision/*
 
 ################################################################################
 # Packages for Enterprise Edition - files
@@ -1932,10 +1855,10 @@ sleep 10
 %endif
 
 ################################################################################
-# server - files
+# main package - files
 ################################################################################
 
-%files server
+%files
 %attr(0440, root, root) %config %{_sysconfdir}/sudoers.d/opennebula-server
 %attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %config %{_sysconfdir}/logrotate.d/opennebula
@@ -1987,11 +1910,8 @@ sleep 10
 /usr/lib/one/ruby/CommandManager.rb
 /usr/lib/one/ruby/DriverExecHelper.rb
 /usr/lib/one/ruby/ec2_driver.rb
-/usr/lib/one/ruby/nsx_driver.rb
 /usr/lib/one/ruby/aws_vnm.rb
 /usr/lib/one/ruby/packet_vnm.rb
-%dir /usr/lib/one/ruby/nsx_driver
-/usr/lib/one/ruby/nsx_driver/*
 %dir /usr/lib/one/ruby/onedb
 %dir /usr/lib/one/ruby/onedb/local
 %dir /usr/lib/one/ruby/onedb/shared
@@ -2005,9 +1925,6 @@ sleep 10
 /usr/lib/one/ruby/OpenNebulaDriver.rb
 /usr/lib/one/ruby/scripts_common.rb
 /usr/lib/one/ruby/ssh_stream.rb
-%dir /usr/lib/one/ruby/vcenter_driver
-/usr/lib/one/ruby/vcenter_driver.rb
-/usr/lib/one/ruby/vcenter_driver/*
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb
 /usr/lib/one/ruby/PublicCloudDriver.rb
@@ -2033,6 +1950,7 @@ sleep 10
 %dir /usr/share/one/onecfg/etc
 /usr/share/one/onecfg/etc/*
 
+%{_mandir}/man1/onecfg.1*
 %{_mandir}/man1/onedb.1*
 %doc LICENSE LICENSE.onsla LICENSE.onsla-nc NOTICE
 
@@ -2079,10 +1997,10 @@ sleep 10
 %endif
 
 ################################################################################
-# main package - files
+# tools - files
 ################################################################################
 
-%files
+%files tools
 %attr(0751, root, oneadmin) %dir %{_sysconfdir}/one
 %dir %{_sysconfdir}/one/cli
 %config %{_sysconfdir}/one/cli/oneacct.yaml
@@ -2193,7 +2111,7 @@ sleep 10
 
 /usr/share/one/onetoken.sh
 
-/etc/bash_completion.d/one
+%{_sysconfdir}/bash_completion.d/opennebula
 
 ################################################################################
 # Changelog

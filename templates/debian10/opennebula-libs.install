@@ -1,0 +1,20 @@
+dist/usr/lib/one/ruby/opennebula.rb /usr/lib/one/ruby/
+
+dist/usr/lib/one/ruby/cloud/CloudClient.rb   /usr/lib/one/ruby/cloud/
+dist/usr/lib/one/ruby/cloud/CloudServer.rb   /usr/lib/one/ruby/cloud/
+dist/usr/lib/one/ruby/cloud/CloudAuth.rb     /usr/lib/one/ruby/cloud/
+dist/usr/lib/one/ruby/cloud/CloudAuth/*      /usr/lib/one/ruby/cloud/CloudAuth/
+
+dist/usr/lib/one/ruby/opennebula/*           /usr/lib/one/ruby/opennebula/
+
+# required by Sunstone
+dist/usr/lib/one/ruby/nsx_driver.rb /usr/lib/one/ruby/
+dist/usr/lib/one/ruby/nsx_driver/*  /usr/lib/one/ruby/nsx_driver/
+dist/usr/lib/one/ruby/vcenter_driver.rb     /usr/lib/one/ruby/
+dist/usr/lib/one/ruby/vcenter_driver/*      /usr/lib/one/ruby/vcenter_driver/
+
+dist/usr/lib/one/ruby/vendors/packethost/    /usr/lib/one/ruby/vendors/
+
+dist/usr/share/one/install_gems                      /usr/share/one/
+dist/usr/share/one/Gemfile                           /usr/share/one/
+dist/usr/share/one/Gemfile.lock                      /usr/share/one/

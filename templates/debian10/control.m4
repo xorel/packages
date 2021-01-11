@@ -80,7 +80,7 @@ Depends: apg,
          genisoimage,
          opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
          ifdef(`_WITH_ENTERPRISE_',`opennebula-migration (= ${source:Version}),')dnl
          ifdef(`_WITH_ENTERPRISE_',`opennebula-ee-tools (= ${source:Version}),')dnl
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
@@ -124,13 +124,16 @@ Package: opennebula-sunstone
 Architecture: all
 Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
-         opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          python,
          python-numpy,
          ${misc:Depends}
+Replaces: opennebula-tools (<< 5.13.80),
+          ruby-opennebula (<< 5.13.80)
+Breaks: opennebula-tools (<< 5.13.80),
+        ruby-opennebula (<< 5.13.80)
 Conflicts: opennebula (<< ${source:Version})
 Description: OpenNebula web interface Sunstone (P_EDITION)
  Browser based UI for OpenNebula cloud management and usage.
@@ -140,10 +143,12 @@ Package: opennebula-fireedge
 Architecture: any
 Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
+         opennebula-provision-data (= ${source:Version}),
          nodejs (>= 10),
-         ifdef(`_WITHOUT_GUACD_',`',`opennebula-guacd (= ${source:Version}),')dnl
          ${misc:Depends},
          ${shlibs:Depends}
+ifdef(`_WITHOUT_GUACD_',`',`Recommends: opennebula-guacd (= ${source:Version})
+')dnl
 Conflicts: opennebula (<< ${source:Version})
 Description: OpenNebula web interface FireEdge (P_EDITION)
  Browser based UI for OpenNebula application management.
@@ -153,7 +158,7 @@ Package: opennebula-gate
 Architecture: all
 Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
 Conflicts: opennebula (<< ${source:Version})
@@ -164,7 +169,7 @@ Package: opennebula-flow
 Architecture: all
 Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          curl,
          ${misc:Depends}
@@ -193,7 +198,7 @@ Depends: ${misc:Depends}
 Description: Helpers for OpenNebula onecfg (P_EDITION)
 Conflicts: opennebula-common-onescape
 
-Package: opennebula-node
+Package: opennebula-node-kvm
 Architecture: all
 Depends: adduser,
          libvirt-daemon-system,
@@ -209,7 +214,10 @@ Depends: adduser,
          augeas-tools,
          ruby-sqlite3,
          ${misc:Depends}
+Breaks: opennebula-node (<< 5.13.80)
+Replaces: opennebula-node (<< 5.13.80)
 Recommends: openssh-server | ssh-server
+Provides: opennebula-node
 Description: Services for OpenNebula KVM node (P_EDITION)
 
 Package: opennebula-node-lxd
@@ -278,16 +286,21 @@ Depends: python3,
          ${python:Depends}
 Description: Python 3 bindings for OpenNebula Cloud API, OCA (P_EDITION)
 
-Package: ruby-opennebula
-Section: ruby
+Package: opennebula-libs
 Architecture: all
 Depends: ruby,
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends},
          ${ruby:Depends}
-Breaks: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
-Replaces: opennebula-gate (<< 4.90.5), opennebula-sunstone (<< 4.90.5)
-Description: OpenNebula Ruby libraries (P_EDITION)
+Breaks: opennebula-gate (<< 4.90.5),
+        opennebula-sunstone (<< 4.90.5),
+        opennebula-tools (<< 5.13.80),
+        ruby-opennebula (<< 5.13.80)
+Replaces: opennebula-gate (<< 4.90.5),
+          opennebula-sunstone (<< 4.90.5),
+          opennebula-tools (<< 5.13.80),
+          ruby-opennebula (<< 5.13.80)
+Description: OpenNebula libraries (P_EDITION)
 
 ifdef(`_WITH_RUBYGEMS_',`
 Package: opennebula-rubygems
@@ -368,13 +381,13 @@ Package: opennebula-tools
 Architecture: all
 Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
-         less,
+         util-linux,
          ${misc:Depends},
          ${ruby:Depends}
-Recommends: gnuplot-nox,
-            bash-completion
+Recommends: bash-completion
+Suggests: gnuplot-nox
 Breaks: opennebula (<< 5.5.90),
         opennebula-addon-tools (<< 5.10.2)
 Replaces: opennebula (<< 5.5.90),
@@ -403,10 +416,18 @@ Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula (= ${source:Version}),
          opennebula-common (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
-         ruby-opennebula (= ${source:Version}),
+         opennebula-libs (= ${source:Version}),
+         opennebula-provision-data (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          ${misc:Depends}
 Description: OpenNebula infrastructure provisioning (P_EDITION)
+
+Package: opennebula-provision-data
+Architecture: all
+Pre-Depends: opennebula-common-onecfg (= ${source:Version})
+Breaks: opennebula-provision (<< 5.13.80)
+Replaces: opennebula-provision (<< 5.13.80)
+Description: OpenNebula infrastructure provisioning data (P_EDITION)
 
 ifdef(`_WITHOUT_GUACD_',`',`
 Package: opennebula-guacd
@@ -420,37 +441,6 @@ ifdef(`_WITH_DOCKER_MACHINE_',`
 Package: docker-machine-opennebula
 Architecture: any
 Description: OpenNebula driver for Docker Machine (P_EDITION)
-')
-
-ifdef(`_WITH_ADDON_TOOLS_',`
-Package: opennebula-addon-tools
-Architecture: all
-Depends: opennebula-common (= ${source:Version}),
-         opennebula (= ${source:Version}),
-         ${misc:Depends}
-Conflicts: opennebula-cli-extensions
-Description: The CLI extension package install new subcomands that extend (P_EDITION)
- the functionality of the standard OpenNebula CLI, to enable and/or
- simplify common workflows for production deployments.
- .
- This package is distributed under the
- OpenNebula Systems Commercial Open-Source Software License
- https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
-')
-
-ifdef(`_WITH_ADDON_MARKETS_',`
-Package: opennebula-addon-markets
-Architecture: all
-Depends: opennebula-common (= ${source:Version}),
-         opennebula (= ${source:Version}),
-         ${misc:Depends}
-Description: OpenNebula Enterprise Markets Addon will link turnkeylinux.org (P_EDITION)
- as a marketplace allowing users to easily interact and download
- existing appliances from Turnkey.
- .
- This package is distributed under the
- OpenNebula Systems Commercial Open-Source Software License
- https://raw.githubusercontent.com/OpenNebula/one/master/LICENSE.addons
 ')
 
 ifdef(`_WITH_ENTERPRISE_',`

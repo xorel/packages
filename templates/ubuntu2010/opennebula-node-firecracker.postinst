@@ -5,10 +5,11 @@ set -e
 ONE_USER=oneadmin
 
 if [ "$1" = "configure" ]; then
-    # Install Firecracker + jailer
-    /usr/sbin/install-firecracker
-
     # Changes ownership of chroot folder
+    mkdir -p /srv/jailer/firecracker
     chown -R $ONE_USER:$ONE_USER /srv/jailer
     chmod 750 /srv/jailer
+
+    # Install Firecracker + jailer
+    /usr/sbin/install-firecracker
 fi

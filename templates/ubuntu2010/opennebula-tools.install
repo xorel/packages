@@ -51,15 +51,9 @@ dist/usr/lib/one/ruby/cli/one_helper/onevntemplate_helper.rb /usr/lib/one/ruby/c
 dist/usr/lib/one/ruby/cli/one_helper/onevrouter_helper.rb    /usr/lib/one/ruby/cli/one_helper/
 dist/usr/lib/one/ruby/cli/one_helper/onezone_helper.rb      /usr/lib/one/ruby/cli/one_helper/
 
-dist/usr/lib/one/ruby/cloud/econe/EC2QueryClient.rb  /usr/lib/one/ruby/cloud/econe/
-dist/usr/lib/one/ruby/cloud/CloudClient.rb           /usr/lib/one/ruby/cloud/
-
-dist/usr/share/one/install_gems                      /usr/share/one/
-dist/usr/share/one/Gemfile                           /usr/share/one/
-dist/usr/share/one/Gemfile.lock                      /usr/share/one/
 dist/usr/share/one/onetoken.sh                       /usr/share/one/
 
-dist/etc/bash_completion.d/one                       /etc/bash_completion.d/
+dist/etc/bash_completion.d/opennebula                /etc/bash_completion.d/
 
 dist/usr/bin/oneacl        /usr/bin/
 dist/usr/bin/onecluster    /usr/bin/
