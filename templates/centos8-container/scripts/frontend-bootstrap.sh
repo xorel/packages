@@ -447,26 +447,6 @@ wait_for_file()
     return 1
 )
 
-wait_for_opennebula_db()
-(
-    TIMEOUT="${TIMEOUT:-120}"
-
-    while [ "$TIMEOUT" -gt 0 ] ; do
-        if mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" -D "$MYSQL_DATABASE" \
-            -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" \
-            -e 'exit' \
-            ;
-        then
-            return 0
-        fi
-
-        TIMEOUT=$(( TIMEOUT - 1 ))
-        sleep 1s
-    done
-
-    return 1
-)
-
 prepare_cert()
 (
     # internal filepaths can be hardcoded - only the content varies
@@ -692,6 +672,7 @@ export MYSQL_PORT="${MYSQL_PORT}"
 export MYSQL_DATABASE="${MYSQL_DATABASE}"
 export MYSQL_USER="${MYSQL_USER}"
 export MYSQL_PASSWORD="${MYSQL_PASSWORD}"
+export ONED_DB_BACKUP_ENABLED="${ONED_DB_BACKUP_ENABLED}"
 EOF
 }
 
@@ -976,53 +957,6 @@ EOF
     chmod 0755 /usr/local/bin/docker
 )
 
-onedb_upgrade()
-{
-    # wait for mysqld
-    msg "ONEDB: WAIT FOR MYSQL"
-    if ! wait_for_opennebula_db ; then
-        err "ONEDB: REACHED TIMEOUT"
-        exit 1
-    fi
-
-    msg "ONEDB: CHECK VERSION"
-
-    # to avoid script termination on non-zero code from command - we wrap the
-    # command in if-else construct
-    if onedb version -v ; then
-        _status=0
-    else
-        _status=$?
-    fi
-
-    case "$_status" in
-        0)
-            msg "ONEDB: DATABASE IS UP-TO-DATE"
-            ;;
-        1)
-            msg "ONEDB: DATABASE WAS NOT CREATED YET - SKIP"
-            ;;
-        2)
-            msg "ONEDB: UPGRADING DATABASE"
-            if is_true "${ONED_DB_BACKUP_ENABLED}" ; then
-                _mysqldump="/var/lib/one/backups/db/opennebula-$(date +%Y-%m-%d-%s).sql"
-                onedb upgrade --backup "${_mysqldump}"
-                nohup gzip "${_mysqldump}" &
-            else
-                onedb upgrade --no-backup
-            fi
-            ;;
-        3)
-            err "ONEDB: DATABASE IS NEWER THAN OPENNEBULA - ABORT"
-            exit 1
-            ;;
-        *)
-            err "ONEDB: UNKNOWN ERROR - ABORT"
-            exit 1
-            ;;
-    esac
-}
-
 initialize_supervisord_conf()
 {
     # respect the pre-existing config
@@ -1253,9 +1187,6 @@ oned_srv()
 
     msg "CONFIGURE: OPENNEBULA ONED"
     configure_oned
-
-    msg "ONEDB: CHECK/UPGRADE DATABASE"
-    onedb_upgrade
 
     msg "SETUP LOGROTATE: OPENNEBULA ONED"
     cp -a /etc/logrotate.one/opennebula /etc/logrotate.d/
