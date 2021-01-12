@@ -56,6 +56,11 @@ export ONEGATE_PORT="${ONEGATE_PORT:-5030}"
 export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
 export MEMCACHED_INTERNAL_PORT=11211
 
+# oneprovision
+
+export ONEPROVISION_HOST="${ONEPROVISION_HOST:-localhost}"
+export ONEPROVISION_PORT=2222
+
 # guacd
 
 export GUACD_HOST="${GUACD_HOST:-localhost}"
@@ -309,6 +314,30 @@ create_mariadb_tmpfiles()
 
 restore_ssh_host_keys()
 {
+    _ssh_host_key_lock=/srv/one/secret-ssh-host-keys/ssh-keygen.lock
+    _ssh_host_privkey=/etc/ssh/ssh_host_rsa_key
+    _ssh_host_pubkey=/etc/ssh/ssh_host_rsa_key.pub
+
+    msg "LOCK OR WAIT FOR SSH HOST KEYS"
+    if ! lock_or_skip "$_ssh_host_key_lock" ; then
+        msg "FAILED TO ACQUIRE LOCK: WAITING (${TIMEOUT} secs)..."
+
+        if ! wait_for_file "$_ssh_host_privkey" ; then
+            err "REACHED TIMEOUT: NO SSH HOST KEY (${_ssh_host_privkey})"
+            exit 1
+        fi
+
+        if ! wait_for_file "$_ssh_host_pubkey" ; then
+            err "REACHED TIMEOUT: NO SSH HOST KEY (${_ssh_host_pubkey})"
+            exit 1
+        fi
+
+        msg "SUCCESS: SSH HOST KEY EMERGED"
+        return 0
+    fi
+
+    msg "ACQUIRED LOCK FOR SSH HOST KEY MANIPULATION"
+
     # create new or restore saved ssh host keys
     _ssh_keys=$(ls -1 \
         /srv/one/secret-ssh-host-keys/ssh_host_* \
@@ -327,19 +356,39 @@ restore_ssh_host_keys()
         rm -f /etc/ssh/ssh_host_*
         cp -af /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
     fi
+
+    # cleanup the temp files
+    remove_lock "$_ssh_host_key_lock"
 }
+
+# arg: [<ssh dir>]
+generate_ssh_key()
+(
+    _ssh_dir="${1:-/var/lib/one/.ssh}"
+
+    # ensure the existence of ssh directory
+    if ! [ -d "${_ssh_dir}" ] ; then
+        mkdir -p "${_ssh_dir}"
+    fi
+
+    # generate ssh key-pair once
+    _private_key_path="${_ssh_dir}/id_rsa"
+    _public_key_path="${_ssh_dir}/id_rsa.pub"
+
+    if ! [ -f "${_private_key_path}" ] || ! [ -f "${_public_key_path}" ] ; then
+        rm -f "${_private_key_path}" "${_public_key_path}"
+        ssh-keygen -N '' -f "${_private_key_path}"
+    fi
+
+    cat "${_public_key_path}" > "${_ssh_dir}/authorized_keys"
+    chmod 0644 "${_ssh_dir}/authorized_keys"
+)
 
 prepare_ssh()
 {
     # ensure the existence of ssh directory
     if ! [ -d /var/lib/one/.ssh ] ; then
         mkdir -p /var/lib/one/.ssh
-    fi
-
-    # if no ssh config is present then use the default
-    if ! [ -f /var/lib/one/.ssh/config ] ; then
-        cat /usr/share/one/ssh/config > /var/lib/one/.ssh/config
-        chmod 0644 /var/lib/one/.ssh/config
     fi
 
     # copy the custom ssh key-pair
@@ -385,18 +434,16 @@ prepare_ssh()
 
     # generate ssh key-pair if no custom one is provided
     if [ "$_custom_key" != 'yes' ] ; then
-        _private_key_path="/var/lib/one/.ssh/id_rsa"
-        _public_key_path="/var/lib/one/.ssh/id_rsa.pub"
-
-        if ! [ -f "${_private_key_path}" ] || ! [ -f "${_public_key_path}" ] ; then
-            rm -f "${_private_key_path}" "${_public_key_path}"
-            ssh-keygen -N '' -f "${_private_key_path}"
-        fi
-
-        cat "${_public_key_path}" > /var/lib/one/.ssh/authorized_keys
-        chmod 0644 /var/lib/one/.ssh/authorized_keys
+        generate_ssh_key
     fi
 
+    # if no ssh config is present then use the default
+    if ! [ -f /var/lib/one/.ssh/config ] ; then
+        cat /usr/share/one/ssh/config > /var/lib/one/.ssh/config
+        chmod 0600 /var/lib/one/.ssh/config
+    fi
+
+    # set ownership/permissions
     chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.ssh
     chmod 0700 /var/lib/one/.ssh
 
@@ -414,6 +461,37 @@ prepare_ssh()
     if ! [ -f /var/lib/one/.ssh-copyback/config ] ; then
         cp -a /var/lib/one/.ssh/config /var/lib/one/.ssh-copyback/
     fi
+}
+
+prepare_ssh_oneadmin_provision()
+{
+    # generate ssh key-pair once
+    generate_ssh_key
+
+    # restrict commands to oneprovision* and oneprovider only
+    _ssh_command='command="/usr/local/bin/oneprovision.sh $SSH_ORIGINAL_COMMAND",no-port-forwarding,no-x11-forwarding,no-agent-forwarding'
+    sed -i "s#.*#${_ssh_command} &#" /var/lib/one/.ssh/authorized_keys
+
+    # if no ssh config is present then use the default
+    if ! [ -f /var/lib/one/.ssh/config ] ; then
+        cat /usr/share/one/ssh/config > /var/lib/one/.ssh/config
+        chmod 0600 /var/lib/one/.ssh/config
+    fi
+
+    # set ownership/permissions
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.ssh
+    chmod 0700 /var/lib/one/.ssh
+}
+
+prepare_ssh_oneprovision()
+{
+    # generate ssh key-pair once
+    generate_ssh_key /var/lib/one/.ssh-oneprovision
+    rm -f /var/lib/one/.ssh-oneprovision/authorized_keys
+
+    # set ownership/permissions
+    chown -R "${ONEADMIN_USERNAME}:" /var/lib/one/.ssh-oneprovision
+    chmod 0700 /var/lib/one/.ssh-oneprovision
 }
 
 # arg: <lockfile>
@@ -830,6 +908,7 @@ configure_fireedge()
 SET port ${FIREEDGE_INTERNAL_PORT}
 SET one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
 SET oneflow_server "http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}"
+SET oneprovision_prepend_command "ssh -t -p ${ONEPROVISION_PORT} ${ONEPROVISION_HOST}"
 SET guacd {}
 SET guacd/host "${GUACD_HOST}"
 SET guacd/port ${GUACD_INTERNAL_PORT}
@@ -867,11 +946,6 @@ EOF
 
 configure_mysql()
 {
-    # TODO: remove? The logic was moved to the mysqld-configure service
-    #mysql -h "$MYSQL_HOST" -P "$MYSQL_PORT" \
-    #    -u root -p"$MYSQL_ROOT_PASSWORD" \
-    #    -e 'SET GLOBAL TRANSACTION ISOLATION LEVEL READ COMMITTED;'
-
     # ensure that the mysql directory is owned by mysql user and has correct
     # permissions
     chown -R mysql:mysql /var/lib/mysql
@@ -907,6 +981,54 @@ export DOCKERD_SOCK="${DIND_SOCKET}"
 export DOCKER_HOSTS="${_docker_hosts}"
 EOF
 )
+
+configure_oneprovision()
+{
+    _oneprovision_service="oneprovision-sshd"
+
+    # we don't want the ssh port to collide with the other sshd service if
+    # running via podman or as all-in-one
+    cat >> /etc/sysconfig/sshd <<EOF
+if [ "\${SUPERVISOR_PROCESS_NAME}" = "${_oneprovision_service}" ] ; then
+    export OPTIONS="\${OPTIONS} -p ${ONEPROVISION_PORT} "
+fi
+EOF
+
+    # generate oneprovision.sh to guard ssh commands
+    cat > /usr/local/bin/oneprovision.sh <<EOF
+#!/bin/sh
+
+ONE_XMLRPC="http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
+export ONE_XMLRPC
+
+case "\$1" in
+    oneprovision|oneprovision-template|oneprovider)
+        :
+        ;;
+    *)
+        echo "ERROR: only oneprovision commands are allowed" >&2
+        exit 1
+        ;;
+esac
+
+exec "\$@"
+EOF
+
+    chown root: /usr/local/bin/oneprovision.sh
+    chmod 0755 /usr/local/bin/oneprovision.sh
+}
+
+add_oneprovision_service()
+{
+    _oneprovision_service="oneprovision-sshd"
+
+    # reuse sshd as a template for supervisor service
+    msg "ADD SUPERVISED SERVICE: /etc/supervisord.d/${_oneprovision_service}.ini"
+    cp -a "/usr/share/one/supervisor/supervisord.d/sshd.ini" \
+        /etc/supervisord.d/${_oneprovision_service}.ini
+    sed -i "1s/program:sshd/program:${_oneprovision_service}/" \
+        /etc/supervisord.d/${_oneprovision_service}.ini
+}
 
 oned_sanity_check()
 {
@@ -1082,7 +1204,11 @@ resolve_frontend_hostname()
         >> /etc/hosts
 }
 
-tlsproxy()
+#
+# frontend services
+#
+
+stunnel_srv()
 {
     # prepare TLS proxy service
     if is_true "${TLS_PROXY_ENABLED}" ; then
@@ -1090,10 +1216,6 @@ tlsproxy()
         add_supervised_service stunnel
     fi
 }
-
-#
-# frontend services
-#
 
 sshd_srv()
 {
@@ -1106,35 +1228,34 @@ sshd_srv()
     msg "REMOVE NOLOGIN FILES"
     rm -f /etc/nologin /run/nologin
 
-    msg "CREATE ONEADMIN's SSH DIRECTORY"
-    mkdir -p /oneadmin/ssh_pub_data/ssh
-    chmod 0700 /oneadmin/ssh_pub_data/ssh
-    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_pub_data/ssh
-
     msg "SETUP SERVICE: SSHD"
     add_supervised_service sshd
 }
 
-provision_srv()
+oneprovision_srv()
 {
-    msg "CREATE SSH TMPFILES"
-    create_ssh_tmpfiles
+    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "oneprovision" ] ; then
+        msg "CREATE SSH TMPFILES"
+        create_ssh_tmpfiles
 
-# TODO:
-#    msg "PREPARE SSH HOST KEYS"
-#    restore_ssh_host_keys
-#
-#    msg "REMOVE NOLOGIN FILES"
-#    rm -f /etc/nologin /run/nologin
-#
-#    msg "CREATE ONEADMIN's SSH DIRECTORY"
-#    mkdir -p /oneadmin/ssh_pub_data/ssh
-#    chmod 0700 /oneadmin/ssh_pub_data/ssh
-#    chown -R "${ONEADMIN_USERNAME}:" /oneadmin/ssh_pub_data/ssh
-#
-#    msg "SETUP SERVICE: SSHD"
-#    add_supervised_service sshd
-    MAINTENANCE_MODE=yes
+        msg "PREPARE SSH HOST KEYS"
+        restore_ssh_host_keys
+
+        msg "REMOVE NOLOGIN FILES"
+        rm -f /etc/nologin /run/nologin
+
+        msg "PREPARE ONEADMIN's SSH (oneprovision)"
+        prepare_ssh_oneadmin_provision
+    fi
+
+    msg "ONEPROVISION: GENERATE SSH KEY"
+    prepare_ssh_oneprovision
+
+    msg "CONFIGURE: ONEPROVISION"
+    configure_oneprovision
+
+    msg "SETUP SERVICE: ONEPROVISION"
+    add_oneprovision_service
 }
 
 mysqld_srv()
@@ -1377,13 +1498,14 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         ;;
     all)
         msg "CONFIGURE FRONTEND SERVICE: ALL"
-        # this is needed if user does not provide proper hostnames
-        resolve_frontend_hostname
+        # TODO: is this needed if user does not provide proper hostnames?
+        #resolve_frontend_hostname
         sshd_srv
+        oneprovision_srv
         mysqld_srv
         docker_srv
         oned_srv
-        tlsproxy
+        stunnel_srv
         scheduler_srv
         oneflow_srv
         onegate_srv
@@ -1397,7 +1519,7 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         msg "CONFIGURE FRONTEND SERVICE: ONED"
         oned_srv
         onehem_srv
-        tlsproxy
+        stunnel_srv
         ;;
     sshd)
         msg "CONFIGURE FRONTEND SERVICE: SSHD"
@@ -1434,16 +1556,16 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
     oneflow)
         msg "CONFIGURE FRONTEND SERVICE: ONEFLOW"
         oneflow_srv
-        tlsproxy
+        stunnel_srv
         ;;
     onegate)
         msg "CONFIGURE FRONTEND SERVICE: ONEGATE"
         onegate_srv
-        tlsproxy
+        stunnel_srv
         ;;
-    provision)
+    oneprovision)
         msg "CONFIGURE FRONTEND SERVICE: ONEPROVISION"
-        provision_srv
+        oneprovision_srv
         ;;
     *)
         err "UNKNOWN FRONTEND SERVICE: ${OPENNEBULA_FRONTEND_SERVICE}"
@@ -1467,7 +1589,7 @@ if [ -n "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] \
    && [ -f "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] ;
 then
     msg "ONECFG: APPLY USER-PROVIDED PATCH: ${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
-    onecfg patch --all --format line "${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
+    onecfg patch --all "${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
 fi
 
 if is_true "${MAINTENANCE_MODE}" ; then

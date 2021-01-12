@@ -5,9 +5,11 @@ volumes:
   opennebula_datastores:
   opennebula_secret_tls:
   opennebula_secret_ssh_host_keys:
+  opennebula_oneprovision_ssh:
   opennebula_oneadmin_auth:
   opennebula_oneadmin_ssh:
   opennebula_oneadmin_ssh_copyback:
+  opennebula_oneadmin_ssh_provision:
   opennebula_logs:
   opennebula_shared_tmp:
   opennebula_shared_vmrc:
@@ -353,6 +355,7 @@ services:
       - opennebula-oned
     volumes:
       - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_oneadmin_ssh_provision:/var/lib/one/.ssh
       - opennebula_logs:/var/log/one
       - opennebula_shared_vmrc:/var/lib/one/sunstone_vmrc_tokens
     tmpfs:
@@ -373,33 +376,35 @@ services:
         delay: 10s
       replicas: 1
 
-# TODO:
-#  opennebula-provision:
-#    env_file:
-#      - ".env"
-#    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
-#    init: true
-#    restart: always
-#    environment:
-#      OPENNEBULA_FRONTEND_SERVICE: "provision"
-#    volumes:
-#      - opennebula_oneadmin_auth:/var/lib/one/.one
-#      - opennebula_logs:/var/log/one
-#    tmpfs:
-#      - /tmp
-#      - /run
-#      - /run/lock
-#    networks:
-#      - onenet
-#    healthcheck:
-#      test: ["CMD", "/frontend-healthcheck.sh"]
-#      interval: "10s"
-#      timeout: "10s"
-#      retries: 3
-#      start_period: "2m"
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 10s
-#      replicas: 1
+  opennebula-provision:
+    env_file:
+      - ".env"
+    image: "${OPENNEBULA_FRONTEND_IMAGE_NAME:-opennebula-frontend}:${OPENNEBULA_FRONTEND_IMAGE_TAG:-latest}"
+    init: true
+    restart: always
+    environment:
+      OPENNEBULA_FRONTEND_SERVICE: "oneprovision"
+    volumes:
+      - opennebula_oneprovision_ssh:/var/lib/one/.ssh-oneprovision
+      - opennebula_oneadmin_auth:/var/lib/one/.one
+      - opennebula_oneadmin_ssh_provision:/var/lib/one/.ssh
+      - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys
+      - opennebula_logs:/var/log/one
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+    networks:
+      - onenet
+    healthcheck:
+      test: ["CMD", "/frontend-healthcheck.sh"]
+      interval: "10s"
+      timeout: "10s"
+      retries: 3
+      start_period: "2m"
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 10s
+      replicas: 1
 
