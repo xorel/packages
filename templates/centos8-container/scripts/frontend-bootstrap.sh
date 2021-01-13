@@ -25,8 +25,10 @@ set -e
 # frontend
 
 export OPENNEBULA_FRONTEND_SERVICE="${OPENNEBULA_FRONTEND_SERVICE:-all}"
-export OPENNEBULA_FRONTEND_HOST="${OPENNEBULA_FRONTEND_HOST:-opennebula-frontend}"
+export OPENNEBULA_FRONTEND_HOST
 export OPENNEBULA_FRONTEND_SSH_HOST="${OPENNEBULA_FRONTEND_SSH_HOST:-${OPENNEBULA_FRONTEND_HOST}}"
+export OPENNEBULA_FRONTEND_PREHOOK
+export OPENNEBULA_FRONTEND_POSTHOOK
 export OPENNEBULA_FRONTEND_ONECFG_PATCH
 export MAINTENANCE_MODE="${MAINTENANCE_MODE:-no}"
 
@@ -137,12 +139,12 @@ TIMEOUT=120 # in seconds
 
 msg()
 {
-    echo "[BOOTSTRAP]: $*"
+    echo "$(date '+%F %T') [BOOTSTRAP]: $*"
 }
 
 err()
 {
-    echo "[BOOTSTRAP] [!] ERROR: $*"
+    echo "$(date '+%F %T') [BOOTSTRAP] [!] ERROR: $*"
 }
 
 gen_password()
@@ -785,21 +787,6 @@ EOF
 
 configure_sunstone()
 {
-    #
-    # sanity checks
-    #
-
-    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
-        if ! [ -f /srv/one/secret-tls/one.crt ] || ! [ -f /srv/one/secret-tls/one.key ] ; then
-            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
-            exit 1
-        fi
-    fi
-
-    #
-    # configuration
-    #
-
     onecfg_helper /etc/one/sunstone-server.conf <<EOF
 SET :one_xmlrpc "http://${ONED_HOST}:${ONED_INTERNAL_PORT}/RPC2"
 SET :oneflow_server "http://${ONEFLOW_HOST}:${ONEFLOW_INTERNAL_PORT}"
@@ -1032,9 +1019,34 @@ add_oneprovision_service()
 
 oned_sanity_check()
 {
+    if [ -z "${OPENNEBULA_FRONTEND_HOST}" ] ; then
+        err "EMPTY 'OPENNEBULA_FRONTEND_HOST' - ABORT"
+        exit 1
+    fi
+
+    if [ -z "${OPENNEBULA_FRONTEND_SSH_HOST}" ] ; then
+        err "EMPTY 'OPENNEBULA_FRONTEND_SSH_HOST' - ABORT"
+        exit 1
+    fi
+
     if [ -z "$MYSQL_PASSWORD" ] ; then
         err "EMPTY 'MYSQL_PASSWORD' - ABORT"
         exit 1
+    fi
+}
+
+sunstone_sanity_check()
+{
+    if [ -z "${OPENNEBULA_FRONTEND_HOST}" ] ; then
+        err "EMPTY 'OPENNEBULA_FRONTEND_HOST' - ABORT"
+        exit 1
+    fi
+
+    if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
+        if ! [ -f /srv/one/secret-tls/one.crt ] || ! [ -f /srv/one/secret-tls/one.key ] ; then
+            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
+            exit 1
+        fi
     fi
 }
 
@@ -1196,14 +1208,6 @@ common_configuration()
     create_oneadmin_tmpfiles
 }
 
-# useful only in all-in-one deployment or if using podman (cause its containers
-# share the network namespace and are basically reachable on the localhost)
-resolve_frontend_hostname()
-{
-    echo 127.0.0.1 "$OPENNEBULA_FRONTEND_HOST" \
-        >> /etc/hosts
-}
-
 #
 # frontend services
 #
@@ -1352,6 +1356,9 @@ oned_srv()
 
 sunstone_srv()
 {
+    msg "SANITY CHECK"
+    sunstone_sanity_check
+
     msg "CREATE HTTPD TMPFILES"
     create_httpd_tmpfiles
 
@@ -1471,10 +1478,13 @@ msg "SET TRAP ON EXIT"
 trap on_exit EXIT
 trap sig_exit INT QUIT TERM
 
-# run preconfigure hook if any
-if [ -f /preconfigure-hook.sh ] && [ -x /preconfigure-hook.sh ] ; then
-    msg "PRECONFIGURE HOOK FOUND: RUNNING '/preconfigure-hook.sh'"
-    /preconfigure-hook.sh
+# run pre-bootstrap hook if any
+if [ -n "${OPENNEBULA_FRONTEND_PREHOOK}" ] \
+    && [ -f "${OPENNEBULA_FRONTEND_PREHOOK}" ] \
+    && [ -x "${OPENNEBULA_FRONTEND_PREHOOK}" ] ;
+then
+    msg "PRE-BOOTSTRAP HOOK FOUND: RUNNING '${OPENNEBULA_FRONTEND_PREHOOK}'"
+    "${OPENNEBULA_FRONTEND_PREHOOK}"
 fi
 
 msg "BEGIN BOOTSTRAP (${0}): ${OPENNEBULA_FRONTEND_SERVICE}"
@@ -1498,8 +1508,6 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         ;;
     all)
         msg "CONFIGURE FRONTEND SERVICE: ALL"
-        # TODO: is this needed if user does not provide proper hostnames?
-        #resolve_frontend_hostname
         sshd_srv
         oneprovision_srv
         mysqld_srv
@@ -1578,10 +1586,13 @@ execute_delete_list
 
 msg "BOOTSTRAP FINISHED"
 
-# run prestart hook if any
-if [ -f /prestart-hook.sh ] && [ -x /prestart-hook.sh ] ; then
-    msg "PRESTART HOOK FOUND: RUNNING '/prestart-hook.sh'"
-    /prestart-hook.sh
+# run post-bootstrap hook if any
+if [ -n "${OPENNEBULA_FRONTEND_POSTHOOK}" ] \
+    && [ -f "${OPENNEBULA_FRONTEND_POSTHOOK}" ] \
+    && [ -x "${OPENNEBULA_FRONTEND_POSTHOOK}" ] ;
+then
+    msg "POST-BOOTSTRAP HOOK FOUND: RUNNING '${OPENNEBULA_FRONTEND_POSTHOOK}'"
+    "${OPENNEBULA_FRONTEND_POSTHOOK}"
 fi
 
 # custom onecfg patch
