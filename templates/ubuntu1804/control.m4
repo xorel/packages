@@ -127,6 +127,7 @@ Pre-Depends: opennebula-common-onecfg (= ${source:Version})
 Depends: opennebula-common (= ${source:Version}),
          opennebula-libs (= ${source:Version}),
          opennebula-tools (= ${source:Version}),
+         opennebula (= ${source:Version}),
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          python,
          python-numpy,
@@ -303,11 +304,13 @@ Depends: ruby,
 Breaks: opennebula-gate (<< 4.90.5),
         opennebula-sunstone (<< 4.90.5),
         opennebula-tools (<< 5.13.80),
-        ruby-opennebula (<< 5.13.80)
+        ruby-opennebula (<< 5.13.80),
+        opennebula (<< 5.13.80)
 Replaces: opennebula-gate (<< 4.90.5),
           opennebula-sunstone (<< 4.90.5),
           opennebula-tools (<< 5.13.80),
-          ruby-opennebula (<< 5.13.80)
+          ruby-opennebula (<< 5.13.80),
+          opennebula (<< 5.13.80)
 Description: OpenNebula libraries (P_EDITION)
 
 ifdef(`_WITH_RUBYGEMS_',`

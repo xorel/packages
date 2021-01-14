@@ -38,7 +38,6 @@ dist/usr/lib/one/onecfg/lib/patch/*        /usr/lib/one/onecfg/lib/patch/
 
 dist/usr/lib/one/ruby/CommandManager.rb    /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/OpenNebulaDriver.rb  /usr/lib/one/ruby/
-dist/usr/lib/one/ruby/scripts_common.rb    /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/ssh_stream.rb        /usr/lib/one/ruby/
 
 dist/usr/lib/one/ruby/az_driver.rb  /usr/lib/one/ruby/

@@ -389,6 +389,7 @@ Python 3 bindings for OpenNebula Cloud API (OCA).
 %package sunstone
 Summary: OpenNebula web interface Sunstone (%{edition})
 BuildArch: noarch
+Requires: %{name} = %{version}
 Requires: %{name}-common = %{version}
 Requires: %{name}-common-onecfg = %{version}
 Requires: %{name}-libs = %{version}
@@ -1552,6 +1553,8 @@ sleep 10
 /usr/lib/one/ruby/vendors/packethost
 
 # required by Sunstone
+%dir /usr/lib/one/ruby
+/usr/lib/one/ruby/scripts_common.rb
 /usr/lib/one/ruby/nsx_driver.rb
 %dir /usr/lib/one/ruby/nsx_driver
 /usr/lib/one/ruby/nsx_driver/*
@@ -1839,7 +1842,6 @@ sleep 10
 /usr/lib/one/ruby/one_vnm.rb
 /usr/lib/one/ruby/opennebula_driver.rb
 /usr/lib/one/ruby/OpenNebulaDriver.rb
-/usr/lib/one/ruby/scripts_common.rb
 /usr/lib/one/ruby/ssh_stream.rb
 /usr/lib/one/ruby/packet_driver.rb
 /usr/lib/one/ruby/VirtualMachineDriver.rb

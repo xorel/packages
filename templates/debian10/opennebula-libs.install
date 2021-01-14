@@ -8,6 +8,7 @@ dist/usr/lib/one/ruby/cloud/CloudAuth/*      /usr/lib/one/ruby/cloud/CloudAuth/
 dist/usr/lib/one/ruby/opennebula/*           /usr/lib/one/ruby/opennebula/
 
 # required by Sunstone
+dist/usr/lib/one/ruby/scripts_common.rb    /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/nsx_driver.rb /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/nsx_driver/*  /usr/lib/one/ruby/nsx_driver/
 dist/usr/lib/one/ruby/vcenter_driver.rb     /usr/lib/one/ruby/
