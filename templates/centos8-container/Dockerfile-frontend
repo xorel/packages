@@ -80,6 +80,47 @@ MYSQL_USER=Database user for the OpenNebula database, \
 MYSQL_PASSWORD=Password of the OpenNebula database user, \
 MYSQL_ROOT_PASSWORD=Root password of the mysql server"
 
+# usage examples
+
+LABEL org.label-schema.docker.cmd="CONTAINER=\$(docker run -dit --privileged \
+-p 8080:80 \
+-p 4443:443 \
+-p 29876:29876 \
+-p 2222:22 \
+-p 2633:2634 \
+-p 5030:5031 \
+-p 2474:2475 \
+-e OPENNEBULA_FRONTEND_HOST=\${HOSTNAME} \
+-e TLS_PROXY_ENABLED=yes \
+-e SUNSTONE_HTTPS_ENABLED=yes \
+-e SUNSTONE_PORT=8080 \
+-e SUNSTONE_TLS_PORT=4443 \
+-e ONEGATE_PORT=5030 \
+-e ONEADMIN_PASSWORD=changeme123 \
+-e DIND_ENABLED=yes \
+-v opennebula_db:/var/lib/mysql \
+-v opennebula_datastores:/var/lib/one/datastores \
+-v opennebula_srv:/srv/one \
+-v opennebula_oneadmin:/var/lib/one \
+-v opennebula_logs:/var/log \
+--name opennebula-with-all \
+opennebula:latest)"
+LABEL org.label-schema.docker.cmd.devel="CONTAINER=\$(docker run -dit \
+-p 8080:80 \
+-p 29876:29876 \
+-p 2222:22 \
+-p 2633:2633 \
+-p 5030:5030 \
+-p 2474:2474 \
+-e OPENNEBULA_FRONTEND_HOST=\${HOSTNAME} \
+-e SUNSTONE_HTTPS_ENABLED=no \
+-e SUNSTONE_PORT=8080 \
+-e ONEADMIN_PASSWORD=changeme123 \
+--name opennebula-without-tls-docker-vols \
+opennebula:latest)"
+LABEL org.label-schema.docker.cmd.debug="docker exec -it \
+\${CONTAINER} /bin/bash"
+
 #
 # PACKAGES
 #
@@ -178,6 +219,9 @@ RUN mkdir -p /etc/default/supervisor
 COPY conf/supervisord.conf /usr/share/one/supervisor/supervisord.conf
 RUN chown root:root /usr/share/one/supervisor/supervisord.conf
 RUN chmod 0644 /usr/share/one/supervisor/supervisord.conf
+
+# add oneadmin to the docker group
+RUN gpasswd -a oneadmin docker
 
 # cleanup the oneadmin's ssh
 RUN rm -rf /var/lib/one/.ssh/* /var/lib/one/.ssh-oneprovision/*
@@ -373,4 +417,3 @@ EXPOSE 29876/tcp
 # docker daemon
 #EXPOSE 2375/tcp
 #EXPOSE 2376/tcp
-

@@ -139,12 +139,12 @@ TIMEOUT=120 # in seconds
 
 msg()
 {
-    echo "$(date '+%F %T') [BOOTSTRAP]: $*"
+    printf "$(date '+%F %T') [BOOTSTRAP]: $*\n"
 }
 
 err()
 {
-    echo "$(date '+%F %T') [BOOTSTRAP] [!] ERROR: $*"
+    printf "$(date '+%F %T') [BOOTSTRAP] [!] ERROR: $*\n"
 }
 
 gen_password()
@@ -239,7 +239,7 @@ onecfg_helper()
     # are applied - we wrap the command in the if-else construct
     if ! sed "s#.*#${1} &#" | onecfg patch --format line >/dev/null 2>&1 ; then
         if [ $? -ne 1 ] ; then
-            err "ONECFG: PATCHING THE FILE '$1' FAILED - ABORT"
+            err "ONECFG: Patching the file '${1}' failed - ABORT"
             exit 1
         fi
     fi
@@ -268,7 +268,7 @@ prepare_oneadmin_auth()
     # store the password if not already there
     if ! [ -f /var/lib/one/.one/one_auth ] ; then
         if [ -z "$ONEADMIN_PASSWORD" ] ; then
-            msg "EMPTY 'ONEADMIN_PASSWORD': GENERATE RANDOM"
+            msg "ONEADMIN: Empty 'ONEADMIN_PASSWORD' - generate random"
             ONEADMIN_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
         fi
         echo "${ONEADMIN_USERNAME}:${ONEADMIN_PASSWORD}" \
@@ -320,25 +320,25 @@ restore_ssh_host_keys()
     _ssh_host_privkey=/etc/ssh/ssh_host_rsa_key
     _ssh_host_pubkey=/etc/ssh/ssh_host_rsa_key.pub
 
-    msg "LOCK OR WAIT FOR SSH HOST KEYS"
+    msg "SSHD: Lock or wait for ssh host keys"
     if ! lock_or_skip "$_ssh_host_key_lock" ; then
-        msg "FAILED TO ACQUIRE LOCK: WAITING (${TIMEOUT} secs)..."
+        msg "SSHD: Failed to acquire lock: waiting (${TIMEOUT} secs)..."
 
         if ! wait_for_file "$_ssh_host_privkey" ; then
-            err "REACHED TIMEOUT: NO SSH HOST KEY (${_ssh_host_privkey})"
+            err "SSHD: Reached timeout: no ssh host key (${_ssh_host_privkey}) - ABORT"
             exit 1
         fi
 
         if ! wait_for_file "$_ssh_host_pubkey" ; then
-            err "REACHED TIMEOUT: NO SSH HOST KEY (${_ssh_host_pubkey})"
+            err "SSHD: reached timeout: no ssh host key (${_ssh_host_pubkey}) - ABORT"
             exit 1
         fi
 
-        msg "SUCCESS: SSH HOST KEY EMERGED"
+        msg "SSHD: Success - file emerged"
         return 0
     fi
 
-    msg "ACQUIRED LOCK FOR SSH HOST KEY MANIPULATION"
+    msg "SSHD: Acquired lock for ssh host key manipulation"
 
     # create new or restore saved ssh host keys
     _ssh_keys=$(ls -1 \
@@ -346,6 +346,7 @@ restore_ssh_host_keys()
         2>/dev/null | wc -l)
     if [ "$_ssh_keys" -eq 0 ] ; then
         # we have no keys saved
+        msg "SSHD: Generate new ssh host keys"
 
         # force recreating of new host keys
         rm -f /etc/ssh/ssh_host_*
@@ -355,6 +356,8 @@ restore_ssh_host_keys()
         cp -a /etc/ssh/ssh_host_* /srv/one/secret-ssh-host-keys/
     else
         # restore the saved ssh host keys
+        msg "SSHD: Restore existing ssh host keys"
+
         rm -f /etc/ssh/ssh_host_*
         cp -af /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
     fi
@@ -562,7 +565,7 @@ prepare_cert()
     # internal filepaths can be hardcoded - only the content varies
     _cert_path="/srv/one/secret-tls/one.crt"
     _key_path="/srv/one/secret-tls/one.key"
-    _cert_info_path="/srv/one/secret-tls/one.txt"
+    _cert_conf_path="/srv/one/secret-tls/one.conf"
     _cert_lock="/srv/one/secret-tls/one.lock"
 
     # ensure the existence of cert directory
@@ -570,25 +573,25 @@ prepare_cert()
         mkdir -p /srv/one/secret-tls
     fi
 
-    msg "LOCK OR WAIT FOR TLS CERTIFICATE"
+    msg "CERTIFICATE: Lock or wait for TLS certificate"
     if ! lock_or_skip "$_cert_lock" ; then
-        msg "FAILED TO ACQUIRE LOCK: WAITING (${TIMEOUT} secs)..."
+        msg "CERTIFICATE: Failed to acquire lock: waiting (${TIMEOUT} secs)..."
 
         if ! wait_for_file "$_cert_path" ; then
-            err "REACHED TIMEOUT: NO CERTIFICATE"
+            err "CERTIFICATE: reached timeout - ABORT"
             exit 1
         fi
 
         if ! wait_for_file "$_key_path" ; then
-            err "REACHED TIMEOUT: NO CERTIFICATE"
+            err "CERTIFICATE: reached timeout - ABORT"
             exit 1
         fi
 
-        msg "SUCCESS: CERTIFICATE EMERGED"
+        msg "CERTIFICATE: Success - file emerged"
         return 0
     fi
 
-    msg "ACQUIRED LOCK FOR CERTIFICATE MANIPULATION"
+    msg "CERTIFICATE: Acquired lock for certificate manipulation"
 
     # copy the custom certificate
     _custom_cert=no
@@ -596,14 +599,14 @@ prepare_cert()
         _custom_cert=yes
 
         if ! echo "$TLS_KEY_BASE64" | base64 -d > "${_key_path}.tmp" ; then
-            err "'TLS_KEY_BASE64' does not have a base64 value - ABORT"
+            err "CERTIFICATE: 'TLS_KEY_BASE64' does not have a base64 value - ABORT"
             return 1
         fi
         mv "${_key_path}.tmp" "${_key_path}"
         chmod 0600 "${_key_path}"
 
         if ! echo "$TLS_CERT_BASE64" | base64 -d > "${_cert_path}.tmp" ; then
-            err "'TLS_CERT_BASE64' does not have a base64 value - ABORT"
+            err "CERTIFICATE: 'TLS_CERT_BASE64' does not have a base64 value - ABORT"
             return 1
         fi
         mv "${_cert_path}.tmp" "${_cert_path}"
@@ -622,43 +625,11 @@ prepare_cert()
 
     # generate self-signed certificate if no custom one is provided
     if [ "$_custom_cert" != 'yes' ] ; then
-        # if we already created a cert and the cert params are unchanged then
-        # we do not wish to generate a new one...
-        if [ -f "${_cert_path}" ] && [ -f "${_key_path}" ] ; then
-            # TODO: this should be rewritten by inspecting the actual cert and
-            # not rely onto this info file...but I was lazy to parse it (it can
-            # have different output on different systems and with different
-            # versions of openssl command)
-            _new_cert_info=$(cat <<EOF
-DNS = ${TLS_DOMAIN_LIST}
-DAYS = ${TLS_VALID_DAYS}
-EOF
-                )
-            _new_cert_info_hash=$(echo "${_new_cert_info}" | sha256sum)
-
-            # compare if params of the cert are changed
-            if [ -f "${_cert_info_path}" ] ; then
-                _old_cert_info_hash=$(sha256sum < "${_cert_info_path}")
-
-                if [ "$_new_cert_info_hash" = "$_old_cert_info_hash" ] ; then
-                    # the cert does not need to be generated again
-                    msg "FOUND EXISTING CERTIFICATE"
-                    remove_lock "$_cert_lock"
-                    return 0
-                fi
-            fi
-
-            # store the new info
-            echo "$_new_cert_info" > "$_cert_info_path"
-        fi
-
-        # we remove the leftover old cert in the internal path
-        rm -f "${_cert_path}" "${_key_path}"
-
-        # we either use a user provided domain list or we will default to the
-        # asterisk: *
+        # Compose the domain list:
         #
-        # this is defined at the top of this script in the params section
+        # we either use a user provided domain list or we will default the
+        # TLS_DOMAIN_LIST to the asterisk ('*') which is defined at the top of
+        # this bootstrap script - in the image params section
 
         # exploit the shell argument array
         set -f
@@ -674,26 +645,90 @@ EOF
             _alt="${_alt}${_alt:+,} DNS:${_name}"
         done
 
-        msg "GENERATE NEW CERTIFICATE"
+        # this config serves as a initial starting point for a robust TLS
+        # certificate creation - feel free to introduce more image params and
+        # uncomment some other attributes below...
+        cat > "${_cert_conf_path}.new" <<EOF
+# IMPORTANT: THIS FILE IS AUTOGENERATED - PLEASE DO NOT EDIT !
 
-        # TODO: this can be improved (support for more configuration options?)
-        # + rewrite this whole section with a config file in mind which will
-        # also deduplicate this openssl command
-        if [ -n "$_alt" ] ; then
-            openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
-                -days "${TLS_VALID_DAYS}" \
-                -subj "/CN=${_cn}" \
-                -addext "subjectAltName=${_alt}" \
-                -out "${_cert_path}" \
-                -keyout "${_key_path}"
-        else
-            openssl req -new -newkey rsa:4096 -x509 -sha256 -nodes \
-                -days "${TLS_VALID_DAYS}" \
-                -subj "/CN=${_cn}" \
-                -out "${_cert_path}" \
-                -keyout "${_key_path}"
+# There is no way how to define valid days inside the openssl config therefore
+# we at least leave it in the comments so we can compare the changes...
+#
+# VALID DAYS = ${TLS_VALID_DAYS}
+
+[ req ]
+prompt             = no
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+#countryName                       = Country Name (2 letter code)
+#countryName_default               = AU
+#countryName_min                   = 2
+#countryName_max                   = 2
+
+#stateOrProvinceName               = State or Province Name (full name)
+#stateOrProvinceName_default       = Some-State
+
+#localityName                      = Locality Name (eg, city)
+
+#0.organizationName                = Organization Name (eg, company)
+#0.organizationName_default        = Internet Widgits Pty Ltd
+
+#1.organizationName                = Second Organization Name (eg, company)
+#1.organizationName_default        = World Wide Web Pty Ltd
+
+#organizationalUnitName            = Organizational Unit Name (eg, section)
+#organizationalUnitName_default    =
+
+commonName                        = ${_cn}
+#commonName_max                    = 64
+
+#emailAddress                      = Email Address
+#emailAddress_max                  = 40
+
+[ req_ext ]
+$(if [ -n "${_alt}" ] ; then
+    echo "subjectAltName                    = ${_alt}" ;
+fi;)
+
+EOF
+
+        # if we already created a cert and the cert params are unchanged then
+        # we do not wish to generate a new one...
+        if [ -f "${_cert_path}" ] && [ -f "${_key_path}" ] ; then
+            # compare the new openssl config with the old one if it exists and
+            # if they differ then regenerate the cert...
+
+            # compare the newly generated config with the old one
+            if [ -f "${_cert_conf_path}" ] ; then
+                _new_cert_conf_hash=$(sha256sum < "${_cert_conf_path}.new")
+                _old_cert_conf_hash=$(sha256sum < "${_cert_conf_path}")
+
+                if [ "${_new_cert_conf_hash}" = "${_old_cert_conf_hash}" ] ; then
+                    # the cert does not need to be generated again
+                    msg "CERTIFICATE: Found existing certificate"
+                    rm -f "${_cert_conf_path}.new"
+                    remove_lock "$_cert_lock"
+                    return 0
+                fi
+            fi
         fi
 
+        # store the new openssl config
+        mv "${_cert_conf_path}.new" "${_cert_conf_path}"
+
+        # we remove the leftover old cert in the internal path
+        rm -f "${_cert_path}" "${_key_path}"
+
+        msg "CERTIFICATE: Generate new"
+        openssl req -new -x509 -sha256 -nodes -batch \
+            -config "${_cert_conf_path}" \
+            -extensions req_ext \
+            -days "${TLS_VALID_DAYS}" \
+            -out "${_cert_path}" \
+            -keyout "${_key_path}"
     fi
 
     # cleanup the temp files
@@ -726,7 +761,7 @@ configure_tlsproxy()
             _connect_port="${ONEFLOW_INTERNAL_PORT}"
             ;;
         *)
-            err "UNKNOWN TLS PROXY SERVICE '${1}' - ABORT"
+            err "STUNNEL: Unknown TLS proxy service '${1}' - ABORT"
             exit 1
             ;;
     esac
@@ -740,7 +775,7 @@ cert = /srv/one/secret-tls/one.crt
 key = /srv/one/secret-tls/one.key
 EOF
     else
-        err "TLS PROXY REQUESTED BUT NO CERTS PROVIDED - ABORT"
+        err "STUNNEL: TLS proxy requested but no certs provided - ABORT"
         exit 1
     fi
 )
@@ -931,7 +966,7 @@ SET :port ${ONEGATE_INTERNAL_PORT}
 EOF
 }
 
-configure_mysql()
+configure_mysqld()
 {
     # ensure that the mysql directory is owned by mysql user and has correct
     # permissions
@@ -1010,7 +1045,7 @@ add_oneprovision_service()
     _oneprovision_service="oneprovision-sshd"
 
     # reuse sshd as a template for supervisor service
-    msg "ADD SUPERVISED SERVICE: /etc/supervisord.d/${_oneprovision_service}.ini"
+    msg "SUPERVISORD: Add service '/etc/supervisord.d/${_oneprovision_service}.ini'"
     cp -a "/usr/share/one/supervisor/supervisord.d/sshd.ini" \
         /etc/supervisord.d/${_oneprovision_service}.ini
     sed -i "1s/program:sshd/program:${_oneprovision_service}/" \
@@ -1020,17 +1055,17 @@ add_oneprovision_service()
 oned_sanity_check()
 {
     if [ -z "${OPENNEBULA_FRONTEND_HOST}" ] ; then
-        err "EMPTY 'OPENNEBULA_FRONTEND_HOST' - ABORT"
+        err "ONED: Empty 'OPENNEBULA_FRONTEND_HOST' - ABORT"
         exit 1
     fi
 
     if [ -z "${OPENNEBULA_FRONTEND_SSH_HOST}" ] ; then
-        err "EMPTY 'OPENNEBULA_FRONTEND_SSH_HOST' - ABORT"
+        err "ONED: Empty 'OPENNEBULA_FRONTEND_SSH_HOST' - ABORT"
         exit 1
     fi
 
     if [ -z "$MYSQL_PASSWORD" ] ; then
-        err "EMPTY 'MYSQL_PASSWORD' - ABORT"
+        err "ONED: Empty 'MYSQL_PASSWORD' - ABORT"
         exit 1
     fi
 }
@@ -1038,22 +1073,45 @@ oned_sanity_check()
 sunstone_sanity_check()
 {
     if [ -z "${OPENNEBULA_FRONTEND_HOST}" ] ; then
-        err "EMPTY 'OPENNEBULA_FRONTEND_HOST' - ABORT"
+        err "SUNSTONE: Empty 'OPENNEBULA_FRONTEND_HOST' - ABORT"
         exit 1
     fi
 
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
         if ! [ -f /srv/one/secret-tls/one.crt ] || ! [ -f /srv/one/secret-tls/one.key ] ; then
-            err "HTTPS REQUESTED BUT NO CERTS PROVIDED - ABORT"
+            err "SUNSTONE: HTTPS requested but no certs provided - ABORT"
             exit 1
         fi
+    fi
+}
+
+mysqld_sanity_check()
+{
+    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
+        # for convenience when mysqld and oned are running together
+        if [ -z "$MYSQL_PASSWORD" ] ; then
+            msg "MYSQLD: Empty 'MYSQL_PASSWORD' - generate random"
+            MYSQL_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
+        fi
+    else
+        # but if not run together
+        if [ -z "$MYSQL_PASSWORD" ] ; then
+            err "MYSQLD: Empty 'MYSQL_PASSWORD' - ABORT"
+            exit 1
+        fi
+    fi
+
+    # no one except mysqld itself should need root password
+    if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
+        msg "MYSQLD: Empty 'MYSQL_ROOT_PASSWORD' - generate random"
+        MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
     fi
 }
 
 fix_docker_socket()
 {
     if ! [ -e "${DIND_SOCKET}" ] ; then
-        err "NO DOCKER SOCKET (${DIND_SOCKET}): SKIP"
+        err "DOCKER: No docker socket (${DIND_SOCKET}) - SKIP"
         return 0
     fi
 
@@ -1067,9 +1125,6 @@ fix_docker_socket()
         # we create docker group
         groupadd -r -g "$_docker_gid" docker
     fi
-
-    # and we add oneadmin to the docker group
-    gpasswd -a oneadmin docker
 }
 
 fix_docker_command()
@@ -1099,11 +1154,41 @@ initialize_supervisord_conf()
     _DO_NOT_MODIFY_SUPERVISORD=
     if [ -f /etc/supervisord.conf ] ; then
         _DO_NOT_MODIFY_SUPERVISORD=yes
+        msg "SUPERVISORD: Found existing '/etc/supervisord.conf' - SKIP"
         return 0
     fi
 
     # otherwise create an initial stub config
+    msg "SUPERVISORD: Configure '/etc/supervisord.conf'"
     cp -a /usr/share/one/supervisor/supervisord.conf /etc/supervisord.conf
+
+    # generate credentials so we avoid this warning message:
+    # CRIT Server 'unix_http_server' running without any HTTP authentication checking
+    msg "SUPERVISORD: Generate credentials"
+    _supervisor_passwd=$(gen_password)
+
+    # TODO: in the future this can be replaced with augtool_helper
+    sed -i \
+        -e "s/^username=.*/username=supervisor_user/g" \
+        -e "s/^password=.*/password=${_supervisor_passwd}/g" \
+        /etc/supervisord.conf
+
+    # TODO: Either disable Control socket in ~onedmin/.ssh/config or somehow
+    # encapsulate ssh command to not generate orphans...
+    #
+    # this will move the 'reaped unknown pid' log message to lower debug level
+    # from the default info - unfortunately ssh control socket mechanism is
+    # generating this message every 1-2 minutes and it spams the container's
+    # stdout - moving the loglevel to warn would mute *EVERY* normal output as
+    # is generated via echo or msg function in this script...
+    msg "SUPERVISORD: Remove 'process reaping' messages from the INFO log level"
+    for _script in /usr/lib/python*/site-packages/supervisor/supervisord.py ; do
+        if [ -f "${_script}" ] ; then
+            sed -i \
+                's#self.options.logger.info(\(.\)reaped unknown pid#self.options.logger.debug(\1reaped unknown pid#g' \
+                "${_script}"
+        fi
+    done
 }
 
 # arg: <service name>
@@ -1114,11 +1199,11 @@ add_supervised_service()
     #
     # do not alter the configuration if supervisord.conf was already provided
     #if [ -n "$_DO_NOT_MODIFY_SUPERVISORD" ] ; then
-    #    msg "CUSTOM SUPERVISORD.CONF - SKIP: ${1}.ini"
+    #    msg "SUPERVISORD: Custom supervisord.conf - SKIP: ${1}.ini"
     #    return 0
     #fi
 
-    msg "ADD SUPERVISED SERVICE: /etc/supervisord.d/${1}.ini"
+    msg "SUPERVISORD: Add service '/etc/supervisord.d/${1}.ini'"
     cp -a "/usr/share/one/supervisor/supervisord.d/${1}.ini" /etc/supervisord.d/
 }
 
@@ -1190,22 +1275,38 @@ fix_volume_ownership()
     chmod 0750 /var/lib/one/backups/db
 }
 
+
+# needed if OPENNEBULA_FRONTEND_SSH_HOST is not resolvable from within the
+# container - useful in all-in-one deployment or if using podman (cause its
+# containers share the network namespace and are basically reachable on the
+# localhost)
+resolve_frontend_hostname()
+{
+    echo 127.0.0.1 "$OPENNEBULA_FRONTEND_SSH_HOST" \
+        >> /etc/hosts
+}
+
 common_configuration()
 {
-    msg "CLEAN UP NON-PERSISTENT DIRECTORIES"
+    msg "FRONTEND: Clean up non-persistent directories"
     cleanup_tmpdirs
 
-    msg "FIX OWNERSHIP OF THE VOLUME PATHS"
+    msg "FRONTEND: Fix ownership of the volume paths"
     fix_volume_ownership
 
-    msg "FIX HOSTS FILE (/etc/hosts)"
+    msg "FRONTEND: Fix hosts file (/etc/hosts)"
     fix_hosts_file
 
-    msg "CREATE SYSTEM TMPFILES"
+    msg "FRONTEND: Create system tmpfiles"
     create_common_tmpfiles
 
-    msg "CREATE ONEADMIN's TMPFILES"
+    msg "FRONTEND: Create oneadmin's tmpfiles"
     create_oneadmin_tmpfiles
+
+    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
+        # this is needed if user does not provide proper hostnames
+        resolve_frontend_hostname
+    fi
 }
 
 #
@@ -1216,75 +1317,64 @@ stunnel_srv()
 {
     # prepare TLS proxy service
     if is_true "${TLS_PROXY_ENABLED}" ; then
-        msg "SETUP SERVICE: STUNNEL"
+        msg "STUNNEL: Setup service"
         add_supervised_service stunnel
     fi
 }
 
 sshd_srv()
 {
-    msg "CREATE SSH TMPFILES"
+    msg "SSHD: Create ssh tmpfiles"
     create_ssh_tmpfiles
 
-    msg "PREPARE SSH HOST KEYS"
+    msg "SSHD: Prepare ssh host keys"
     restore_ssh_host_keys
 
-    msg "REMOVE NOLOGIN FILES"
+    msg "SSHD: Remove nologin files"
     rm -f /etc/nologin /run/nologin
 
-    msg "SETUP SERVICE: SSHD"
+    msg "SSHD: Setup service"
     add_supervised_service sshd
 }
 
 oneprovision_srv()
 {
     if [ "$OPENNEBULA_FRONTEND_SERVICE" = "oneprovision" ] ; then
-        msg "CREATE SSH TMPFILES"
+        msg "OPENNEBULA PROVISION: Create ssh tmpfiles"
         create_ssh_tmpfiles
 
-        msg "PREPARE SSH HOST KEYS"
+        msg "OPENNEBULA PROVISION: Prepare ssh host keys"
         restore_ssh_host_keys
 
-        msg "REMOVE NOLOGIN FILES"
+        msg "OPENNEBULA PROVISION: Remove nologin files"
         rm -f /etc/nologin /run/nologin
 
-        msg "PREPARE ONEADMIN's SSH (oneprovision)"
+        msg "OPENNEBULA PROVISION: Prepare oneadmin's ssh"
         prepare_ssh_oneadmin_provision
     fi
 
-    msg "ONEPROVISION: GENERATE SSH KEY"
+    msg "OPENNEBULA PROVISION: Generate ssh key"
     prepare_ssh_oneprovision
 
-    msg "CONFIGURE: ONEPROVISION"
+    msg "OPENNEBULA PROVISION: Configure service"
     configure_oneprovision
 
-    msg "SETUP SERVICE: ONEPROVISION"
+    msg "OPENNEBULA PROVISION: Setup service"
     add_oneprovision_service
 }
 
 mysqld_srv()
 {
-    msg "CREATE MYSQL TMPFILES"
+    msg "MYSQLD: Create mysql tmpfiles"
     create_mariadb_tmpfiles
 
-    # for convenience when mysqld and oned are running together
-    if [ "$OPENNEBULA_FRONTEND_SERVICE" = "all" ] ; then
-        if [ -z "$MYSQL_PASSWORD" ] ; then
-            msg "EMPTY 'MYSQL_PASSWORD': GENERATE RANDOM"
-            MYSQL_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
-        fi
-    fi
+    msg "MYSQLD: Sanity check"
+    mysqld_sanity_check
 
-    msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
-    if [ -z "$MYSQL_ROOT_PASSWORD" ] ; then
-        msg "EMPTY 'MYSQL_ROOT_PASSWORD': GENERATE RANDOM"
-        MYSQL_ROOT_PASSWORD=$(gen_password ${PASSWORD_LENGTH})
-    fi
+    msg "MYSQLD: Configure service"
+    configure_mysqld
 
-    msg "CONFIGURE: MYSQL"
-    configure_mysql
-
-    msg "SETUP SERVICE: MYSQLD (mariadb)"
+    msg "MYSQLD: Setup service"
     add_supervised_service mysqld
     add_supervised_service mysqld-upgrade
     add_supervised_service mysqld-configure
@@ -1293,169 +1383,157 @@ mysqld_srv()
 docker_srv()
 {
     if is_true "${DIND_ENABLED}" ; then
-        msg "CONFIGURE: DOCKER"
+        msg "DOCKER: Configure service"
         configure_docker
 
-        msg "FIX DOCKER COMMAND"
+        msg "DOCKER: Fix docker command"
         fix_docker_command
 
-        msg "SETUP SERVICE: CONTAINERD"
+        msg "DOCKER: Setup service"
         add_supervised_service containerd
-
-        msg "SETUP SERVICE: DOCKER"
         add_supervised_service docker
     fi
 }
 
 oned_srv()
 {
-    msg "SANITY CHECK"
-    oned_sanity_check
-
-    msg "FIX DOCKER SOCKET"
+    msg "OPENNEBULA ONED: Fix docker socket"
     fix_docker_socket
 
     if [ "$OPENNEBULA_FRONTEND_SERVICE" = "oned" ] ; then
-        msg "FIX DOCKER COMMAND"
+        msg "OPENNEBULA ONED: Fix docker command"
         fix_docker_command
     fi
 
-    msg "PREPARE ONEADMIN's ONE_AUTH"
+    msg "OPENNEBULA ONED: Prepare oneadmin's one_auth"
     prepare_oneadmin_auth
 
-    msg "PREPARE ONEADMIN's SSH"
+    msg "OPENNEBULA ONED: Prepare oneadmin's ssh"
     prepare_ssh
 
     if is_true "${TLS_PROXY_ENABLED}" ; then
-        msg "PREPARE CERTIFICATE"
+        msg "OPENNEBULA ONED: Prepare certificate"
         prepare_cert
 
-        msg "CONFIGURE: TLS PROXY (oned)"
+        msg "OPENNEBULA ONED: Configure TLS proxy"
         configure_tlsproxy oned
     fi
 
-    msg "CONFIGURE: OPENNEBULA ONED"
+    msg "OPENNEBULA ONED: Sanity check"
+    oned_sanity_check
+
+    msg "OPENNEBULA ONED: Configure service"
     configure_oned
 
-    msg "SETUP LOGROTATE: OPENNEBULA ONED"
+    msg "OPENNEBULA ONED: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA ONED"
+    msg "OPENNEBULA ONED: Setup service"
     add_supervised_service opennebula
-
-    msg "SETUP SERVICE: SSH AGENT"
     add_supervised_service opennebula-ssh-agent
     add_supervised_service opennebula-ssh-add
-
-    msg "SETUP SERVICE: SSH SOCKET CLEANER"
     add_supervised_service opennebula-ssh-socks-cleaner
-
-    msg "SETUP SERVICE: OPENNEBULA SHOWBACK"
     add_supervised_service opennebula-showback
 }
 
 sunstone_srv()
 {
-    msg "SANITY CHECK"
-    sunstone_sanity_check
-
-    msg "CREATE HTTPD TMPFILES"
+    msg "OPENNEBULA SUNSTONE: Create httpd tmpfiles"
     create_httpd_tmpfiles
 
     if is_true "${SUNSTONE_HTTPS_ENABLED}" ; then
-        msg "PREPARE CERTIFICATE"
+        msg "OPENNEBULA SUNSTONE: Prepare certificate"
         prepare_cert
     fi
 
-    msg "CONFIGURE: OPENNEBULA SUNSTONE"
+    msg "OPENNEBULA SUNSTONE: Sanity check"
+    sunstone_sanity_check
+
+    msg "OPENNEBULA SUNSTONE: Configure service"
     configure_sunstone
 
-    msg "SETUP LOGROTATE: OPENNEBULA SUNSTONE"
+    msg "OPENNEBULA SUNSTONE: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-sunstone /etc/logrotate.d/
-
-    msg "SETUP LOGROTATE: OPENNEBULA VNC (novnc)"
     cp -a /etc/logrotate.one/opennebula-novnc /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA SUNSTONE (httpd)"
+    msg "OPENNEBULA SUNSTONE: Setup service"
     add_supervised_service opennebula-httpd
-
-    msg "SETUP SERVICE: OPENNEBULA VNC (novnc)"
     add_supervised_service opennebula-novnc
 }
 
 guacd_srv()
 {
-    msg "CONFIGURE: OPENNEBULA GUACD"
+    msg "GUACD: Configure service"
     configure_guacd
 
-    msg "SETUP SERVICE: OPENNEBULA GUACAMOLE (guacd)"
+    msg "GUACD: Setup service"
     add_supervised_service opennebula-guacd
 }
 
 fireedge_srv()
 {
-    msg "CONFIGURE: OPENNEBULA FIREEDGE"
+    msg "OPENNEBULA FIREEDGE: Configure service"
     configure_fireedge
 
-    msg "SETUP LOGROTATE: OPENNEBULA FIREEDGE"
+    msg "OPENNEBULA FIREEDGE: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-fireedge /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA FIREEDGE"
+    msg "OPENNEBULA FIREEDGE: Setup service"
     add_supervised_service opennebula-fireedge
 }
 
 memcached_srv()
 {
-    msg "CONFIGURE: MEMCACHED"
+    msg "MEMCACHED: Configure service"
     configure_memcached
 
-    msg "SETUP SERVICE: MEMCACHED"
+    msg "MEMCACHED: Setup service"
     add_supervised_service memcached
 }
 
 scheduler_srv()
 {
-    msg "CONFIGURE: OPENNEBULA SCHEDULER"
+    msg "OPENNEBULA SCHEDULER: Configure service"
     configure_scheduler
 
-    msg "SETUP LOGROTATE: OPENNEBULA SCHEDULER"
+    msg "OPENNEBULA SCHEDULER: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-scheduler /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA SCHEDULER"
+    msg "OPENNEBULA SCHEDULER: Setup service"
     add_supervised_service opennebula-scheduler
 }
 
 oneflow_srv()
 {
-    msg "CONFIGURE: OPENNEBULA FLOW"
+    msg "OPENNEBULA FLOW: Configure service"
     configure_oneflow
 
     if is_true "${TLS_PROXY_ENABLED}" ; then
-        msg "CONFIGURE: TLS PROXY (oneflow)"
+        msg "OPENNEBULA FLOW: Configure TLS proxy"
         configure_tlsproxy oneflow
     fi
 
-    msg "SETUP LOGROTATE: OPENNEBULA FLOW"
+    msg "OPENNEBULA FLOW: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-flow /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA FLOW"
+    msg "OPENNEBULA FLOW: Setup service"
     add_supervised_service opennebula-flow
 }
 
 onegate_srv()
 {
-    msg "CONFIGURE: OPENNEBULA GATE"
+    msg "OPENNEBULA GATE: Configure service"
     configure_onegate
 
     if is_true "${TLS_PROXY_ENABLED}" ; then
-        msg "CONFIGURE: TLS PROXY (onegate)"
+        msg "OPENNEBULA GATE: Configure TLS proxy"
         configure_tlsproxy onegate
     fi
 
-    msg "SETUP LOGROTATE: OPENNEBULA GATE"
+    msg "OPENNEBULA GATE: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-gate /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA GATE"
+    msg "OPENNEBULA GATE: Setup service"
     add_supervised_service opennebula-gate
 }
 
@@ -1463,10 +1541,10 @@ onehem_srv()
 {
     # TODO: does it make sense to run separately from oned? (can be even?)
 
-    msg "SETUP LOGROTATE: OPENNEBULA HEM"
+    msg "OPENNEBULA HEM: Setup logrotate"
     cp -a /etc/logrotate.one/opennebula-hem /etc/logrotate.d/
 
-    msg "SETUP SERVICE: OPENNEBULA HEM"
+    msg "OPENNEBULA HEM: Setup service"
     add_supervised_service opennebula-hem
 }
 
@@ -1474,7 +1552,7 @@ onehem_srv()
 # start service
 #
 
-msg "SET TRAP ON EXIT"
+msg "FRONTEND: Set trap on exit"
 trap on_exit EXIT
 trap sig_exit INT QUIT TERM
 
@@ -1483,11 +1561,15 @@ if [ -n "${OPENNEBULA_FRONTEND_PREHOOK}" ] \
     && [ -f "${OPENNEBULA_FRONTEND_PREHOOK}" ] \
     && [ -x "${OPENNEBULA_FRONTEND_PREHOOK}" ] ;
 then
-    msg "PRE-BOOTSTRAP HOOK FOUND: RUNNING '${OPENNEBULA_FRONTEND_PREHOOK}'"
+    msg "FRONTEND: Pre-bootstrap hook found - running: '${OPENNEBULA_FRONTEND_PREHOOK}'"
     "${OPENNEBULA_FRONTEND_PREHOOK}"
 fi
 
-msg "BEGIN BOOTSTRAP (${0}): ${OPENNEBULA_FRONTEND_SERVICE}"
+msg
+msg "***************************************"
+msg "**********  BOOTSTRAP START  **********"
+msg "***************************************"
+msg
 
 # shared steps for all containers
 common_configuration
@@ -1495,19 +1577,21 @@ initialize_supervisord_conf
 
 # this is mandatory for logrotate and it also functions as a more meaningful
 # replacement for the infinite loop service
-msg "SETUP SERVICE: CRON"
+msg "CROND: Setup service"
 add_supervised_service crond
+
+msg
+msg ">>> FRONTEND SERVICE: [${OPENNEBULA_FRONTEND_SERVICE}] <<<"
+msg
 
 case "${OPENNEBULA_FRONTEND_SERVICE}" in
     none)
-        msg "NO FRONTEND SERVICE REQUESTED - NOTHING TO DO"
         # supervisord needs at least one program section...should not be needed
         # thanks to the crond but just in case...
-        msg "SETUP SERVICE: INFINITE LOOP"
+        msg "FRONTEND: Setup service"
         add_supervised_service infinite-loop
         ;;
     all)
-        msg "CONFIGURE FRONTEND SERVICE: ALL"
         sshd_srv
         oneprovision_srv
         mysqld_srv
@@ -1524,74 +1608,66 @@ case "${OPENNEBULA_FRONTEND_SERVICE}" in
         fireedge_srv
         ;;
     oned)
-        msg "CONFIGURE FRONTEND SERVICE: ONED"
         oned_srv
         onehem_srv
         stunnel_srv
         ;;
     sshd)
-        msg "CONFIGURE FRONTEND SERVICE: SSHD"
         sshd_srv
         ;;
     mysqld)
-        msg "CONFIGURE FRONTEND SERVICE: MYSQLD"
         mysqld_srv
         ;;
     docker)
-        msg "CONFIGURE FRONTEND SERVICE: DOCKER"
         docker_srv
         ;;
     memcached)
-        msg "CONFIGURE FRONTEND SERVICE: MEMCACHED"
         memcached_srv
         ;;
     sunstone)
-        msg "CONFIGURE FRONTEND SERVICE: SUNSTONE"
         sunstone_srv
         ;;
     guacd)
-        msg "CONFIGURE FRONTEND SERVICE: GUACD"
         guacd_srv
         ;;
     fireedge)
-        msg "CONFIGURE FRONTEND SERVICE: FIREEDGE"
         fireedge_srv
         ;;
     scheduler)
-        msg "CONFIGURE FRONTEND SERVICE: SCHEDULER"
         scheduler_srv
         ;;
     oneflow)
-        msg "CONFIGURE FRONTEND SERVICE: ONEFLOW"
         oneflow_srv
         stunnel_srv
         ;;
     onegate)
-        msg "CONFIGURE FRONTEND SERVICE: ONEGATE"
         onegate_srv
         stunnel_srv
         ;;
     oneprovision)
-        msg "CONFIGURE FRONTEND SERVICE: ONEPROVISION"
         oneprovision_srv
         ;;
     *)
-        err "UNKNOWN FRONTEND SERVICE: ${OPENNEBULA_FRONTEND_SERVICE}"
+        err "UNKNOWN FRONTEND SERVICE: '${OPENNEBULA_FRONTEND_SERVICE}' - ABORT"
         exit 1
         ;;
 esac
 
-msg "DELETE WORKFILES"
+msg "FRONTEND: Delete workfiles"
 execute_delete_list
 
-msg "BOOTSTRAP FINISHED"
+msg
+msg "***************************************"
+msg "**********  BOOTSTRAP  END   **********"
+msg "***************************************"
+msg
 
 # run post-bootstrap hook if any
 if [ -n "${OPENNEBULA_FRONTEND_POSTHOOK}" ] \
     && [ -f "${OPENNEBULA_FRONTEND_POSTHOOK}" ] \
     && [ -x "${OPENNEBULA_FRONTEND_POSTHOOK}" ] ;
 then
-    msg "POST-BOOTSTRAP HOOK FOUND: RUNNING '${OPENNEBULA_FRONTEND_POSTHOOK}'"
+    msg "FRONTEND: Post-bootstrap hook found - running: '${OPENNEBULA_FRONTEND_POSTHOOK}'"
     "${OPENNEBULA_FRONTEND_POSTHOOK}"
 fi
 
@@ -1599,12 +1675,12 @@ fi
 if [ -n "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] \
    && [ -f "${OPENNEBULA_FRONTEND_ONECFG_PATCH}" ] ;
 then
-    msg "ONECFG: APPLY USER-PROVIDED PATCH: ${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
+    msg "ONECFG: Apply user-provided patch: '${OPENNEBULA_FRONTEND_ONECFG_PATCH}'"
     onecfg patch --all "${OPENNEBULA_FRONTEND_ONECFG_PATCH}"
 fi
 
 if is_true "${MAINTENANCE_MODE}" ; then
-        msg "MAINTENANCE MODE - NO FRONTEND SERVICE WILL BE STARTED"
+        msg "MAINTENANCE MODE: Disable autostart of all frontend services"
 
         # disable autostart for all configured and enabled services
         sed -i \
@@ -1613,9 +1689,9 @@ if is_true "${MAINTENANCE_MODE}" ; then
             /etc/supervisord.d/*.ini
 
         # supervisord needs at least one program section...
-        msg "SETUP SERVICE: INFINITE LOOP"
+        msg "FRONTEND: Setup service"
         add_supervised_service infinite-loop
 fi
 
-msg "EXEC SUPERVISORD"
+msg "FRONTEND: Exec supervisord"
 exec env -i PATH="${PATH}" /usr/bin/supervisord -n -c /etc/supervisord.conf
