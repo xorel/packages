@@ -183,7 +183,7 @@ RUN dnf -y \
         mod_passenger \
         stunnel \
         fuse \
-        terraform \
+        terraform-0.13.* \
         ansible-2.9.* \
         git \
         opennebula \
