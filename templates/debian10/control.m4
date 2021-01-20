@@ -82,7 +82,6 @@ Depends: apg,
          opennebula-tools (= ${source:Version}),
          opennebula-libs (= ${source:Version}),
          ifdef(`_WITH_ENTERPRISE_',`opennebula-migration (= ${source:Version}),')dnl
-         ifdef(`_WITH_ENTERPRISE_',`opennebula-ee-tools (= ${source:Version}),')dnl
          ifdef(`_WITH_RUBYGEMS_',`opennebula-rubygems (= ${source:Version}),')dnl
          wget,
          curl,
@@ -447,15 +446,6 @@ Description: OpenNebula driver for Docker Machine (P_EDITION)
 ')
 
 ifdef(`_WITH_ENTERPRISE_',`
-Package: opennebula-ee-tools
-Architecture: all
-Depends: opennebula (= ${source:Version}),
-         ${misc:Depends}
-Description: Enterprise Tools for OpenNebula
- .
- IMPORTANT: This package is distributed under "OpenNebula Software License".
- See /usr/share/doc/one/LICENSE.onsla.gz provided by opennebula-common package.
-
 Package: opennebula-migration
 Architecture: all
 Depends: opennebula (= ${source:Version}),

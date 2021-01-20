@@ -23,18 +23,7 @@ dist/etc/one/auth/*                /etc/one/auth/
 dist/usr/lib/one/sh/*           /usr/lib/one/sh/
 dist/usr/lib/one/mads/*         /usr/lib/one/mads/
 dist/usr/lib/one/onehem/*       /usr/lib/one/onehem/
-
-dist/usr/lib/one/onecfg/lib/common.rb      /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/config.rb      /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/exception.rb   /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/onecfg.rb      /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/settings.rb    /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/version.rb     /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/transaction.rb /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/patch.rb       /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/common/*       /usr/lib/one/onecfg/lib/common/
-dist/usr/lib/one/onecfg/lib/config/*       /usr/lib/one/onecfg/lib/config/
-dist/usr/lib/one/onecfg/lib/patch/*        /usr/lib/one/onecfg/lib/patch/
+dist/usr/lib/one/onecfg/*       /usr/lib/one/onecfg/
 
 dist/usr/lib/one/ruby/CommandManager.rb    /usr/lib/one/ruby/
 dist/usr/lib/one/ruby/OpenNebulaDriver.rb  /usr/lib/one/ruby/
@@ -65,7 +54,7 @@ dist/usr/share/one/schemas/*        /usr/share/one/schemas/
 dist/usr/share/one/conf/*           /usr/share/one/conf/
 dist/usr/share/one/context/*        /usr/share/one/context/
 dist/usr/share/one/dockerhub/*      /usr/share/one/dockerhub/
-dist/usr/share/one/onecfg/etc/*     /usr/share/one/onecfg/etc/
+dist/usr/share/one/onecfg/*         /usr/share/one/onecfg/
 
 dist/usr/bin/oned          /usr/bin/
 dist/usr/bin/mm_sched      /usr/bin/
@@ -73,3 +62,7 @@ dist/usr/bin/onedb         /usr/bin/
 dist/usr/bin/one           /usr/bin/
 dist/usr/bin/onehem-server /usr/bin/
 dist/usr/bin/onecfg        /usr/bin/
+
+# Not available in CE
+dist/usr/bin/onesupport                    /usr/bin/
+dist/usr/bin/onesupport_vcenter_privs      /usr/bin/

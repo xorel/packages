@@ -1,5 +1,0 @@
-dist/usr/lib/one/onecfg/lib/ee.rb             /usr/lib/one/onecfg/lib/
-dist/usr/lib/one/onecfg/lib/ee/*              /usr/lib/one/onecfg/lib/ee/
-dist/usr/share/one/onecfg/migrators/*         /usr/share/one/onecfg/migrators/
-dist/usr/bin/onesupport                       /usr/bin/
-dist/usr/bin/onesupport_vcenter_privs         /usr/bin/

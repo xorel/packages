@@ -225,7 +225,6 @@ Obsoletes: %{name}-addon-markets
 Obsoletes: %{name}-ozones
 %if %{with_enterprise}
 Requires: %{name}-migration = %{version}
-Requires: %{name}-ee-tools = %{version}
 %else
 Obsoletes: %{name}-migration
 %endif
@@ -527,19 +526,6 @@ to be installed separately).
 ################################################################################
 
 %if %{with_enterprise}
-%package ee-tools
-License: OpenNebula Software License
-Summary: Enterprise Tools for OpenNebula
-BuildArch: noarch
-Requires: %{name} = %{version}
-Requires: %{name}-tools = %{version}
-
-%description ee-tools
-Enterprise Tools for OpenNebula
-
-IMPORTANT: This package is distributed under "OpenNebula Software License".
-See /usr/share/doc/one/LICENSE.onsla provided by opennebula-common package.
-
 %package migration
 License: OpenNebula Software License
 Summary: Migration tools for OpenNebula Enterprise Edition
@@ -1839,15 +1825,6 @@ sleep 10
 ################################################################################
 
 %if %{with_enterprise}
-%files ee-tools
-%dir /usr/lib/one/onecfg/lib/ee
-/usr/lib/one/onecfg/lib/ee/*
-/usr/lib/one/onecfg/lib/ee.rb
-%dir /usr/share/one/onecfg/migrators
-/usr/share/one/onecfg/migrators/*
-%{_bindir}/onesupport
-%{_bindir}/onesupport_vcenter_privs
-
 %files migration
 /usr/lib/one/ruby/onedb/local/*.rb
 /usr/lib/one/ruby/onedb/shared/*.rb
@@ -1902,6 +1879,8 @@ sleep 10
 %{_datadir}/one/context/*
 %dir %{_datadir}/one/dockerhub
 %{_datadir}/one/dockerhub/*
+%dir %{_datadir}/one/onecfg
+%{_datadir}/one/onecfg/*
 
 %dir /usr/lib/one/mads
 /usr/lib/one/mads/*
@@ -1932,25 +1911,15 @@ sleep 10
 /usr/lib/one/ruby/PublicCloudDriver.rb
 %dir /usr/lib/one/sh
 /usr/lib/one/sh/*
-%dir /usr/lib/one/onecfg/lib
-/usr/lib/one/onecfg/lib/common.rb
-/usr/lib/one/onecfg/lib/config.rb
-/usr/lib/one/onecfg/lib/exception.rb
-/usr/lib/one/onecfg/lib/onecfg.rb
-/usr/lib/one/onecfg/lib/settings.rb
-/usr/lib/one/onecfg/lib/version.rb
-/usr/lib/one/onecfg/lib/transaction.rb
-/usr/lib/one/onecfg/lib/patch.rb
-%dir /usr/lib/one/onecfg/lib/common
-/usr/lib/one/onecfg/lib/common/*
-%dir /usr/lib/one/onecfg/lib/config
-/usr/lib/one/onecfg/lib/config/*
-%dir /usr/lib/one/onecfg/lib/patch
-/usr/lib/one/onecfg/lib/patch/*
+%dir /usr/lib/one/onecfg
+/usr/lib/one/onecfg/*
 %dir /usr/share/one/conf
 /usr/share/one/conf/*
-%dir /usr/share/one/onecfg/etc
-/usr/share/one/onecfg/etc/*
+
+%if %{with_enterprise}
+%{_bindir}/onesupport
+%{_bindir}/onesupport_vcenter_privs
+%endif
 
 %{_mandir}/man1/onecfg.1*
 %{_mandir}/man1/onedb.1*
