@@ -139,12 +139,12 @@ TIMEOUT=120 # in seconds
 
 msg()
 {
-    printf "$(date '+%F %T') [BOOTSTRAP]: $*\n"
+    printf "$(date '+%F %T') [BOOTSTRAP] $(hostname): $*\n"
 }
 
 err()
 {
-    printf "$(date '+%F %T') [BOOTSTRAP] [!] ERROR: $*\n"
+    printf "$(date '+%F %T') [BOOTSTRAP] $(hostname) [!] ERROR: $*\n"
 }
 
 gen_password()
@@ -353,13 +353,13 @@ restore_ssh_host_keys()
         ssh-keygen -A
 
         # save the keys
-        cp -a /etc/ssh/ssh_host_* /srv/one/secret-ssh-host-keys/
+        cp -p /etc/ssh/ssh_host_* /srv/one/secret-ssh-host-keys/
     else
         # restore the saved ssh host keys
         msg "SSHD: Restore existing ssh host keys"
 
         rm -f /etc/ssh/ssh_host_*
-        cp -af /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
+        cp -p /srv/one/secret-ssh-host-keys/ssh_host_* /etc/ssh/
     fi
 
     # cleanup the temp files

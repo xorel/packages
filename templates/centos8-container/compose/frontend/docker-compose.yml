@@ -70,7 +70,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "mysqld"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_mysql:/var/lib/mysql
 
   opennebula-docker:
@@ -79,7 +79,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "docker"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
 
   opennebula-oned:
     << : *default-service
@@ -93,7 +93,7 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONED_EXTERNAL_PORT:-2633}:${DEPLOY_ONED_INTERNAL_PORT:-2633}"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - ./certs:/certs:z
       - ./ssh:/ssh:z
       - opennebula_datastores:/var/lib/one/datastores
@@ -115,7 +115,7 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_datastores:/var/lib/one/datastores
       - opennebula_secret_ssh_host_keys:/srv/one/secret-ssh-host-keys
       - opennebula_oneadmin_ssh_copyback:/var/lib/one/.ssh
@@ -125,7 +125,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "memcached"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
 
   opennebula-scheduler:
     << : *default-service
@@ -134,7 +134,7 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
       - opennebula_logs:/var/log/one
 
@@ -147,7 +147,7 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONEFLOW_EXTERNAL_PORT:-2474}:${DEPLOY_ONEFLOW_INTERNAL_PORT:-2474}"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
       - opennebula_secret_tls:/srv/one/secret-tls:ro
       - opennebula_logs:/var/log/one
@@ -161,7 +161,7 @@ services:
     ports:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_ONEGATE_EXTERNAL_PORT:-5030}:${DEPLOY_ONEGATE_INTERNAL_PORT:-5030}"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
       - opennebula_secret_tls:/srv/one/secret-tls:ro
       - opennebula_logs:/var/log/one
@@ -171,7 +171,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "guacd"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
 
   opennebula-sunstone:
     << : *default-service
@@ -184,7 +184,7 @@ services:
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_TLS_PORT:-4443}:443"
       - "${DEPLOY_BIND_ADDR:-0.0.0.0}:${DEPLOY_SUNSTONE_EXTERNAL_VNC_PORT:-29876}:29876"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - ./certs:/certs:z
       - opennebula_secret_tls:/srv/one/secret-tls
       - opennebula_oneadmin_auth:/var/lib/one/.one:ro
@@ -199,7 +199,7 @@ services:
     depends_on:
       - opennebula-oned
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_oneadmin_auth:/var/lib/one/.one
       - opennebula_oneadmin_ssh_provision:/var/lib/one/.ssh
       - opennebula_logs:/var/log/one
@@ -212,7 +212,7 @@ services:
     environment:
       OPENNEBULA_FRONTEND_SERVICE: "oneprovision"
     volumes:
-      - ./config:/config:ro
+      - ./config:/config:ro,z
       - opennebula_oneprovision_ssh:/var/lib/one/.ssh-oneprovision
       - opennebula_oneadmin_auth:/var/lib/one/.one
       - opennebula_oneadmin_ssh_provision:/var/lib/one/.ssh
