@@ -806,8 +806,8 @@ export DESTDIR=%{buildroot}
 %if %{with_enterprise}
 pushd one-ee-tools
     ./install-ee-tools.sh
-    install -p -D -m 644 src/onedb/local/5.10.0_to_5.12.0.rbm  %{buildroot}/usr/lib/one/ruby/onedb/local/
-    install -p -D -m 644 src/onedb/shared/5.10.0_to_5.12.0.rbm %{buildroot}/usr/lib/one/ruby/onedb/shared/
+    install -p -D -m 644 src/onedb/local/5.12.0_to_6.0.0.rbm  %{buildroot}/usr/lib/one/ruby/onedb/local/
+    install -p -D -m 644 src/onedb/shared/5.12.0_to_6.0.0.rbm %{buildroot}/usr/lib/one/ruby/onedb/shared/
 popd
 %endif
 
@@ -1830,8 +1830,8 @@ sleep 10
 /usr/lib/one/ruby/onedb/shared/*.rb
 
 %files migration-community
-/usr/lib/one/ruby/onedb/local/5.10.0_to_5.12.0.rbm
-/usr/lib/one/ruby/onedb/shared/5.10.0_to_5.12.0.rbm
+/usr/lib/one/ruby/onedb/local/5.12.0_to_6.0.0.rbm
+/usr/lib/one/ruby/onedb/shared/5.12.0_to_6.0.0.rbm
 %endif
 
 ################################################################################

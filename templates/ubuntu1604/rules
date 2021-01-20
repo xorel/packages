@@ -150,9 +150,9 @@ ifneq (,$(filter opennebula-guacd, $(shell dh_listpackages)))
 		/lib/systemd/system/
 endif
 ifneq (,$(filter opennebula-migration-community, $(shell dh_listpackages)))
-	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.10.0_to_5.12.0.rbm \
+	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/local/5.12.0_to_6.0.0.rbm \
 		/usr/lib/one/ruby/onedb/local/
-	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/shared/5.10.0_to_5.12.0.rbm \
+	dh_install -p opennebula-migration-community one-ee-tools/src/onedb/shared/5.12.0_to_6.0.0.rbm \
 		/usr/lib/one/ruby/onedb/shared/
 endif
 ifneq (,$(filter opennebula-rubygems, $(shell dh_listpackages)))
