@@ -211,6 +211,7 @@ Requires: iputils
 Requires: file
 Requires: procps
 Requires: util-linux
+Requires: python3-libselinux
 %if 0%{?rhel} == 8 || 0%{?fedora}
 Requires: zeromq >= 4, zeromq < 5
 %endif
